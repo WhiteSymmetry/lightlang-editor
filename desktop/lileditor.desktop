@@ -1,0 +1,17 @@
+# LightLang Editor - editor for sl dictionaries
+# Copyright (C) 2007-2016 Tikhonov Sergey
+# See manual for details
+[Desktop Entry]
+Version=0.7.5-beta3
+Encoding=UTF-8
+Name=LightLang Editor 
+Name[ru]=LightLang редатор
+GenericName=Editor of sl dictionaries
+GenericName[ru]=Редактор словарей формата SL
+Comment=Editor of dictionaries for the system LightLang
+Comment[ru]=Редактор словарей для системы LightLang
+Exec=lileditor
+Icon=/usr/share/icons/lle.png
+Terminal=false
+Type=Application
+Categories=Application;Utility; 

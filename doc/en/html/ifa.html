@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>IFA</title>
+  <meta name="GENERATOR" content="Kate">
+  <meta name="AUTHOR" content="Tikhonov Sergey">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<hr>
+<table border="0" width="100%">
+<tr>
+  <td bgcolor="#DFEDFF">
+    <h2 align="center">
+	<em>
+		<img src="../../../pictures/lightlang_editor_logo.png" align="top" border="0">
+	</em>
+    </h2>
+  </td>
+</tr>
+</table>
+<hr>
+<center><h2>About system "Integradable Friend Applications"</h2></center>
+<hr>
+The system is development of two persons: Devaev Maxim and Tikhonov Sergey. <br>
+The base of this system is usage xml, as information about friend program. There are two versions of IFA: first is written on PyQt4 by Devaev Maxim and another is written on Qt4 + C++ by Tikhonov Serget. Version on PyQt4 is wider, than on Qt4 + C++, becouse of more high needs. The LightLang Editor uses second version, that's why here, more in detail is describing second version:<br>
+IFA handles such xml view:
+ <br>
+<font color="#ff0000">
+&lt;app&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Common name&lt;/title&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;title lang="&lt;language&gt;"&gt;Name on the language&lt;/title&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;Common description&lt;/description&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;description lang="&lt;language&gt;"&gt;Description on the language&lt;/description&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;icon&gt;Path to icon&lt;/icon&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;path&gt;Path to program&lt;/path&gt;<br>
+&lt;/app&gt;<br>
+</font>
+IFA memorize all these arguments and when is called special function, in which as argument is given QAction, this QAction is filled by arguments. <br>
+Such xml-files can be a lot of, but main is, that they situate in special directory, which the system handles.
+<hr>
+</body>
+</html>

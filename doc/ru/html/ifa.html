@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>IFA</title>
+  <meta name="GENERATOR" content="Kate">
+  <meta name="AUTHOR" content="Tikhonov Sergey">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<hr>
+<table border="0" width="100%">
+<tr>
+  <td bgcolor="#DFEDFF">
+    <h2 align="center">
+	<em>
+		<img src="../../../pictures/lightlang_editor_logo.png" align="top" border="0">
+	</em>
+    </h2>
+  </td>
+</tr>
+</table>
+<hr>
+<center><h2>О системе "Integratable Friend Applications"</h2></center>
+<hr>
+Данная система является разработкой двух человек: Деваева Максима и Тихонова Сергея.<br>
+Основой данной системы является использование xml, как информация о дружественной программе. Существует две версии IFA: одна написана на PyQt4 Деваемым Максимом, а другая на Qt4 + C++ Тихоновым Сергеем. Версия на PyQt4 шире, чем версия на Qt4 + C++, всвязи с более высокими потребностями. В LightLang Editor используется вторая версия, поэтому здесь более подробно будет описана именно она:<br>
+IFA обрабатывает xml вида: <br>
+<font color="#ff0000">
+&lt;app&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Общее название&lt;/title&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;title lang="&lt;язык&gt;"&gt;Название программы на заданном языке&lt;/title&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;Общее описание&lt;/description&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;description lang="&lt;язык&gt;"&gt;Описание на заданном языке&lt;/description&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;icon&gt;Путь к иконке&lt;/icon&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;path&gt;Путь к исполняемому файлу программы&lt;/path&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;options&gt;Опции запуска&lt;options&gt;<br>
+&lt;/app&gt;<br>
+</font>
+IFA запоминает все эти аргументы и когда вызывается специальная функция, в которую в качестве параметра передается QAction, этот QAction заполняется настройками в зависимости от полученных аргументов.<br>
+Обязательными аргументами являются: Название и путь к исполняемому файлу программы.<br>
+Таких xml-файлов может быть до бесконечности много, главное, чтобы они лежали в специальной директории, которую обрабатывает система.<br>
+В LightLang Editor можно добавлять IF приложения. Они добавляются в настройках, во вкладке "IFA". Там же Вы можете их и удалять.
+<hr>
+</body>
+</html>

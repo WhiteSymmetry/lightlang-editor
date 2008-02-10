@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app>
+        <title>XSL</title>
+        <description>The graphical interface for SL</description>
+        <description lang="ru">графический интерфейс для SL</description>
+        <icon>/usr/lib/xsl/icons/xsl.png</icon>
+        <path>/usr/bin/xsl</path>
+</app>

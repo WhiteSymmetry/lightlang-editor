@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app>
+	<title>SL console</title>
+	<title lang="ru">SL консоль</title>
+	<description>Console electronic dictionary</description>
+	<description lang="ru">Консольный электронный словарь</description>
+	<path>/usr/bin/xterm</path>
+	<options>
+		-e "echo Print sl --help to show options. &amp;&amp; /bin/sh"
+	</options>
+</app>

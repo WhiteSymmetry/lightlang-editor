@@ -1,0 +1,12 @@
+======================LightLang Editor ReadMe=======================
+INSTALL:
+	To install this program you have to have libqt4-core (>= 4.2), libqt4-gui (>= 4.2), libqt4-sql ( >= 4.2 ).
+	If you have it run:
+		1. qmake
+		2. make install ( by root )
+	Note:
+		On errors "File format not recognized" don't pay attention.
+AFTER INSTALL:
+	1. Shell -> lileditor
+	2. Help menu -> manual of LilEditor
+=====================================================================
