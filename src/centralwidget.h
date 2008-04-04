@@ -39,7 +39,6 @@ class BookmarksPanel;
 class PreviewPanel;
 class HistoryPanel;
 class QTabWidget;
-class Spin;
 class AboutDictDialog;
 class QLabel;
 class QTimer;
@@ -84,7 +83,6 @@ class CentralWidget : public QWidget
 		AutoSearchPanel *autoSearchPanel;
 		HistoryPanel *historyPanel;
 		BookmarksPanel *bookmarksPanel;
-		Spin *spin;
 		
 		QString currentAbout;
 		AboutDictDialog *aboutDictDialog;

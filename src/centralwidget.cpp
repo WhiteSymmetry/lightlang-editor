@@ -26,7 +26,6 @@
 #include "historypanel.h"
 #include "const.h"
 #include "global.h"
-#include "spin.h"
 #include "aboutdictdialog.h"
 
 
@@ -37,10 +36,7 @@ CentralWidget::CentralWidget()
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
 	
 	QWidget *bottomWidget = new QWidget;
-	spin = new Spin;
-	spin->setSize(20,20);
-	spin->start();
-	spin->show();
+	
 	warning = new QLabel;
 	timer = new QTimer;
 	warning->setIndent(10);
@@ -49,7 +45,6 @@ CentralWidget::CentralWidget()
 	QHBoxLayout *bottomLayout = new QHBoxLayout;
 	bottomLayout->addWidget(warning);
 	bottomLayout->addStretch();
-	bottomLayout->addWidget(spin);
 	bottomWidget->setLayout(bottomLayout);
 	
 	localTextEditMainWidget = new QMainWindow;
