@@ -77,12 +77,11 @@ AutoSearchPanel::AutoSearchPanel(QString title,QWidget* parent) : QDockWidget(ti
 	mainAutoSearchWidget->restoreState(settings.value("AutoSearchState").toByteArray()); 
 	settings.endGroup();
 	
-     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea); 
      QWidget *tempWidget = new QWidget;
      tempWidget->setLayout(autoSearchLayout);
 	mainAutoSearchWidget->setCentralWidget(tempWidget);	
-	setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 	setWidget(mainAutoSearchWidget);
+ 	setVisible(false);
 	
 }
 

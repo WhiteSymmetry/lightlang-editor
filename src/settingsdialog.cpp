@@ -39,7 +39,7 @@ SettingsDialog::SettingsDialog(QWidget* parent ) : QDialog(parent)
 	
 	autosearchItem = new QListWidgetItem;
 	autosearchItem->setText(tr("Auto-search"));
-	autosearchItem->setIcon(QIcon(ICONS_PATH + "settings/autosearch.png"));
+	autosearchItem->setIcon(QIcon(ICONS_PATH + "search.png"));
 	autosearchItem->setTextAlignment(Qt::AlignHCenter);
      autosearchItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 	
@@ -128,25 +128,11 @@ SettingsDialog::SettingsDialog(QWidget* parent ) : QDialog(parent)
 	// Creation of general settings end;
 	
 	// Creation of view settings start:
-	isShowAutosearch = new QCheckBox(tr("Show search panel"));
-	isShowBookmarks = new QCheckBox(tr("Show bookmarks panel"));
-	isShowHistory = new QCheckBox(tr("Show history panel"));
-	isShowSplashScreen = new QCheckBox(tr("Show splash screen"));
-	isShowPreviewApart = new QCheckBox(tr("Show preview apart"));
 	isHighLightTrans = new QCheckBox(tr("Highlight syntax in translation"));
 	isShowMarksInAutoSearch = new QCheckBox(tr("Show marks in auto-search panel"));
 	isShowMarksInTabs = new QCheckBox(tr("Show marks in tabs"));
 
 	// Group boxes:
-	viewBox = new QGroupBox(tr("View:"));
-	QVBoxLayout *viewBoxLayout = new QVBoxLayout;
-	viewBoxLayout->addWidget(isShowAutosearch);
-	viewBoxLayout->addWidget(isShowBookmarks);
-	viewBoxLayout->addWidget(isShowHistory);
-	viewBoxLayout->addWidget(isShowSplashScreen);
-	viewBoxLayout->addWidget(isShowPreviewApart);
-	viewBox->setLayout(viewBoxLayout);
-	//----------------
 	highlightBox = new QGroupBox(tr("Highlight:"));
 	QVBoxLayout *highlightBoxLayout = new QVBoxLayout;
 	highlightBoxLayout->addWidget(isHighLightTrans);
@@ -161,7 +147,6 @@ SettingsDialog::SettingsDialog(QWidget* parent ) : QDialog(parent)
 	//----------------
 	QVBoxLayout *mainViewLayout = new QVBoxLayout;
 	mainViewLayout->addWidget(viewLabel);
-	mainViewLayout->addWidget(viewBox);
 	mainViewLayout->addWidget(highlightBox);
 	mainViewLayout->addWidget(marksBox);
 	mainViewLayout->addStretch();
@@ -303,11 +288,6 @@ QList<bool> SettingsDialog::getBoolSettings()
 	<< isUpdatePreviewDuringEntering->isChecked()
 	<< isOpenRecentFile->isChecked() 
 	<< isOpenWordsInNewTabs->isChecked() 
-	<< isShowSplashScreen->isChecked() 
-	<< isShowAutosearch->isChecked()
-	<< isShowBookmarks->isChecked() 
-	<< isShowHistory->isChecked() 
-	<< isShowPreviewApart->isChecked() 
 	<< isHighLightTrans->isChecked() 
 	<< isSearchWordsByBegining->isChecked()
 	<< isShowWordBySingleClick->isChecked()
@@ -326,11 +306,6 @@ void SettingsDialog::setSettings(QList<bool>& boolList,QList<int>& intList)
 	isUpdatePreviewDuringEntering->setChecked(boolList.at(UpdatePreviewDuringEntering));
 	isOpenRecentFile->setChecked(boolList.at(OpenRecentFile));
 	isOpenWordsInNewTabs->setChecked(boolList.at(OpenWordsInNewTabs));
-	isShowSplashScreen->setChecked(boolList.at(ShowSplashScreen));
-	isShowAutosearch->setChecked(boolList.at(ShowAutoSearch));
-	isShowBookmarks->setChecked(boolList.at(ShowBookmarks));
-	isShowHistory->setChecked(boolList.at(ShowHistory));
-	isShowPreviewApart->setChecked(boolList.at(ShowPreviewApart));
 	isHighLightTrans->setChecked(boolList.at(HighLightTrans));
 	isSearchWordsByBegining->setChecked(boolList.at(SearchWordsByBegining));
 	isShowMarksInAutoSearch->setChecked(boolList.at(ShowMarksInAutoSearch));

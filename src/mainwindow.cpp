@@ -56,7 +56,6 @@ void MainWindow::init()
 	
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
 	settings.beginGroup("General");
-	splashScreen = 0;
 	
 	progressDialog = new QProgressDialog(tr("Please wait for the data to load into SQL database"), tr("Cancel"),0,1, this);
 	progressDialog->setWindowIcon(QIcon(MAIN_ICON));
@@ -64,13 +63,6 @@ void MainWindow::init()
 	progressDialog->setWindowModality(Qt::WindowModal);
 	connect(progressDialog,SIGNAL(canceled()),this,SLOT(cancelLoading()));
 	
-	showSplashScreen = settings.value("ShowSplashScreen",true).toBool();
-	if (showSplashScreen)
-	{
-		splashScreen = new QSplashScreen;
-		splashScreen->setPixmap(QPixmap(PICTURES_PATH + "splash.png"));
-		splashScreen->show();
-	}		
 	settings.endGroup();
 	
 	createAndSetDirs();
@@ -81,25 +73,41 @@ void MainWindow::init()
 	
 	statBar = statusBar();
 	progressDialog = new QProgressDialog(tr("Please wait for the data to load into SQL database"),tr("Cancel"),0,1,this);
-	showSplashMessage(tr("The system of help is loading..."));
 	manualDialog = new ManualDialog;
 	aboutDialog = new AboutDialog;
 	getDictName = new GetDictName(this);
 	
-	showSplashMessage(tr("Create central widget..."));
-	centralWidget = new CentralWidget;
+	centralWidget = new CentralWidget();
 	setCentralWidget(centralWidget);
 	
-	showSplashMessage(tr("Create settings dialog..."));
 	settingsDialog = new SettingsDialog(this);
 	connect(settingsDialog,SIGNAL(settingsChanged()),this,SLOT(updateProgram()));
 	
-	showSplashMessage(tr("Create manager of dictionaries..."));
 	managerDialog = new ManagerDialog(this);
 	connect(managerDialog,SIGNAL(buttonClicked(int,QString)),this,SLOT(actionOnManagerSignal(int,QString)));
 	
 	
-	showSplashMessage(tr("Create other widgets..."));			
+	
+	previewPanelAction = new QAction(this);
+	previewPanelAction->setText(tr("Preview panel"));
+	previewPanelAction->setIcon(QIcon(ICONS_PATH + "preview.png"));
+	connect(previewPanelAction,SIGNAL(triggered()),centralWidget,SLOT(showPreviewPanel()));
+	
+	bookmarksPanelAction = new QAction(this);
+	bookmarksPanelAction->setText(tr("Bookmarks panel"));
+	bookmarksPanelAction->setIcon(QIcon(ICONS_PATH + "bookmarks.png"));
+	connect(bookmarksPanelAction,SIGNAL(triggered()),centralWidget,SLOT(showBookmarksPanel()));
+	
+	autoSearchPanelAction = new QAction(this);
+	autoSearchPanelAction->setText(tr("Auto search panel"));
+	autoSearchPanelAction->setIcon(QIcon(ICONS_PATH + "search.png"));
+	connect(autoSearchPanelAction,SIGNAL(triggered()),centralWidget,SLOT(showAutoSearchPanel()));
+	
+	historyPanelAction = new QAction(this);
+	historyPanelAction->setText(tr("History panel"));
+	historyPanelAction->setIcon(QIcon(ICONS_PATH + "history.png"));
+	connect(historyPanelAction,SIGNAL(triggered()),centralWidget,SLOT(showHistoryPanel()));
+	
 	settingsAction = new QAction(this);
 	settingsAction->setText(tr("Settings"));
 	settingsAction->setStatusTip(tr("Change behaviour of this program"));
@@ -138,7 +146,7 @@ void MainWindow::init()
 	openDictAction = new QAction(this);
 	openDictAction->setText(tr("Open"));
 	openDictAction->setShortcut(QKeySequence("Ctrl+O"));
-	openDictAction->setIcon(QIcon(ICONS_PATH + "open_dict.png"));
+	openDictAction->setIcon(QIcon(ICONS_PATH + "open.png"));
 	connect(openDictAction,SIGNAL(triggered()),this,SLOT(openDict()));
 	openDictAction->setStatusTip(tr("Open some dictionary"));
 	    
@@ -187,14 +195,17 @@ void MainWindow::init()
 	toolsMenu = new QMenu(tr("&Tools"));
 	toolsMenu->addAction(settingsAction);
 	toolsMenu->addAction(managerAction);
+	toolsMenu->addAction(previewPanelAction);
+	toolsMenu->addAction(autoSearchPanelAction);
+	toolsMenu->addAction(bookmarksPanelAction);
+	toolsMenu->addAction(historyPanelAction);
 	
 	mainBar = menuBar();	
-	mainBar->addMenu(dictMenu);	
+	mainBar->addMenu(dictMenu);
 	mainBar->addMenu(toolsMenu);
 	mainBar->addMenu(recordMenu);
 	mainBar->addMenu(helpMenu);
 	
-	showSplashMessage(tr("Integratable friend application is loading..."));
 	ifa = new Ifa;
 	ifaMenu = new QMenu;
 	ifaMenu->setTitle(tr("Applications"));
@@ -223,24 +234,7 @@ void MainWindow::init()
 	}
 	if (areThereIfas)
 		toolsMenu->addMenu(ifaMenu);
-		
-	if (showSplashScreen)
-	{
-		splashScreen->finish(this);
- 		delete splashScreen;
-	}
 }
-
-void MainWindow::showSplashMessage(QString message)
-{
-	if (showSplashScreen)
-	{
-		Qt::Alignment topLeft = Qt::AlignLeft | Qt::AlignTop;
-		if (splashScreen)
-			splashScreen->showMessage(message,topLeft);
-	}
-}
-
 
 void MainWindow::createAndSetDirs()
 {
@@ -382,11 +376,6 @@ void MainWindow::readSettings()
      boolSets.append(settings.value("UpdatePreviewDuringEntering",true).toBool());
 	boolSets.append(settings.value("OpenRecentFile",true).toBool());
 	boolSets.append(settings.value("OpenWordsInNewTabs",true).toBool());
-	boolSets.append(settings.value("ShowSplashScreen",true).toBool());
-	boolSets.append(settings.value("ShowAutoSearch",false).toBool());
-	boolSets.append(settings.value("ShowBookmarks",false).toBool());
-	boolSets.append(settings.value("ShowHistory",false).toBool());
-	boolSets.append(settings.value("ShowPreviewApart",false).toBool());
 	boolSets.append(settings.value("HighLightTrans",true).toBool());
 	boolSets.append(settings.value("SearchWordsByBegining",true).toBool());
 	boolSets.append(settings.value("MoveBySingleClick",true).toBool() );
@@ -399,6 +388,7 @@ void MainWindow::readSettings()
 	settings.endGroup();
 
  	settingsDialog->setSettings(boolSets,intSets);
+	centralWidget->readSettings();
  	centralWidget->setSettings(boolSets,intSets);
  	centralWidget->showWelcomePage();
 	
@@ -438,11 +428,6 @@ void MainWindow::writeSettings()
 	settings.setValue("UpdatePreviewDuringEntering",boolSets[UpdatePreviewDuringEntering]);
 	settings.setValue("OpenRecentFile",boolSets[OpenRecentFile]);
 	settings.setValue("OpenWordsInNewTabs",boolSets[OpenWordsInNewTabs]);
-	settings.setValue("ShowSplashScreen",boolSets[ShowSplashScreen]);
-	settings.setValue("ShowAutoSearch",boolSets[ShowAutoSearch]);
-	settings.setValue("ShowBookmarks",boolSets[ShowBookmarks]);
-	settings.setValue("ShowHistory",boolSets[ShowHistory]);
-	settings.setValue("ShowPreviewApart",boolSets[ShowPreviewApart]);
 	settings.setValue("HighLightTrans",boolSets[HighLightTrans]);
 	settings.setValue("SearchWordsByBegining",boolSets[SearchWordsByBegining]);
 	settings.setValue("MoveBySingleClick",boolSets[MoveBySingleClick]);
@@ -456,10 +441,9 @@ void MainWindow::writeSettings()
 	settings.beginGroup("General");
 	settings.setValue("geometry",geometry()); 	
 	settings.setValue("ExtendedSearch",centralWidget->getExtendedSearchStatus());
-	settings.setValue("TextEditPartState",centralWidget->getPreviewGeometry());
-	settings.setValue("CentralPartState",centralWidget->getLocalMainWidgetState());
-	settings.setValue("AutoSearchState",centralWidget->getAutoSearchState());
 	settings.setValue("HelpState",manualDialog->getState());
+	
+	centralWidget->writeSettings();
 	
 	if (!databaseName.isEmpty() && !wasCanceled)
 	{			

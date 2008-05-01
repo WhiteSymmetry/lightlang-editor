@@ -10,6 +10,7 @@ TRANSLATIONS = tr/lileditor_ru.ts
 CODECFORTR = UTF-8
 QT+=sql
 QT+=xml
+
 # Input
 HEADERS += src/aboutdialog.h \
            src/autosearchpanel.h \
@@ -23,7 +24,6 @@ HEADERS += src/aboutdialog.h \
 		src/settingsdialog.h \
 		src/global.h \ 
 		src/historypanel.h \
-		src/spin.h \
 		src/managerdialog.h \
 		src/aboutdictdialog.h \
 		src/getdictnamedialog.h \
@@ -41,7 +41,6 @@ SOURCES += src/aboutdialog.cpp \
 		src/settingsdialog.cpp \ 
 		src/global.cpp \
 		src/historypanel.cpp \
-		src/spin.cpp \ 
 		src/managerdialog.cpp \
 		src/aboutdictdialog.cpp \
 		src/getdictnamedialog.cpp \
@@ -51,36 +50,37 @@ OBJECTS_DIR = build
 MOC_DIR = build
 
 unix {
-           INSTALL_PREFIX=/usr
-           target.path = $$INSTALL_PREFIX/bin
+		INSTALL_PREFIX=/usr
+		target.path = $$INSTALL_PREFIX/bin
 
-           pictures.files += pictures/*
-           pictures.path = $$INSTALL_PREFIX/lib/lileditor/pictures
-	
-	      desktop_image.files += icons/lle.png
-	      desktop_image.path = /usr/share/icons
-	      
-	      desktop.files += desktop/*.desktop
-	      desktop.path = $$INSTALL_PREFIX/share/applications/
-    
-           ifa_files.files += ifa/*
-           ifa_files.path = $$INSTALL_PREFIX/lib/lileditor/ifa
-           
-           doc_files.files += doc/*    
-           doc_files.path = $$INSTALL_PREFIX/lib/lileditor/doc
-           
-           icons.files += icons/*
-           icons.path = $$INSTALL_PREFIX/lib/lileditor/icons
-           
-           trans.files += tr/*
-           trans.path = $$INSTALL_PREFIX/lib/lileditor/trans
-           INSTALLS += target
-           INSTALLS += pictures 
-           INSTALLS += desktop_image
-           INSTALLS += desktop
-           INSTALLS += doc_files
-           INSTALLS += icons
-           INSTALLS += ifa_files
-           INSTALLS += trans
+		pictures.files += pictures/lightlang_editor_logo.png
+		pictures.path = $$INSTALL_PREFIX/lib/lileditor/pictures
+
+		desktop_image.files += icons/lle.png
+		desktop_image.path = /usr/share/icons
+		
+		desktop.files += desktop/*.desktop
+		desktop.path = $$INSTALL_PREFIX/share/applications/
+
+		ifa_files.files += ifa/*
+		ifa_files.path = $$INSTALL_PREFIX/lib/lileditor/ifa
+
+		doc_files.files += doc/*    
+		doc_files.path = $$INSTALL_PREFIX/lib/lileditor/doc
+
+		icons.files += icons/*
+		icons.path = $$INSTALL_PREFIX/lib/lileditor/icons
+
+		trans.files += tr/*
+		trans.path = $$INSTALL_PREFIX/lib/lileditor/trans
+		
+		INSTALLS += pictures
+		INSTALLS += target
+		INSTALLS += desktop_image
+		INSTALLS += desktop
+		INSTALLS += doc_files
+		INSTALLS += icons
+		INSTALLS += ifa_files
+		INSTALLS += trans
 }
 

@@ -70,9 +70,13 @@ class MainWindow : public QMainWindow
 		QAction *aboutAction;
 		QAction *aboutQtAction;
 		
-		// settings menu's actions:
+		// tools menu's actions:
 		QAction *settingsAction;
 		QAction *managerAction;
+		QAction *previewPanelAction;
+		QAction *bookmarksPanelAction;
+		QAction *autoSearchPanelAction;
+		QAction *historyPanelAction;
 	
 		// record menu's actions:
 		QAction*	editAction;

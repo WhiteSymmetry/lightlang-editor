@@ -67,7 +67,7 @@ ManualDialog::ManualDialog(QWidget *parent) : QDialog(parent)
 	splitter->restoreState(settings.value("HelpState").toByteArray());
 	settings.endGroup();
 	
-	addItem(tr("About program LightLang Editor"),"about.html");
+	addItem(tr("About LightLang Editor"),"about.html");
 	addItem(tr("Tags and dictionary's format"),"tags.html");
 	addItem(tr("How to use the program"),"howtouse.html");
 	addItem(tr("Interaction of Editor and SL"),"interaction.html");
@@ -105,8 +105,8 @@ ManualDialog::ManualDialog(QWidget *parent) : QDialog(parent)
 	mainLayout->addLayout(bottomLayout);
 
 	setLayout(mainLayout);
-	setWindowTitle(tr("Manual of %1").arg(PROGRAM_NAME));
-	setWindowIcon(QIcon(ICONS_PATH + "lle.png"));
+	setWindowTitle(tr("%1 manual").arg(PROGRAM_NAME));
+	setWindowIcon(QIcon(ICONS_PATH + "manual.png"));
 	resize(900,700);
 }
 

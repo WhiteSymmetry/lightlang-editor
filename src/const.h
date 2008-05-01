@@ -20,10 +20,10 @@
 #define CONST_H
 
 #define PROGRAM_NAME "LightLang Editor"
-#define VERSION "0.7.5"
+#define VERSION "0.7.6"
 #define PROGRAM_NAME_WITH_VERSION PROGRAM_NAME VERSION
 #define ORGANIZATION "Vialinx"
-#define MY_EMAIL "tss@lightlang.org.ru"
+#define MY_EMAIL "sstikhonov@gmail.com"
 #define MY_JABBER "LinuxDooM@jabber.ru"
 #define MY_SKYPE "LinuxDooM"
 

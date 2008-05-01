@@ -21,12 +21,12 @@
 #include "centralwidget.h"
 #include "autosearchpanel.h"
 #include "highlighter.h"
-#include "previewpanel.h"
 #include "bookmarkspanel.h"
 #include "historypanel.h"
 #include "const.h"
 #include "global.h"
 #include "aboutdictdialog.h"
+#include "previewpanel.h"
 
 
 CentralWidget::CentralWidget()
@@ -63,11 +63,13 @@ CentralWidget::CentralWidget()
 	specialToolBar->setObjectName("specialtoolbar");
 	specialToolBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 	  
-	previewPanel = new PreviewPanel(tr("Preview"),this);
 	 
 	autoSearchPanel = new AutoSearchPanel(tr("Auto-search"),this);	
 	connect(autoSearchPanel,SIGNAL(signalToMove(QString&,int)),this,SLOT(moveByItem(QString&,int)));
 	localOutSideMainWidget->addDockWidget(Qt::RightDockWidgetArea,autoSearchPanel);	
+	
+	previewPanel = new PreviewPanel(tr("Preview"),this);
+	localOutSideMainWidget->addDockWidget(Qt::BottomDockWidgetArea,previewPanel);
 	
 	aboutDictDialog = new AboutDictDialog(this);
 	connect(aboutDictDialog,SIGNAL(saveButtonClicked()),this,SLOT(changeAboutDict()));
@@ -82,8 +84,6 @@ CentralWidget::CentralWidget()
 	historyPanel = new HistoryPanel(tr("History"),this);
      connect(historyPanel,SIGNAL(itemClicked(QString&,int)),this,SLOT(moveByItem(QString&,int)));
      localOutSideMainWidget->addDockWidget(Qt::LeftDockWidgetArea,historyPanel);
-     
-     localOutSideMainWidget->splitDockWidget(bookmarksPanel,historyPanel,Qt::Vertical);
 	                      
 	
 	addTabButton = new QToolButton(tabWidget);
@@ -360,13 +360,13 @@ void CentralWidget::setRecord(QSqlRecord* record)
 	undoList << false;
 	redoList << false;	
 	
-	if (boolSets[ShowBookmarks])
+	if (bookmarksPanel->isVisible())
 		bookmarksPanel->setAddActionEnable(true);
 	addAction->setEnabled(false);
 	editAction->setEnabled(true);
 	removeAction->setEnabled(true);
 	previewAction->setEnabled(true);
-	if (boolSets[UpdatePreviewDuringEntering])
+	if (previewPanel->isVisible() and boolSets[UpdatePreviewDuringEntering])
 		previewPanel->setText(trans);
 }
 
@@ -451,16 +451,6 @@ QString CentralWidget::getBookmarks()
 QString CentralWidget::getHistory()
 {
 	return historyPanel->getHistory();
-}
-
-QByteArray CentralWidget::getPreviewGeometry()
-{
-	return localTextEditMainWidget->saveState();
-}
-
-QByteArray CentralWidget::getLocalMainWidgetState()
-{
-	return localOutSideMainWidget->saveState();
 }
 
 QString& CentralWidget::getAboutDict()
@@ -740,7 +730,7 @@ void CentralWidget::find(int from)
 	{
 		showMessage(Good,tr("The word was founded"));
 		record = query.record();
-		if ( from != FromHistory && boolSets[ShowHistory] )
+		if ( from != FromHistory && historyPanel->isVisible() )
 			historyPanel->addItem(str);
 		setRecord(&record);
 	}
@@ -759,7 +749,7 @@ void CentralWidget::find(int from)
 			tabWidget->setCurrentIndex(getIndexOfEmptyPage());
 	}
 	if ( from != FromAutoSearch )
-		if ( boolSets[ShowAutoSearch] )
+		if ( autoSearchPanel->isVisible() )
 		{
 			autoSearchPanel->clear();
 			int i = 0;
@@ -793,32 +783,7 @@ void CentralWidget::find(int from)
 
 void CentralWidget::updateProgram()
 {
-	bool toUpdateMainLine = false; 
-	if ( boolSets[ShowAutoSearch] )
-	{
-		autoSearchPanel->show();
-		toUpdateMainLine = true;
-		autoSearchPanel->setMoveBySingleClick(boolSets[MoveBySingleClick]);
-		autoSearchPanel->activeSettings();
-	}
-	else
-	{
- 		autoSearchPanel->hide();
- 		autoSearchPanel->setEnableActions(false);
- 	}
- 	
-	if ( boolSets[ShowBookmarks] )
-	{
-		bookmarksPanel->show();
-		toUpdateMainLine = true;
-	}
-	else
-	{	
-		bookmarksPanel->setAddActionEnable(false);
-		bookmarksPanel->setRemoveActionEnable(false);
-		bookmarksPanel->hide();
-	}
-	
+	bool toUpdateMainLine = false;
 	if ( !boolSets[UpdateTransDuringEntering] )
 	{
 		toUpdateMainLine = true;
@@ -831,34 +796,6 @@ void CentralWidget::updateProgram()
 		searchButton->hide();
 		mainLine->blockSignals(false);
 		searchButton->blockSignals(true);
-	}
-	
-	if ( !boolSets[ShowHistory] )
-		historyPanel->hide();
-	else
-		historyPanel->show();
-	
-	if  ( !boolSets[ShowPreviewApart] )
-	{
-		delete previewPanel;
-		previewPanel = new PreviewPanel(tr("Preview"),this);
-		localTextEditMainWidget->addDockWidget(Qt::BottomDockWidgetArea,previewPanel);
-		if (currentTextEdit)
-		{
-			QString currentText = currentTextEdit->toPlainText();
-			previewPanel->setText(currentText);
-		}
-	}
-	else
-	{
-		localTextEditMainWidget->removeDockWidget(previewPanel);
-		delete previewPanel;
-		previewPanel = new PreviewPanel(tr("Preview"));
-		if (currentTextEdit)
-		{
-			previewPanel->setText(currentTextEdit->toPlainText());
-			previewPanel->show();
-		}
 	}
 	
 	if ( !boolSets[HighLightTrans] )
@@ -923,8 +860,6 @@ void CentralWidget::indexChanged(int index)
 	redoAction->setEnabled(redoList[index]);
 	if ( boolSets[UpdatePreviewDuringEntering] )
 		previewPanel->setText(textEdits[index]->toPlainText());
-	if ( boolSets[ShowBookmarks] )
-		bookmarksPanel->setAddActionEnable(true);
 	mainLine->blockSignals(true);
 	mainLine->setText(tabWidget->tabText(tabWidget->currentIndex()));
 	if (boolSets[UpdateTransDuringEntering])
@@ -1068,7 +1003,28 @@ void CentralWidget::mouseDoubleClickEvent(QMouseEvent*)
 	addTab();
 }
 
-QByteArray CentralWidget::getAutoSearchState()
-{
-	return autoSearchPanel->getMainWidgetState();
+void CentralWidget::showPreviewPanel() {
+	previewPanel->show();
+}
+
+void CentralWidget::showBookmarksPanel() {
+	bookmarksPanel->show();
+}
+
+void CentralWidget::showAutoSearchPanel() {
+	autoSearchPanel->show();
+}
+
+void CentralWidget::showHistoryPanel() {
+	historyPanel->show();
+}
+
+void CentralWidget::writeSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	settings.setValue("CentralPartState",localOutSideMainWidget->saveState());
+}
+
+void CentralWidget::readSettings() { 
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	localOutSideMainWidget->restoreState(settings.value("CentralPartState").toByteArray());
 }

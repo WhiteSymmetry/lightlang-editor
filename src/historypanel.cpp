@@ -52,9 +52,8 @@ HistoryPanel::HistoryPanel(QString title,QWidget *parent) : QDockWidget(title,pa
 	mainLayout->addWidget(clearHistory);
 	mainHistoryWidget->setLayout(mainLayout);
 	
-     setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea); 
-	setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 	setWidget(mainHistoryWidget);
+ 	setVisible(false);
 }
 
 void HistoryPanel::addItem(QString itemTitle)

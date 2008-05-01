@@ -41,6 +41,8 @@
 
 PreviewPanel::PreviewPanel(QString title,QWidget *parent) : QDockWidget(title,parent) 
 {
+	setObjectName("PreviewPanel");
+	
 	browser = new QTextBrowser;
 	
 	QWidget *mainPreviewWidget = new QWidget;	
@@ -51,10 +53,7 @@ PreviewPanel::PreviewPanel(QString title,QWidget *parent) : QDockWidget(title,pa
 	setWidget(mainPreviewWidget);
 	setWindowTitle(tr("Preview - %1").arg(PROGRAM_NAME));
      setWindowIcon(QIcon(ICONS_PATH + "lle.png"));
- 	
-	setObjectName("previewdockwidget");
-	setAllowedAreas(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);	
-	setFeatures(QDockWidget::NoDockWidgetFeatures);
+ 	setVisible(false);
 }
 
 void PreviewPanel::setText(QString str)

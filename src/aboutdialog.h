@@ -21,19 +21,16 @@
 
 #include <QDialog>
 
-class QPixmap;
-
 class AboutDialog : public QDialog
 {
-	Q_OBJECT
 	private:
-		QPixmap *pixmap;
+		QLabel *iconLabel;
+		QLabel *textLabel;
+		QPushButton *closeButton;
 	public:
 		AboutDialog(QWidget *parent = 0);
 	protected:
-		void paintEvent(QPaintEvent*);
 		void closeEvent(QCloseEvent*);
-		void mousePressEvent(QMouseEvent*);
 };
 
 #endif

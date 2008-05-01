@@ -16,65 +16,60 @@
 //You should have received a copy of the GNU General Public License
 //along with this program; if not, write to the Free Software
 //Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#include <QtGui>
-#include <iostream>
+#include <QLabel>
+#include <QDialog>
+#include <QPushButton>
+#include <QIcon>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include "global.h"
 #include "const.h"
 #include "aboutdialog.h"
 
 AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
-{		
-	// Create Background
-	QPalette palette;
-	pixmap = new QPixmap(PROGRAM_PATH + "pictures/splash.png");
-	palette.setBrush(QPalette::Text,QBrush(QColor(Qt::white)));
-	palette.setBrush(QPalette::Base,QBrush(QColor("#487BBA")));
-	palette.setBrush(backgroundRole(),QBrush(*pixmap));
-	
- 	setPalette(palette); 
-	//==================
-	
-     setFixedSize(pixmap->size());
-     setWindowTitle(tr("About ")+tr(PROGRAM_NAME) );
-     setWindowIcon(QIcon(ICONS_PATH + "lle.png"));
-}
-
-void AboutDialog::paintEvent(QPaintEvent* /*event*/)
 {
-	QPainter painter(this);	
-	//PaintMainText	
-	painter.setPen(QColor("#4d84e8"));
-	if ( lang == "ru" )
-		painter.setFont(QFont("Sans Serif",10,QFont::Bold,true));
-	else
-		painter.setFont(QFont("Sans Serif",12,QFont::Bold,true));
-	painter.drawText(90,100,tr(PROGRAM_NAME) + tr(" - the program for editing and"));	
-	painter.drawText(100,120,tr("creation of special dictionaries for LightLang"));
+	iconLabel = new QLabel;
+	iconLabel->setPixmap(QPixmap(ICONS_PATH + "lle.png"));
+		
+	textLabel = new QLabel;
+	textLabel->setWordWrap(true);
 	
-	// Paint word "License"	
-	painter.setPen(QColor("#f1b84e"));
-	painter.setFont(QFont("Sans Serif",14,QFont::Bold,true));
-	painter.drawText(150,50,tr("License: GPL v2"));
+	closeButton = new QPushButton(tr("Close"));
+	connect(closeButton,SIGNAL(clicked()),this,SLOT(hide()));
 	
-	// Paint author
-	painter.setPen(QColor("#4d84e8"));
-	painter.setFont(QFont("Sans Serif",12,QFont::Bold,true));
-	painter.drawText(150,150,tr("Developer: Tikhonov Sergey"));
+	textLabel->setText("<center><b>" + QString(PROGRAM_NAME) + " - " + tr(" program for editing sl format based dictionaries") + "</b></center><br>" +
+			tr("<strong>LightLang Editor</strong> program are distributable, according "
+			"to the license <strong>GPLv2</strong>. For details visit <em>License agreement</em> of the " 
+			"<strong>LightLang Editor</strong> manual.<br><br>") +
+			tr("Version") + ": <b><br>&nbsp;&nbsp;&nbsp;&nbsp;" + VERSION + "</b><br>" +
+			tr("License") + ": <b><br>&nbsp;&nbsp;&nbsp;&nbsp;" + "GPL v2" + "</b><br>" +
+			tr("Developer") + ": <b><br>&nbsp;&nbsp;&nbsp;&nbsp;" + tr("Tikhonov Sergey") + "</b><br>" +
+			tr("Helped") + ": <b><br>&nbsp;&nbsp;&nbsp;&nbsp;" + tr("Devaev Maxim") + "<b>");
+			
+	setWindowTitle(tr("About ")+tr(PROGRAM_NAME) );
+     setWindowIcon(QIcon(ICONS_PATH + "lle.png"));
 	
-	// Paint Helped
-	painter.setPen(QColor("#4d84e8"));
-	painter.setFont(QFont("Sans Serif",12,QFont::Bold,true));
-	painter.drawText(150,190,tr("Helper: Devaev Maxim"));
-
+	
+	QHBoxLayout *topLayout = new QHBoxLayout;
+	topLayout->addStretch();
+	topLayout->addWidget(iconLabel);
+	topLayout->addStretch();
+	
+	QHBoxLayout *bottomLayout = new QHBoxLayout;
+	bottomLayout->addStretch();
+	bottomLayout->addWidget(closeButton);
+	bottomLayout->addStretch();
+	
+	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addLayout(topLayout);
+	mainLayout->addWidget(textLabel);
+	mainLayout->addLayout(bottomLayout);
+	mainLayout->addStretch();
+	
+	setLayout(mainLayout);
 }
 
 void AboutDialog::closeEvent(QCloseEvent*)
 {
 	hide();
 }
-
-void AboutDialog::mousePressEvent(QMouseEvent*)
-{
-// 	hide();
-}
-

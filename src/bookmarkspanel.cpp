@@ -63,10 +63,8 @@ BookmarksPanel::BookmarksPanel(QString title, QWidget *parent) : QDockWidget(tit
 	//=============
 	
 	
-	setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
-
 	setWidget(mainBookmarksWidget);
+ 	setVisible(false);
 }
 
 void BookmarksPanel::contextMenuEvent(QContextMenuEvent* event)

@@ -78,11 +78,11 @@ class CentralWidget : public QWidget
 		
 		QTimer *timer;
 		QLabel *warning;
-		
-		PreviewPanel *previewPanel;		
+			
 		AutoSearchPanel *autoSearchPanel;
 		HistoryPanel *historyPanel;
 		BookmarksPanel *bookmarksPanel;
+		PreviewPanel *previewPanel;	
 		
 		QString currentAbout;
 		AboutDictDialog *aboutDictDialog;
@@ -119,9 +119,7 @@ class CentralWidget : public QWidget
 		void clearAll();
 		QString getBookmarks();
 		QString getHistory();
-		QByteArray getPreviewGeometry();
 		QByteArray getLocalMainWidgetState();
-		QByteArray getAutoSearchState();
 		QString& getAboutDict();
 		void setHistory(const QString history);
 		void setBookmarks(const QString bookmarks);
@@ -130,6 +128,8 @@ class CentralWidget : public QWidget
 		void setSettings(QList<bool>& boolean_settings,QList<int>& int_settings);
 		QAction* getAction(int what_from_public_actions);
 		void showWelcomePage();	
+		void readSettings();
+		void writeSettings();
 				
 		enum Message_statuses { Bad, Good  };	
 		enum Public_Actions { SearchAction, AddAction, RemoveAction, EditAction, AboutDictAction };
@@ -167,7 +167,10 @@ class CentralWidget : public QWidget
 	public slots:
 		void checkMainLineContent(int from = FromMainLine);
 		void showMessage(int mode,QString text);
-	
+		void showPreviewPanel();
+		void showBookmarksPanel();
+		void showAutoSearchPanel();
+		void showHistoryPanel();
 };
 
 

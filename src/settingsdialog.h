@@ -81,13 +81,8 @@ class SettingsDialog : public QDialog
 		QCheckBox *isUpdatePreviewDuringEntering;
 		QCheckBox *isOpenRecentFile;
 		QCheckBox *isOpenWordsInNewTabs;
-		QCheckBox *isShowSplashScreen;
 		// General settings end;
 		// View settigns start:
-		QCheckBox *isShowAutosearch;
-		QCheckBox *isShowBookmarks;
-		QCheckBox *isShowHistory;
-		QCheckBox *isShowPreviewApart;
 		QCheckBox *isHighLightTrans;
 		QCheckBox *isShowMarksInAutoSearch;
 		QCheckBox *isShowMarksInTabs;
