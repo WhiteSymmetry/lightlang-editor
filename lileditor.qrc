@@ -1,0 +1,34 @@
+<RCC>
+    <qresource>
+        <file>icons/clear.png</file>
+        <file>icons/lle.png</file>
+        <file>icons/search.png</file>
+        <file>icons/text_bold.png</file>
+        <file>icons/text_block.png</file>
+        <file>icons/text_italic.png</file>
+        <file>icons/text_link.png</file>
+        <file>icons/text_sound.png</file>
+        <file>icons/text_underline.png</file>
+        <file>icons/text_officeword.png</file>
+        <file>icons/new.png</file>
+        <file>icons/open.png</file>
+        <file>icons/new_tab.png</file>
+        <file>icons/close_tab.png</file>
+        <file>icons/quit.png</file>
+        <file>icons/save.png</file>
+        <file>icons/saveas.png</file>
+        <file>icons/dicts_manager.png</file>
+        <file>icons/manual.png</file>
+        <file>icons/cancel.png</file>
+        <file>icons/backward.png</file>
+        <file>icons/forward.png</file>
+        <file>images/about.png</file>
+        <file>icons/plugins_manager.png</file>
+        <file>icons/down.png</file>
+        <file>icons/up.png</file>
+        <file>icons/left.png</file>
+        <file>icons/right.png</file>
+        <file>icons/apply.png</file>
+        <file>icons/open_recent.png</file>
+    </qresource>
+</RCC>
