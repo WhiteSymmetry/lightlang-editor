@@ -4,7 +4,7 @@ INSTALL:
 	If you have it run:
 		1. qmake-qt4
 		2. make
-		3. make install ( by root )
+		3. make install # (by root)
 	Note:
 		On errors "File format not recognized" don't pay attention.
 AFTER INSTALL:
