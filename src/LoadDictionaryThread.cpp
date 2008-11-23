@@ -9,6 +9,7 @@
 LoadDictionaryThread::LoadDictionaryThread() {
 	databaseCenter = new DatabaseCenter;
 	stopped = false;
+	canceled = false;
 }
 
 LoadDictionaryThread::~LoadDictionaryThread() {
@@ -23,6 +24,10 @@ void LoadDictionaryThread::stop() {
 	stopped = true;
 }
 
+void LoadDictionaryThread::cancel() {
+	canceled = true;
+}
+
 QString LoadDictionaryThread::getAboutDict() const {
 	return currentAboutDictionaryString;
 }
@@ -34,20 +39,20 @@ void LoadDictionaryThread::run() {
 	if (!dictFile.open(QIODevice::ReadOnly)) {
 		qDebug() << "[LoadDictionaryThread] Cannot open dictionary with path" << currentPath;
 		successful = false;
-		stop();
+		cancel();
 	}
 	QString name = QFileInfo(currentPath).fileName();
 	
-	if (!stopped && !databaseCenter->setDatabaseName(name)) {
+	if (!canceled && !databaseCenter->setDatabaseName(name)) {
 		successful = false;
-		stop();
+		cancel();
 	}
 	
 	QTextStream dictStream(&dictFile);
 	
 	QString currentAboutDictionaryString;
 	
-	if (!stopped) {
+	if (!canceled) {
 		int rows(0);
 		for (rows = 0; !dictStream.atEnd(); rows++)
 			dictStream.readLine();
@@ -57,8 +62,13 @@ void LoadDictionaryThread::run() {
 	}
 	int currentRow(0);
 	while (!dictStream.atEnd()) {
-		if (stopped) {
+		if (canceled) {
 			successful = false;
+			break;
+		}
+		
+		if (stopped) {
+			successful = true;
 			break;
 		}
 		
@@ -79,9 +89,9 @@ void LoadDictionaryThread::run() {
 			databaseCenter->addNewWord(word,translation);
 		}
 	}
-	if (!stopped)
+	if (!canceled)
 		successful = true;
-	stopped = false;
+	canceled = false;
 }
 
 bool LoadDictionaryThread::isSuccessful() const {

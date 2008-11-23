@@ -13,6 +13,7 @@ class LoadDictionaryThread : public QThread
 		void rowChanged(int row);
 	public slots:
 		void stop();
+		void cancel();
 	public:
 		LoadDictionaryThread();
 		~LoadDictionaryThread();
@@ -25,6 +26,7 @@ class LoadDictionaryThread : public QThread
 		void run();
 	private:
 		volatile bool stopped;
+		volatile bool canceled;
 		QString currentPath;
 	
 		bool successful;

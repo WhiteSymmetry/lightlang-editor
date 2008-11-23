@@ -6,10 +6,12 @@
 #include <QtGui/QMoveEvent>
 #include <QtGui/QFileDialog>
 #include <QtCore/QDir>	
+#include <QtCore/QSettings>
 #include "Manual.h"
 #include "DictionariesManager.h"
 #include "About.h"
 #include "CentralWidget.h"
+#include "const.h"
 #include "MainWindow.h"
 
 MainWindow::MainWindow() {
@@ -37,13 +39,17 @@ MainWindow::MainWindow() {
 	setWindowIcon(QIcon(":/icons/lle.png"));
 	setMinimumHeight(400);
 	resize(600,400);
+	
+	loadSettings();
 }
 
 MainWindow::~MainWindow() {
 	
     delete createDictAction;
     delete openDictAction;
-    delete saveDictAction;
+	delete recentDictsMenu;
+	delete openRecentDictsAction;
+	delete saveDictAction;
     delete saveDictAsAction;
     delete openTabAction;
     delete closeTabAction;
@@ -83,6 +89,13 @@ void MainWindow::createActions() {
 	openDictAction->setShortcut(QKeySequence("Ctrl+O"));
 	connect(openDictAction,SIGNAL(triggered()),this,SLOT(openDictionary()));
 	
+	recentDictsMenu = new QMenu;
+	
+	openRecentDictsAction = new QAction(this);
+	openRecentDictsAction->setText(tr("Recently opened"));
+	openRecentDictsAction->setIcon(QIcon(":/icons/open_recent.png"));
+	openRecentDictsAction->setMenu(recentDictsMenu);
+	
 	saveDictAction = new QAction(this);
 	saveDictAction->setText(tr("Save dictionary"));
 	saveDictAction->setIcon(QIcon(":/icons/save.png"));
@@ -109,10 +122,12 @@ void MainWindow::createActions() {
 	quitAction->setText(tr("Quit"));
 	quitAction->setShortcut(QKeySequence("Ctrl+Q"));
 	quitAction->setIcon(QIcon(":/icons/quit.png"));
+	connect(quitAction,SIGNAL(triggered()),this,SLOT(quit()));
 	
 	QMenu *dictionaryMenu = menuBar()->addMenu("&" + tr("Dictionary"));
 	dictionaryMenu->addAction(createDictAction);
 	dictionaryMenu->addAction(openDictAction);
+	dictionaryMenu->addAction(openRecentDictsAction);
 	dictionaryMenu->addAction(saveDictAction);
 	dictionaryMenu->addAction(saveDictAsAction);
 	dictionaryMenu->addSeparator();
@@ -180,6 +195,7 @@ void MainWindow::createActions() {
 	editMenu->addAction(pasteSoundAction);
 	
 	editionToolBar = addToolBar(tr("Edition tool bar"));
+	editionToolBar->setObjectName("EditionToolBar");
 	editionToolBar->addAction(pasteBlockAction);
 	editionToolBar->addAction(pasteBoldAction);
 	editionToolBar->addAction(pasteItalicAction);
@@ -225,6 +241,8 @@ void MainWindow::createNewDictionary(const QString& dictName) {
 	dictionariesManager->addDictionary(dictName);
 	editionToolBar->show();
 	QDir::setCurrent(homePath);
+	recentOpenedDictionaries << dictName;
+	updateRecentDictsMenu();
 }
 
 void MainWindow::moveEvent(QMoveEvent *event) {
@@ -241,6 +259,67 @@ void MainWindow::openDictionary() {
 }
 
 void MainWindow::loadingCompleted(bool isSuccessful) {
-	if (isSuccessful)
+	if (isSuccessful) {
 		dictionariesManager->addDictionary(QFileInfo(currentLoadingDictPath).fileName(),currentLoadingDictPath,currentLoadingDictAbout);
+		recentOpenedDictionaries << QFileInfo(currentLoadingDictPath).fileName();
+		updateRecentDictsMenu();
+	}
+}
+
+void MainWindow::showDictionariesManager() {
+	dictionariesManager->exec();
+}
+
+void MainWindow::loadSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	recentOpenedDictionaries = settings.value("General/RecentOpenedDictionaries").toStringList();
+	updateRecentDictsMenu();
+	resize(settings.value("MainWindow/Size",QSize(800,400)).toSize());
+	move(settings.value("MainWindow/Position",QPoint(0,0)).toPoint());
+	restoreState(settings.value("MainWindow/State").toByteArray());
+}
+
+void MainWindow::saveSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	updateRecentDictsMenu();
+	settings.setValue("General/RecentOpenedDictionaries",recentOpenedDictionaries);
+	settings.setValue("MainWindow/Position",pos());
+	settings.setValue("MainWindow/Size",size());
+	settings.setValue("MainWindow/State",saveState());
+}
+
+void MainWindow::quit() {
+	saveSettings();
+	emit (toQuit());
+}
+
+void MainWindow::closeEvent(QCloseEvent *) {
+	quit();
+}
+
+void MainWindow::updateRecentDictsMenu() {
+	recentDictsMenu->clear();
+	if (recentOpenedDictionaries.count() > 6)
+		for (int i = 0; i < recentOpenedDictionaries.count()-6; i++)
+			recentOpenedDictionaries.removeFirst();
+	for (int i = 0; i < recentOpenedDictionaries.count(); i++)
+		if (recentOpenedDictionaries.count(recentOpenedDictionaries[i]) > 1)
+			recentOpenedDictionaries.removeAt(i);
+	for (int i = recentOpenedDictionaries.count() - 1; i >= 0; i--)
+		recentDictsMenu->addAction(recentOpenedDictionaries[i]);
+	
+	QString startPageText = 
+		"<hr><table border=\"0\" width=\"100%\"><tr><td bgcolor=\"#DFEDFF\"><h2 align=\"center\"><em>" + 
+		tr("Start page") + 	
+		"</em></h2></td></tr></table><hr>" +
+		tr("Hello, thank you for LightLang Editor using! With editor help you can edit existed dictionaries, create new dictionaries and add dictionaries to SL database.") +
+		"<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>" + tr("Recent opened dictionaries") + ":</b><ul>";
+	for (int i = recentOpenedDictionaries.count() - 1; i >= 0; i--)
+		startPageText += "<li><a href=\"" + recentOpenedDictionaries[i] + "\">" + recentOpenedDictionaries[i] + "</a></li>";
+	startPageText += "</ul>";
+	centralWidget->setStartPageText(startPageText);
+}
+
+void MainWindow::updateWindowTitle(const QString& addToTitle) {
+		setWindowTitle("LightLang Editor - " + addToTitle);
 }

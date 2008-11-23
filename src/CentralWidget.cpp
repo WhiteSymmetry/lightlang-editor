@@ -1,6 +1,5 @@
 #include <QtGui/QStackedWidget>
-#include <QtGui/QPushButton>
-#include <QtGui/QMenu>
+#include <QtGui/QToolButton>
 #include <QtGui/QTextBrowser>
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QDir>
@@ -16,37 +15,35 @@
 CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	
 	databaseCenter = new DatabaseCenter;
+	connect(databaseCenter,SIGNAL(databaseNameChanged(const QString&)),mainWindowCommunicater,SLOT(updateWindowTitle(const QString&)));
 	
-	recentDictsMenu = new QMenu;
-	
-	openDictBorderButton = new QPushButton;
-	openDictBorderButton->setFlat(true);
+	openDictBorderButton = new QToolButton;
+	openDictBorderButton->setCursor(Qt::ArrowCursor);
+	openDictBorderButton->setAutoRaise(true);
 	openDictBorderButton->setIcon(QIcon(":/icons/open.png"));
+	openDictBorderButton->setIconSize(QSize(22,22));
 	connect(openDictBorderButton,SIGNAL(clicked()),mainWindowCommunicater,SLOT(openDictionary()));
 	
-	createNewDictBorderButton = new QPushButton;
-	createNewDictBorderButton->setFlat(true);
+	createNewDictBorderButton = new QToolButton;
+	createNewDictBorderButton->setCursor(Qt::ArrowCursor);
+	createNewDictBorderButton->setAutoRaise(true);
 	createNewDictBorderButton->setIcon(QIcon(":/icons/new.png"));
+	createNewDictBorderButton->setIconSize(QSize(22,22));
 	connect(createNewDictBorderButton,SIGNAL(clicked()),this,SLOT(showNewDictWidget()));
 	
-	recentDictsBorderButton = new QPushButton;
-	recentDictsBorderButton->setFlat(true);
-	recentDictsBorderButton->setMenu(recentDictsMenu);
-	recentDictsBorderButton->setIcon(QIcon(":/icons/open_recent.png"));
+	showDictsManagerButton = new QToolButton;
+	showDictsManagerButton->setCursor(Qt::ArrowCursor);
+	showDictsManagerButton->setAutoRaise(true);
+	showDictsManagerButton->setIcon(QIcon(":/icons/dicts_manager.png"));
+	showDictsManagerButton->setIconSize(QSize(22,22));
+	connect(showDictsManagerButton,SIGNAL(clicked()),mainWindowCommunicater,SLOT(showDictionariesManager()));
 	
 	startPageViewer = new BrowserWithWidgets(this);
-	startPageViewer->setPosition(BrowserWithWidgets::RightTopCorner);
-	startPageViewer->setHtml
-	(
-		"<hr><table border=\"0\" width=\"100%\"><tr><td bgcolor=\"#DFEDFF\"><h2 align=\"center\"><em>" + 
-		tr("Start page") + 	
-		"</em></h2></td></tr></table><hr>" +
-		tr("Hello, thank you for LightLang Editor using! With editor help you can edit existed dictionaries, create new dictionaries and add dictionaries to SL database.")
-	);
 	startPageViewer->addWidget(createNewDictBorderButton);
 	startPageViewer->addWidget(openDictBorderButton);
-	startPageViewer->addWidget(recentDictsBorderButton);
-	
+	startPageViewer->addWidget(showDictsManagerButton);
+	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(setCurrentDatabase(const QString&)));
+
 	stackedWidget = new QStackedWidget;
 	
 	tabsWidget = new TabsWidget(databaseCenter);
@@ -64,6 +61,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	connect(loadDictionaryThread,SIGNAL(rowsCounted(int)),loadDictionaryWidget,SLOT(setMaximum(int)));
 	connect(loadDictionaryThread,SIGNAL(rowChanged(int)),loadDictionaryWidget,SLOT(addValue()));
 	connect(loadDictionaryThread,SIGNAL(finished()),this,SLOT(loadingFinished()));
+	connect(loadDictionaryWidget,SIGNAL(stopped()),loadDictionaryThread,SLOT(stop()));
 	
 	newDictWidget = new NewDictWidget;
 	newDictWidget->hide();
@@ -72,7 +70,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	mainLayout->addWidget(newDictWidget);
 	mainLayout->addWidget(stackedWidget,1);
 	mainLayout->addWidget(loadDictionaryWidget);
-	mainLayout->setMargin(0);
+	mainLayout->setContentsMargins(0,0,0,0);
 	setLayout(mainLayout);
 	
 	connect(newDictWidget,SIGNAL(createDictionary(const QString&)),mainWindowCommunicater,SLOT(createNewDictionary(const QString&)));
@@ -84,11 +82,10 @@ CentralWidget::~CentralWidget() {
     delete tabsWidget;
 	delete createNewDictBorderButton;
 	delete openDictBorderButton;
-	delete recentDictsBorderButton;
+	delete showDictsManagerButton;
 	delete newDictWidget;
 	delete startPageViewer;
 	delete stackedWidget;
-	delete recentDictsMenu;
 	delete databaseCenter;
 	delete loadDictionaryThread;
 }
@@ -98,6 +95,8 @@ void CentralWidget::showNewDictWidget() {
 }
 
 void CentralWidget::openNewTab() {
+	stackedWidget->setCurrentIndex(1);
+	emit(startPageShown(false));
 	tabsWidget->openNewTab();
 }
 
@@ -142,7 +141,7 @@ void CentralWidget::loadDictionary(const QString& dictPath,QString *aboutDiction
 }
 
 void CentralWidget::cancelLoading() {
-	loadDictionaryThread->stop();
+	loadDictionaryThread->cancel();
 	loadDictionaryWidget->hide();
 	removeDatabaseWithName(currentLoadingDictName);
 }
@@ -158,4 +157,8 @@ void CentralWidget::loadingFinished() {
 		*currentLoadingDictAbout = loadDictionaryThread->getAboutDict();
 	}
 	emit (loadingCompleted(loadDictionaryThread->isSuccessful()));
+}
+
+void CentralWidget::setStartPageText(const QString& text) {
+	startPageViewer->setHtml(text);
 }

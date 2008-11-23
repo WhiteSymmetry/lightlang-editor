@@ -9,6 +9,9 @@ class QGridLayout;
 
 class BrowserWithWidgets : public QTextBrowser
 {
+	Q_OBJECT
+	signals:
+		void linkWasClicked(const QString& path);
 	public:
 		BrowserWithWidgets(QWidget *parent = 0);
 		~BrowserWithWidgets();
@@ -20,7 +23,12 @@ class BrowserWithWidgets : public QTextBrowser
 		void setOrientation(Orientation orientation);
 		
 		void addWidget(QWidget *newWidget);
+	private slots:
+		void anchorClickedSlot(const QUrl& link);
+		void updateCurrentText();
 	private:
+		QString currentText;
+	
 		QFrame *widgetsFrame;
 		QLayout *widgetsFrameLayout;
 		QGridLayout *mainLayout;

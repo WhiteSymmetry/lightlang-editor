@@ -30,7 +30,7 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter) {
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(lineEditLayout);
 	mainLayout->addWidget(textEdit);
-	mainLayout->setMargin(0);
+	mainLayout->setContentsMargins(3,3,3,3);
 	setLayout(mainLayout);
 }
 

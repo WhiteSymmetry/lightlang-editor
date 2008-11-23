@@ -9,8 +9,7 @@ class TabsWidget;
 class QStackedWidget;
 class QTextBrowser;
 class BrowserWithWidgets;
-class QPushButton;
-class QMenu;
+class QToolButton;
 class DatabaseCenter;
 class LoadDictionaryThread;
 
@@ -33,6 +32,7 @@ class CentralWidget : public QWidget
 		CentralWidget(QWidget *mainWindowCommunicater);
 		~CentralWidget();
 	
+		void setStartPageText(const QString& text);
 		void setExistingDictionaries(const QStringList& list);
 		void loadDictionary(const QString& dictPath,QString *aboutDictionaryString);
 	private slots:
@@ -47,10 +47,9 @@ class CentralWidget : public QWidget
 		BrowserWithWidgets *startPageViewer;
 		LoadDictionaryThread *loadDictionaryThread;
 	
-		QPushButton *createNewDictBorderButton;
-		QPushButton *openDictBorderButton;
-		QPushButton *recentDictsBorderButton;
-		QMenu *recentDictsMenu;
+		QToolButton *createNewDictBorderButton;
+		QToolButton *openDictBorderButton;
+		QToolButton *showDictsManagerButton;
 	
 		QString currentLoadingDictName;
 		QString *currentLoadingDictAbout;

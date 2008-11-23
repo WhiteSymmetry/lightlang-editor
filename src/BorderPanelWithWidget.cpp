@@ -50,10 +50,10 @@ void BorderPanelWithWidget::setOrientation(Orientation orientation) {
 		hideButton->setIcon(QIcon(":/icons/down.png"));
 	}
 	
+	mainLayout->addWidget(hideButton);	
 	if (widget)
 		mainLayout->addWidget(widget);
-	mainLayout->addWidget(hideButton);
-	mainLayout->setMargin(0);
+	mainLayout->setContentsMargins(0,0,0,0);
 	setLayout(mainLayout);
 	
 	currentOrientation = orientation;

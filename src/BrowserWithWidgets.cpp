@@ -13,6 +13,9 @@ BrowserWithWidgets::BrowserWithWidgets(QWidget *parent) : QTextBrowser(parent) {
 		
 	setPosition(Center);
 	setOrientation(Horizontal);
+
+	connect(this,SIGNAL(anchorClicked(const QUrl&)),this,SLOT(anchorClickedSlot(const QUrl&)));
+	connect(this,SIGNAL(textChanged()),this,SLOT(updateCurrentText()));
 }
 
 BrowserWithWidgets::~BrowserWithWidgets() {
@@ -87,4 +90,14 @@ void BrowserWithWidgets::setPosition(Position position) {
 			break;
 	}
 	setLayout(mainLayout);
+}
+
+void BrowserWithWidgets::anchorClickedSlot(const QUrl& url) {
+	emit (linkWasClicked(url.path()));
+	setHtml(currentText);
+}
+
+
+void BrowserWithWidgets::updateCurrentText() {
+	currentText = toHtml();
 }

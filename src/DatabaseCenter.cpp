@@ -8,6 +8,8 @@
 #include <QDebug>
 #include "DatabaseCenter.h"
 
+//#define DEBUG
+
 inline bool createConnection(const QString& dbName) {
 	QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE",dbName);
 	database.setHostName("localhost");
@@ -50,6 +52,7 @@ bool DatabaseCenter::setDatabaseName(const QString& databaseName) {
 	query.exec("CREATE TABLE IF NOT EXISTS main(`word` TEXT,`translation` TEXT,`status` INTEGER(1), UNIQUE (`word`))");
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Cannot create table, because: " << query.lastError().text();
+	emit (databaseNameChanged(databaseName));
 	return true;
 }
 
@@ -68,8 +71,10 @@ bool DatabaseCenter::setTranslationForWord(const QString& word,const QString& tr
 bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
 	query.exec(QString("INSERT INTO main(word,translation,status) VALUES(\"%1\",\"%2\",\"0\")").arg(word.simplified()).arg(translation.simplified()));
+#ifdef DEBUG
 	if (!query.isActive())
 		qDebug() << query.lastError().text();
+#endif
 	return query.isValid();
 }
 

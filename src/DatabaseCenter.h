@@ -16,6 +16,9 @@ struct WordWithTrans
 
 class DatabaseCenter : public QObject
 {
+	Q_OBJECT
+	signals:
+		void databaseNameChanged(const QString& name);
 	public:
 		DatabaseCenter();
 		~DatabaseCenter();

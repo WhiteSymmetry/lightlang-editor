@@ -15,17 +15,26 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 	signals:
 		void moved(int x,int y);
+		void toQuit();
 	public slots:
 		void createNewDictionary(const QString& dictName);
 		void openDictionary();
+		void updateWindowTitle(const QString &addToTitle);
+		void showDictionariesManager();
 	public:
 		MainWindow();
 		~MainWindow();
 	private slots:
 		void loadingCompleted(bool isSuccessful);
+		void quit();
 	private:
+		void saveSettings();
+		void loadSettings();
 		void createActions();
 		void createDirs();
+		void updateRecentDictsMenu();
+	
+		QStringList recentOpenedDictionaries;
 	
 		About *about;
 		Manual *manual;
@@ -36,6 +45,8 @@ class MainWindow : public QMainWindow
 
 		QAction *createDictAction;
 		QAction *openDictAction;
+		QAction *openRecentDictsAction;
+		QMenu *recentDictsMenu;
 		QAction *saveDictAction;
 		QAction *saveDictAsAction;
 		QAction *openTabAction;
@@ -63,6 +74,7 @@ class MainWindow : public QMainWindow
 		QString controlPath;
 	protected:
 		void moveEvent(QMoveEvent *event);
+		void closeEvent(QCloseEvent *event);
 };
 
 #endif

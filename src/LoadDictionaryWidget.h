@@ -4,7 +4,7 @@
 #include "BorderPanelWithWidget.h"
 
 class QPushButton;
-class QProgressBar;
+class ProgressBarWithWidgets;
 class QShowEvent;
 
 class LoadDictionaryWidget : public BorderPanelWithWidget
@@ -12,6 +12,7 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 	Q_OBJECT
 	signals:
 		void canceled();
+		void stopped();
 	public slots:
 		void setMaximum(int max);
 		void addValue();
@@ -21,15 +22,9 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 	
 		void reset();
 	private:
-		QWidget *widgetWithProgressBar;
-		QWidget *askWidget;
-	
-		QProgressBar *progressBar;
-		QPushButton *preCancelLoadingButton;
-		QPushButton *cancelCancelingButton;
+		ProgressBarWithWidgets *progressBar;
 		QPushButton *cancelLoadingButton;
-	protected:
-		void showEvent(QShowEvent *);
+		QPushButton *stopLoadingButton;
 };
 
 #endif

@@ -27,7 +27,8 @@ HEADERS += src/const.h \
 	src/CentralWidget.h \
 	src/BrowserWithWidgets.h \
 	src/BorderPanelWithWidget.h \
-	src/LoadDictionaryThread.h
+	src/LoadDictionaryThread.h \
+	src/ProgressBarWithWidgets.h
 	
 SOURCES += src/main.cpp \
     src/MainWindow.cpp \
@@ -46,6 +47,7 @@ SOURCES += src/main.cpp \
 	src/CentralWidget.cpp \
 	src/BrowserWithWidgets.cpp \
 	src/BorderPanelWithWidget.cpp \
-	src/LoadDictionaryThread.cpp
+	src/LoadDictionaryThread.cpp \
+	src/ProgressBarWithWidgets.cpp
 	
 RESOURCES += lileditor.qrc

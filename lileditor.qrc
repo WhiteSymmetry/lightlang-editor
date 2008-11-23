@@ -30,5 +30,6 @@
         <file>icons/right.png</file>
         <file>icons/apply.png</file>
         <file>icons/open_recent.png</file>
+        <file>icons/stop.png</file>
     </qresource>
 </RCC>
