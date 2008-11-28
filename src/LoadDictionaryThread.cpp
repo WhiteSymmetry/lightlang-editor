@@ -10,22 +10,44 @@ LoadDictionaryThread::LoadDictionaryThread() {
 	databaseCenter = new DatabaseCenter;
 	stopped = false;
 	canceled = false;
+	currentFile = new QFile;
+	currentStream = new QTextStream(currentFile);
+	
+	rows = 0;
+	currentRow = 0;
 }
 
 LoadDictionaryThread::~LoadDictionaryThread() {
+	delete currentStream;
+	delete currentFile;
 	delete databaseCenter;
 }
 
-void LoadDictionaryThread::setDictionaryPath(const QString& path) {
-	currentPath = path;
-}
+bool LoadDictionaryThread::setDictionaryPath(const QString& path) {
+	if (currentFile->isOpen())
+		currentFile->close();
+	currentFile->setFileName(path);
+	if (!currentFile->open(QIODevice::ReadOnly)) {
+		qDebug() << "[LoadDictionaryThread] Cannot open dictionary with path" << path;
+		return false;
+	}
+	
+	QString name = QFileInfo(path).fileName();
+	if (!databaseCenter->setDatabaseName(name)) {
+		qDebug() << "[LoadDictionaryThread] Cannot set database name" << name;
+		return false;
+	}
+	
+	for (rows = 0; !currentStream->atEnd(); rows++)
+		currentStream->readLine();
+	emit (rowsCounted(rows));
+	currentStream->seek(0);
+	currentRow = 0;
 
-void LoadDictionaryThread::stop() {
-	stopped = true;
-}
-
-void LoadDictionaryThread::cancel() {
-	canceled = true;
+	stopped = false;
+	canceled = false;
+	
+	return true;
 }
 
 QString LoadDictionaryThread::getAboutDict() const {
@@ -33,46 +55,11 @@ QString LoadDictionaryThread::getAboutDict() const {
 }
 
 void LoadDictionaryThread::run() {
-	currentAboutDictionaryString.clear();
-	
-	QFile dictFile(currentPath);
-	if (!dictFile.open(QIODevice::ReadOnly)) {
-		qDebug() << "[LoadDictionaryThread] Cannot open dictionary with path" << currentPath;
-		successful = false;
-		cancel();
-	}
-	QString name = QFileInfo(currentPath).fileName();
-	
-	if (!canceled && !databaseCenter->setDatabaseName(name)) {
-		successful = false;
-		cancel();
-	}
-	
-	QTextStream dictStream(&dictFile);
-	
-	QString currentAboutDictionaryString;
-	
-	if (!canceled) {
-		int rows(0);
-		for (rows = 0; !dictStream.atEnd(); rows++)
-			dictStream.readLine();
-		emit (rowsCounted(rows));
-		
-		dictStream.seek(0);
-	}
-	int currentRow(0);
-	while (!dictStream.atEnd()) {
-		if (canceled) {
-			successful = false;
+	while (!currentStream->atEnd()) {
+		if (canceled || stopped)
 			break;
-		}
 		
-		if (stopped) {
-			successful = true;
-			break;
-		}
-		
-		QString tempString = dictStream.readLine().trimmed();
+		QString tempString = currentStream->readLine().trimmed();
 		emit (rowChanged(++currentRow));
 		if (tempString.isEmpty())
 			continue;
@@ -89,11 +76,39 @@ void LoadDictionaryThread::run() {
 			databaseCenter->addNewWord(word,translation);
 		}
 	}
-	if (!canceled)
-		successful = true;
-	canceled = false;
+	if (!canceled && !stopped)
+		emit (loadingFinished());
 }
 
-bool LoadDictionaryThread::isSuccessful() const {
-	return successful;
+bool LoadDictionaryThread::isStopped() const {
+	return stopped;
+}
+
+bool LoadDictionaryThread::isCanceled() const {
+	return canceled;
+}
+
+bool LoadDictionaryThread::startLoading(const QString& dictionaryPath) {
+	if (!setDictionaryPath(dictionaryPath))
+		return false;
+	currentAboutDictionaryString.clear();
+	continueLoading();
+	return true;
+}
+
+void LoadDictionaryThread::cancelLoading() {
+	canceled = true;
+}
+
+void LoadDictionaryThread::stopLoading() {
+	stopped = true;
+}
+
+void LoadDictionaryThread::restartLoading() {
+	startLoading(currentFile->fileName());
+}
+
+void LoadDictionaryThread::continueLoading() {
+	stopped = false;
+	start();
 }

@@ -6,13 +6,15 @@
 class QPushButton;
 class ProgressBarWithWidgets;
 class QShowEvent;
+class QLabel;
 
 class LoadDictionaryWidget : public BorderPanelWithWidget
 {
 	Q_OBJECT
 	signals:
 		void canceled();
-		void stopped();
+		void paused();
+		void continued();
 	public slots:
 		void setMaximum(int max);
 		void addValue();
@@ -21,10 +23,15 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 		~LoadDictionaryWidget();
 	
 		void reset();
+	private slots:
+		void pauseLoading();
+		void continueLoading();
 	private:
 		ProgressBarWithWidgets *progressBar;
 		QPushButton *cancelLoadingButton;
-		QPushButton *stopLoadingButton;
+		QLabel *textLabel;
+		QPushButton *pauseLoadingButton;
+		QPushButton *continueLoadingButton;
 };
 
 #endif

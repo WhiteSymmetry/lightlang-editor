@@ -99,3 +99,7 @@ void DatabaseCenter::removeDatabaseWithName(const QString& databaseName) {
 	if (!previousConnectionName.isEmpty())
 		setDatabaseName(previousConnectionName);
 }
+
+bool DatabaseCenter::doesDictionaryExist(const QString& pathToDict) {
+	return QDir(databasesPath).exists(QFileInfo(pathToDict).fileName());
+}

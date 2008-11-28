@@ -1,38 +1,24 @@
 #ifndef DIALOGFORQUASTIONS_H
 #define DIALOGFORQUASTIONS_H
 
-#include <QtGui/QDialog>
+#include <QtGui/QMessageBox>
 
-class QPushButton;
 class QLabel;
 
-class DialogForQuastions : public QDialog
+class DialogForQuastions : public QMessageBox
 {
 	Q_OBJECT
-	public:
-		enum Result { Save, DontSave, Cancel };
-		enum Mode { SaveOrNotDocument, Error };
-		
-		DialogForQuastions(Mode mode,QWidget *parent = 0);
+	public:		
+		DialogForQuastions(QWidget *parent = 0);
 		~DialogForQuastions();
 	
-		Result getResult() const;
-		
+		void setHeaderText(const QString& headerText);
 		void setText(const QString& text);
 		void setIcon(const QIcon& icon);
-	private slots:
-		void saveWasClicked();
-		void dontSaveWasClicked();
-		void cancelWasClicked();
 	private:
-		Result currentResult;
-	
+		QLabel *headerLabel;
 		QLabel *textLabel;
 		QLabel *iconLabel;
-	
-		QPushButton *saveButton;
-		QPushButton *dontSaveButton;
-		QPushButton *cancelButton;
 };
 
 #endif

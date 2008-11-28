@@ -12,6 +12,7 @@ class BrowserWithWidgets;
 class QToolButton;
 class DatabaseCenter;
 class LoadDictionaryThread;
+class QMessageBox;
 
 class CentralWidget : public QWidget
 {
@@ -35,10 +36,15 @@ class CentralWidget : public QWidget
 		void setStartPageText(const QString& text);
 		void setExistingDictionaries(const QStringList& list);
 		void loadDictionary(const QString& dictPath,QString *aboutDictionaryString);
+	
+		void saveSettings();
 	private slots:
 		void cancelLoading();
 		void loadingFinished();
-	private:	
+	private:
+		QMessageBox *closeOrNoIfLoadingDialog;
+		QMessageBox *continueOrRestartLoadingDialog;
+	
 		DatabaseCenter *databaseCenter;
 		QStackedWidget *stackedWidget;
 		TabsWidget *tabsWidget;

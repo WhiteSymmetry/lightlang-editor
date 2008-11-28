@@ -31,6 +31,8 @@ class DatabaseCenter : public QObject
 		bool addNewWord(const QString& word,const QString& translation);
 		bool removeWord(const QString& word);
 		QList<WordWithTrans> getAllWordsWithTranses();
+	
+		bool doesDictionaryExist(const QString& pathToDict);
 	private:
 		QString currentConnectionName;
 		QString previousConnectionName;

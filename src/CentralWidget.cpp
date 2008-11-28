@@ -2,6 +2,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QTextBrowser>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QDebug>
 #include "TabsWidget.h"
@@ -13,6 +14,16 @@
 #include "CentralWidget.h"
 
 CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
+	
+	closeOrNoIfLoadingDialog = new QMessageBox(mainWindowCommunicater);
+	closeOrNoIfLoadingDialog->setIconPixmap(QPixmap(":/icons/main.png"));
+	closeOrNoIfLoadingDialog->setWindowTitle(tr("Notification"));
+	closeOrNoIfLoadingDialog->setText("<b>" + tr("Dictionary is loading...") + "</b><br>" + tr("If you close LightLang Editor, loading will be canceled."));
+	
+	continueOrRestartLoadingDialog = new QMessageBox(mainWindowCommunicater);
+	continueOrRestartLoadingDialog->setIconPixmap(QPixmap(":/icons/main.png"));
+	continueOrRestartLoadingDialog->setWindowTitle(tr("Notification"));
+	continueOrRestartLoadingDialog->setText("<b>" + tr("You have already loaded dictionary with this name") + "</b><br>" + tr("But the dictionary wasn't full loaded. You can continue loading or restart it."));
 	
 	databaseCenter = new DatabaseCenter;
 	connect(databaseCenter,SIGNAL(databaseNameChanged(const QString&)),mainWindowCommunicater,SLOT(updateWindowTitle(const QString&)));
@@ -60,8 +71,9 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	loadDictionaryThread = new LoadDictionaryThread;
 	connect(loadDictionaryThread,SIGNAL(rowsCounted(int)),loadDictionaryWidget,SLOT(setMaximum(int)));
 	connect(loadDictionaryThread,SIGNAL(rowChanged(int)),loadDictionaryWidget,SLOT(addValue()));
-	connect(loadDictionaryThread,SIGNAL(finished()),this,SLOT(loadingFinished()));
-	connect(loadDictionaryWidget,SIGNAL(stopped()),loadDictionaryThread,SLOT(stop()));
+	connect(loadDictionaryThread,SIGNAL(loadingFinished()),this,SLOT(loadingFinished()));
+	connect(loadDictionaryWidget,SIGNAL(paused()),loadDictionaryThread,SLOT(stopLoading()));
+	connect(loadDictionaryWidget,SIGNAL(continued()),loadDictionaryThread,SLOT(continueLoading()));
 	
 	newDictWidget = new NewDictWidget;
 	newDictWidget->hide();
@@ -78,6 +90,8 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 }
 
 CentralWidget::~CentralWidget() {
+	delete closeOrNoIfLoadingDialog;
+	delete continueOrRestartLoadingDialog;
 	delete loadDictionaryWidget;
     delete tabsWidget;
 	delete createNewDictBorderButton;
@@ -132,16 +146,24 @@ void CentralWidget::setExistingDictionaries(const QStringList& list) {
 }
 
 void CentralWidget::loadDictionary(const QString& dictPath,QString *aboutDictionaryString) {
+	if (databaseCenter->doesDictionaryExist(dictPath)) {
+		continueOrRestartLoadingDialog->exec();
+	}
+	
 	currentLoadingDictAbout = aboutDictionaryString;
 	loadDictionaryWidget->reset();
 	loadDictionaryWidget->show();
-	loadDictionaryThread->setDictionaryPath(dictPath);
-	currentLoadingDictName = QFileInfo(dictPath).fileName();
-	loadDictionaryThread->start();
+	if (loadDictionaryThread->startLoading(dictPath)) {
+		currentLoadingDictName = QFileInfo(dictPath).fileName();
+		loadDictionaryThread->start();
+	} else {
+		qDebug() << "[CentralWidget] Cannot load dictionary" << dictPath;
+		loadDictionaryWidget->hide();
+	}
 }
 
 void CentralWidget::cancelLoading() {
-	loadDictionaryThread->cancel();
+	loadDictionaryThread->cancelLoading();
 	loadDictionaryWidget->hide();
 	removeDatabaseWithName(currentLoadingDictName);
 }
@@ -152,13 +174,18 @@ void CentralWidget::removeDatabaseWithName(const QString& dbName) {
 
 void CentralWidget::loadingFinished() {
 	loadDictionaryWidget->hide();
-	if (loadDictionaryThread->isSuccessful()) {
-		setCurrentDatabase(currentLoadingDictName);
-		*currentLoadingDictAbout = loadDictionaryThread->getAboutDict();
-	}
-	emit (loadingCompleted(loadDictionaryThread->isSuccessful()));
+	setCurrentDatabase(currentLoadingDictName);
+	*currentLoadingDictAbout = loadDictionaryThread->getAboutDict();
+	emit (loadingCompleted(true));
 }
 
 void CentralWidget::setStartPageText(const QString& text) {
 	startPageViewer->setHtml(text);
+}
+
+void CentralWidget::saveSettings() {
+	if (loadDictionaryThread->isRunning()) {
+		loadDictionaryThread->stopLoading();
+		closeOrNoIfLoadingDialog->exec();
+	}
 }

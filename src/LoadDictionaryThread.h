@@ -4,36 +4,48 @@
 #include <QtCore/QThread>
 
 class DatabaseCenter;
+class QTextStream;
+class QFile;
 
 class LoadDictionaryThread : public QThread	
 {
 	Q_OBJECT
 	signals:
+		void loadingFinished();
+
 		void rowsCounted(int rows);
 		void rowChanged(int row);
 	public slots:
-		void stop();
-		void cancel();
+		void continueLoading();
+		bool startLoading(const QString& dictionaryPath);
+		void cancelLoading();
+		void stopLoading();
+		void restartLoading();
 	public:
 		LoadDictionaryThread();
 		~LoadDictionaryThread();
 	
-		bool isSuccessful() const;
+		bool isCanceled() const;
+		bool isStopped() const;
 	
 		QString getAboutDict() const;
-		void setDictionaryPath(const QString& path);
 	protected:
 		void run();
 	private:
+		bool setDictionaryPath(const QString& path);
+	
 		volatile bool stopped;
 		volatile bool canceled;
-		QString currentPath;
-	
-		bool successful;
 	
 		QString currentAboutDictionaryString;
 	
 		DatabaseCenter *databaseCenter;
+	
+		QFile *currentFile;
+		QTextStream *currentStream;
+	
+		int rows;
+		int currentRow;
 };
 
 
