@@ -28,7 +28,7 @@ HEADERS += src/const.h \
 	src/BrowserWithWidgets.h \
 	src/BorderPanelWithWidget.h \
 	src/LoadDictionaryThread.h \
-	src/ProgressBarWithWidgets.h
+	src/ProgressBarWithWidgets.h 
 	
 SOURCES += src/main.cpp \
     src/MainWindow.cpp \
