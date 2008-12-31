@@ -1,9 +1,15 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
+#include <QtCore/QTimer>
 #include "BorderPanelWithWidget.h"
 
 BorderPanelWithWidget::BorderPanelWithWidget(Orientation defaultOrientation) : widget(0) {
+	timer = new QTimer;
+	timer->setInterval(20);
+	connect(timer,SIGNAL(timeout()),this,SLOT(updateWidgetSize()));
+	rollToShowWidget = false;
+	
 	hideButton = new QPushButton;
 	hideButton->setFlat(true);
 	connect(hideButton,SIGNAL(clicked()),this,SLOT(hideOrShow()));
@@ -14,12 +20,14 @@ BorderPanelWithWidget::BorderPanelWithWidget(Orientation defaultOrientation) : w
 }
 
 BorderPanelWithWidget::~BorderPanelWithWidget() {
+	delete timer;
 	delete hideButton;
 	delete mainLayout;
 }
 
 void BorderPanelWithWidget::setWidget(QWidget *w) {
 	widget = w;
+	widget->setMaximumHeight(widget->sizeHint().height());
 	setOrientation(currentOrientation);
 }
 
@@ -28,9 +36,13 @@ QWidget *BorderPanelWithWidget::getWidget() const {
 }
 
 void BorderPanelWithWidget::hideOrShow() {
-	if (widget)
-		widget->setVisible(widget->isHidden());
-	updateHideButtonIcon();
+	if (widget) {
+		if (widget->maximumHeight() == 0)
+			rollToShowWidget = true;
+		else
+			rollToShowWidget = false;
+		timer->start();
+	}
 }
 
 void BorderPanelWithWidget::setOrientation(Orientation orientation) {
@@ -69,7 +81,34 @@ void BorderPanelWithWidget::updateHideButtonIcon() {
 		return;
 	
 	if (currentOrientation == Vertical)
-		hideButton->setIcon(QIcon(widget->isVisible() ? ":/icons/left.png" : ":/icons/right.png"));
+		hideButton->setIcon(QIcon(widget->maximumHeight() != 0 ? ":/icons/left.png" : ":/icons/right.png"));
 	else
-		hideButton->setIcon(QIcon(widget->isVisible() ? ":/icons/down.png" : ":/icons/up.png"));
+		hideButton->setIcon(QIcon(widget->maximumHeight() != 0 ? ":/icons/down.png" : ":/icons/up.png"));
+}
+
+void BorderPanelWithWidget::updateWidgetSize() {
+	if (rollToShowWidget) {
+		if (widget->height() + 10 >= widget->sizeHint().height())
+			widget->setMaximumHeight(widget->sizeHint().height());
+		else
+			widget->setMaximumHeight(widget->height() + 10);
+		if (widget->height() != widget->sizeHint().height())
+			timer->start();
+		else {
+			timer->stop();
+			updateHideButtonIcon();
+		}
+	} else {
+		if (widget->height() - 10 <= 0)
+			widget->setMaximumHeight(0);
+		else
+			widget->setMaximumHeight(widget->height() - 10);
+		if (widget->height() != 0)
+			timer->start();
+		else {
+			timer->stop();
+			updateHideButtonIcon();
+		}
+	}
+	widget->resize(widget->width(),widget->sizeHint().height());
 }

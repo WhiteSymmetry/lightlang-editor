@@ -40,7 +40,10 @@ DialogForQuastions::~DialogForQuastions() {
 	delete headerLabel;
 }
 
-
 void DialogForQuastions::setIcon(const QIcon& icon) {
 	setIconPixmap(icon.pixmap(64,64));
+}
+
+void DialogForQuastions::setText(const QString& text) {
+	textLabel->setText(text);
 }

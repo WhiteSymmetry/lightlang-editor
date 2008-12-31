@@ -20,6 +20,7 @@ class MainWindow : public QMainWindow
 		void createNewDictionary(const QString& dictName);
 		void openDictionary();
 		void updateWindowTitle(const QString &addToTitle);
+		void removeDatabaseWithName(const QString& dbName);
 		void showDictionariesManager();
 	public:
 		MainWindow();

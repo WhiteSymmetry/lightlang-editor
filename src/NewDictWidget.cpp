@@ -1,11 +1,18 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include <QtGui/QLabel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
+#include <QtCore/QTimer>
 #include "NewDictWidget.h"
 
 NewDictWidget::NewDictWidget() {
+	timer = new QTimer;
+	timer->setInterval(10);
+	connect(timer,SIGNAL(timeout()),this,SLOT(updateSize()));
+	rollingToShow = false;
+	
 	lineEdit = new QLineEdit;
 	connect(lineEdit,SIGNAL(textChanged(const QString&)),this,SLOT(checkNameFormat(const QString&)));
 	
@@ -14,12 +21,12 @@ NewDictWidget::NewDictWidget() {
 	createButton->setEnabled(false);
 	connect(createButton,SIGNAL(clicked()),this,SLOT(create()));
 	
-	closeButton = new QPushButton;
+	closeButton = new QToolButton;
 	closeButton->setShortcut(QKeySequence("Esc"));
 	closeButton->setIcon(QIcon(":/icons/cancel.png"));
-	closeButton->setFlat(true);
+	closeButton->setAutoRaise(true);
 	
-	connect(closeButton,SIGNAL(clicked()),this,SLOT(hide()));
+	connect(closeButton,SIGNAL(clicked()),this,SLOT(hideWithRolling()));
 	
 	QHBoxLayout *topLayout = new QHBoxLayout;
 	topLayout->addWidget(new QLabel("<b><font size='4'>" + tr("New dictionary creation") + "</font></b>"));
@@ -43,10 +50,14 @@ NewDictWidget::NewDictWidget() {
 	mainLayout->addWidget(formatLabel);
 	mainLayout->addLayout(bottomLayout);
 	mainLayout->addWidget(warningLabel);
+	mainLayout->addStretch();
 	setLayout(mainLayout);
+	
+	setMaximumHeight(0);
 }
 
 NewDictWidget::~NewDictWidget() {
+	delete timer;
 	delete createButton;
 	delete closeButton;
 	delete lineEdit;
@@ -68,9 +79,47 @@ void NewDictWidget::checkNameFormat(const QString& name) {
 
 void NewDictWidget::create() {
 	emit (createDictionary(lineEdit->text()));
-	hide();
+	hideWithRolling();
 }
 
 void NewDictWidget::setInvalidNames(const QStringList& list) {
 	invalidNames = list;
 }
+
+void NewDictWidget::showWithRolling() {
+	show();
+	rollingToShow = true;
+	timer->start();
+}
+
+void NewDictWidget::hideWithRolling() {
+	rollingToShow = false;
+	timer->start();
+}
+
+void NewDictWidget::updateSize() {
+	if (rollingToShow) {
+		if (height() + 10 >= sizeHint().height())
+			setMaximumHeight(sizeHint().height());
+		else
+			setMaximumHeight(height() + 10);
+		if (height() != sizeHint().height())
+			timer->start();
+		else {
+			timer->stop();
+		}
+	} else {
+		if (height() - 10 <= 0)
+			setMaximumHeight(0);
+		else
+			setMaximumHeight(height() - 10);
+		if (height() != 0)
+			timer->start();
+		else {
+			timer->stop();
+			hide();
+		}
+	}
+	resize(width(),sizeHint().height());
+}
+

@@ -1,15 +1,41 @@
 #include <QtGui/QAction>
 #include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QTreeWidgetItem>
+#include <QtGui/QMessageBox>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlError>
 #include <QDebug>
-#include "TreeWidget.h"
 #include "DictionariesManager.h"
+
+//==============TreeWidgetWithButtons==================//
+
+TreeWidgetWithButtons::TreeWidgetWithButtons(bool b) : TreeWidget(b) {
+	mainLayout = new QHBoxLayout;
+	
+	QVBoxLayout *verticalLayout = new QVBoxLayout;
+	verticalLayout->addStretch();
+	verticalLayout->addLayout(mainLayout);
+	setLayout(verticalLayout);
+}
+
+TreeWidgetWithButtons::~TreeWidgetWithButtons() {
+	delete mainLayout;
+}
+
+void TreeWidgetWithButtons::addWidget(QWidget *widget) {
+	mainLayout->addWidget(widget);
+};
+
+void TreeWidgetWithButtons::addStretch() {
+	mainLayout->addStretch();
+}
+
+//==============Dictionaries Manager==================//
 
 inline bool createConnection() {
 	QSqlDatabase database = QSqlDatabase::addDatabase("QSQLITE");
@@ -26,10 +52,19 @@ inline bool createConnection() {
 }
 
 DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
-	treeWidget = new TreeWidget(true);
+	
+	removeOrNotDicitionaryDialog = new QMessageBox(parent);
+	removeOrNotDicitionaryDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
+	removeOrNotDicitionaryDialog->setWindowTitle(tr("Notification"));
+	removeOrNotDicitionaryDialog->setText("<b>" + tr("Are you sure that you want to remove loaded dictionary?") + "</b><br>" + tr("If you didn't save the dictionary on hard disk, all changes will be lost."));
+	removeDictionaryButton = removeOrNotDicitionaryDialog->addButton(tr("Remove the dictionary"),QMessageBox::ActionRole);
+	cancelRemovingDictionaryButton = removeOrNotDicitionaryDialog->addButton(tr("Cancel"),QMessageBox::ActionRole);
+	
+	treeWidget = new TreeWidgetWithButtons(true);
 	treeWidget->setHeaderLabels(QStringList() << tr("Direction") << tr("Name"));
 	treeWidget->setContextMenuHeader(tr("Actions"));
 	treeWidget->setContextMenuIcon(QIcon(":/icons/dicts_manager.png"));
+	connect(treeWidget,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(sendSignalToOpenDatabase()));
 	
 	openAction = new QAction(treeWidget);
 	openAction->setText(tr("Open"));
@@ -38,40 +73,43 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	
 	removeAction = new QAction(treeWidget);
 	removeAction->setText(tr("Remove"));
-	removeAction->setIcon(QIcon(":/icons/cancel.png"));
-	connect(removeAction,SIGNAL(triggered()),this,SLOT(sendSignalToRemoveDatabase()));
+	removeAction->setIcon(QIcon(":/icons/remove.png"));
+	connect(removeAction,SIGNAL(triggered()),this,SLOT(removeCurrentDictionary()));
 	
 	addToSlAction = new QAction(treeWidget);
 	addToSlAction->setText(tr("Add to SL"));
 	addToSlAction->setIcon(QIcon(":/icons/new_tab.png"));
 	
-	openButton = new QPushButton;
-	openButton->setFlat(true);
+	openButton = new QToolButton;
+	openButton->setAutoRaise(true);
 	openButton->setIcon(QIcon(":/icons/open.png"));
+	openButton->setToolTip(tr("Open the dictionary"));
 	connect(openButton,SIGNAL(clicked()),this,SLOT(sendSignalToOpenDatabase()));
 	
-	removeButton = new QPushButton;
-	removeButton->setFlat(true);
-	removeButton->setIcon(QIcon(":/icons/cancel.png"));
-	connect(removeButton,SIGNAL(clicked()),this,SLOT(sendSignalToRemoveDatabase()));
+	removeButton = new QToolButton;
+	removeButton->setAutoRaise(true);
+	removeButton->setIcon(QIcon(":/icons/remove.png"));
+	removeButton->setToolTip(tr("Remove the dictionary"));
+	connect(removeButton,SIGNAL(clicked()),this,SLOT(removeCurrentDictionary()));
 	
-	addToSlButton = new QPushButton;
-	addToSlButton->setFlat(true);
+	addToSlButton = new QToolButton;
+	addToSlButton->setAutoRaise(true);
 	addToSlButton->setIcon(QIcon(":/icons/new_tab.png"));
+	addToSlAction->setToolTip(tr("Add the dictionary in SL databases"));
+	
+	treeWidget->addStretch();
+	treeWidget->addWidget(openButton);
+	treeWidget->addWidget(removeButton);
+	treeWidget->addWidget(addToSlButton);
+	treeWidget->addStretch();
 	
 	treeWidget->addContextMenuAction(openAction);
 	treeWidget->addContextMenuAction(removeAction);
 	treeWidget->addContextMenuAction(addToSlAction);
 	
-	QVBoxLayout *actionsLayout = new QVBoxLayout;
-	actionsLayout->addWidget(openButton);
-	actionsLayout->addWidget(removeButton);
-	actionsLayout->addWidget(addToSlButton);
-	actionsLayout->addStretch();
-	
 	QHBoxLayout *mainLayout = new QHBoxLayout;
 	mainLayout->addWidget(treeWidget);
-	mainLayout->addLayout(actionsLayout);
+	mainLayout->setContentsMargins(0,0,0,0);
 	setLayout(mainLayout);
 	
 	setWindowTitle(tr("Dictionaries Manager"));
@@ -90,9 +128,14 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 		newItem->setText(0,query.record().value(1).toString());
 		newItem->setText(1,query.record().value(0).toString());
 	}
+	setMinimumSize(300,200);
 }
 
 DictionariesManager::~DictionariesManager() {
+	delete cancelRemovingDictionaryButton;
+	delete removeDictionaryButton;
+	delete removeOrNotDicitionaryDialog;
+	
 	delete openAction;
 	delete removeAction;
 	delete addToSlAction;
@@ -145,4 +188,10 @@ QStringList DictionariesManager::getExistingDictionaries() {
 	while (query.next())
 		list << (query.record().value(0).toString() + "." + query.record().value(1).toString());
 	return list;
+}
+
+void DictionariesManager::removeCurrentDictionary() {
+	removeOrNotDicitionaryDialog->exec();
+	if (removeOrNotDicitionaryDialog->clickedButton() == removeDictionaryButton)
+		sendSignalToRemoveDatabase();
 }

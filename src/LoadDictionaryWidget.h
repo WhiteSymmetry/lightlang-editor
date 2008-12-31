@@ -3,10 +3,11 @@
 
 #include "BorderPanelWithWidget.h"
 
-class QPushButton;
+class QToolButton;
 class ProgressBarWithWidgets;
 class QShowEvent;
 class QLabel;
+class QTimer;
 
 class LoadDictionaryWidget : public BorderPanelWithWidget
 {
@@ -18,6 +19,8 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 	public slots:
 		void setMaximum(int max);
 		void addValue();
+		void showWithRolling();
+		void hideWithRolling();
 	public:
 		LoadDictionaryWidget();
 		~LoadDictionaryWidget();
@@ -26,12 +29,16 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 	private slots:
 		void pauseLoading();
 		void continueLoading();
+		void updateSize();
 	private:
+		QTimer *timer;
+		bool rollToShow;
+	
 		ProgressBarWithWidgets *progressBar;
-		QPushButton *cancelLoadingButton;
+		QToolButton *cancelLoadingButton;
 		QLabel *textLabel;
-		QPushButton *pauseLoadingButton;
-		QPushButton *continueLoadingButton;
+		QToolButton *pauseLoadingButton;
+		QToolButton *continueLoadingButton;
 };
 
 #endif

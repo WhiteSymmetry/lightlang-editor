@@ -46,12 +46,17 @@ bool LoadDictionaryThread::setDictionaryPath(const QString& path) {
 
 	stopped = false;
 	canceled = false;
+	currentDictionaryPath = path;
 	
 	return true;
 }
 
 QString LoadDictionaryThread::getAboutDict() const {
 	return currentAboutDictionaryString;
+}
+
+QString LoadDictionaryThread::getDictionaryPath() const {
+	return currentDictionaryPath;
 }
 
 void LoadDictionaryThread::run() {

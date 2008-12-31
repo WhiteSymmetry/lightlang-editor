@@ -7,12 +7,17 @@ class QLineEdit;
 class QPushButton;
 class QShowEvent;
 class QLabel;
+class QTimer;
+class QToolButton;
 
 class NewDictWidget : public QWidget
 {
 	Q_OBJECT
 	signals:
 		void createDictionary(const QString& name);
+	public slots:
+		void showWithRolling();
+		void hideWithRolling();
 	public:
 		NewDictWidget();
 		~NewDictWidget();
@@ -21,11 +26,15 @@ class NewDictWidget : public QWidget
 	private slots:
 		void checkNameFormat(const QString& name);
 		void create();
+		void updateSize();
 	private:
+		QTimer *timer;
+		bool rollingToShow;
+	
 		QLineEdit *lineEdit;
 		QLabel *warningLabel;
 		QPushButton *createButton;
-		QPushButton *closeButton;
+		QToolButton *closeButton;
 	
 		QStringList invalidNames;
 	protected:

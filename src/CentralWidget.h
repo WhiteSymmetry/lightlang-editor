@@ -13,6 +13,7 @@ class QToolButton;
 class DatabaseCenter;
 class LoadDictionaryThread;
 class QMessageBox;
+class QPushButton;
 
 class CentralWidget : public QWidget
 {
@@ -21,6 +22,7 @@ class CentralWidget : public QWidget
 		void resized(int w,int h);
 		void startPageShown(bool);
 		void loadingCompleted(bool isSuccessful);
+		void changeWindowTitle(const QString& title);
 	public slots:
 		void showNewDictWidget();
 		void openNewTab();
@@ -35,15 +37,33 @@ class CentralWidget : public QWidget
 	
 		void setStartPageText(const QString& text);
 		void setExistingDictionaries(const QStringList& list);
-		void loadDictionary(const QString& dictPath,QString *aboutDictionaryString);
+		void loadDictionary(const QString& dictPath);
+		QString getLoadedDictAbout() const;
 	
-		void saveSettings();
+		// If there is a loading, user will be asked is he sure, that he want to cancel loading and quit from program
+		bool saveSettings();
+		void loadSettings();
 	private slots:
 		void cancelLoading();
 		void loadingFinished();
 	private:
+		QMessageBox *continueLoadingOfLastLoadedOrNotDialog;
+		QPushButton *continueLoadingLastLoadedButton;
+		QPushButton *ignoreLoadingLastLoadedButton;
+		bool continueLoadingOfLastLoadedDictionary;
+	
+		QMessageBox *cancelOrContinueCurrentLoadingDialog;
+		QPushButton *cancelStartOfNewLoadingButton;
+		QPushButton *continueStartOfNewLoadingButton;
+	
 		QMessageBox *closeOrNoIfLoadingDialog;
+		QPushButton *continueIfLoadingButton;
+		QPushButton *closeIfLoadingButton;
+	
 		QMessageBox *continueOrRestartLoadingDialog;
+		QPushButton *continueLoadingButton;
+		QPushButton *restartLoadingButton;
+		QPushButton *ignoreLoadingButton;
 	
 		DatabaseCenter *databaseCenter;
 		QStackedWidget *stackedWidget;
@@ -58,7 +78,8 @@ class CentralWidget : public QWidget
 		QToolButton *showDictsManagerButton;
 	
 		QString currentLoadingDictName;
-		QString *currentLoadingDictAbout;
+		QString currentLoadingDictAbout;
+		QStringList existingDictionaries;
 	protected:
 		void resizeEvent(QResizeEvent *resizeEvent);
 };

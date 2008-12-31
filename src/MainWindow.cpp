@@ -5,6 +5,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMoveEvent>
 #include <QtGui/QFileDialog>
+#include <QtGui/QCloseEvent>
 #include <QtCore/QDir>	
 #include <QtCore/QSettings>
 #include "Manual.h"
@@ -18,20 +19,21 @@ MainWindow::MainWindow() {
 	createDirs();
 	
 	centralWidget = new CentralWidget(this);
-	connect(centralWidget,SIGNAL(loadingCompleted(bool)),this,SLOT(loadingCompleted(bool)));
 	
 	about = new About(this);
 	manual = new Manual;
 	
 	dictionariesManager = new DictionariesManager(this);
 	connect(dictionariesManager,SIGNAL(openDatabaseWithName(const QString&)),centralWidget,SLOT(setCurrentDatabase(const QString&)));
-	connect(dictionariesManager,SIGNAL(removeDatabaseWithName(const QString&)),centralWidget,SLOT(removeDatabaseWithName(const QString&)));
+	connect(dictionariesManager,SIGNAL(removeDatabaseWithName(const QString&)),this,SLOT(removeDatabaseWithName(const QString&)));
 	
 	centralWidget->setExistingDictionaries(dictionariesManager->getExistingDictionaries());
 	
 	createActions();
 	
 	connect(centralWidget,SIGNAL(startPageShown(bool)),editionToolBar,SLOT(setHidden(bool)));
+	connect(centralWidget,SIGNAL(loadingCompleted(bool)),this,SLOT(loadingCompleted(bool)));
+	connect(centralWidget,SIGNAL(changeWindowTitle(const QString&)),this,SLOT(updateWindowTitle(const QString&)));
 	
 	setCentralWidget(centralWidget);
 	
@@ -40,6 +42,7 @@ MainWindow::MainWindow() {
 	setMinimumHeight(400);
 	resize(600,400);
 	
+	show();
 	loadSettings();
 }
 
@@ -100,23 +103,33 @@ void MainWindow::createActions() {
 	saveDictAction->setText(tr("Save dictionary"));
 	saveDictAction->setIcon(QIcon(":/icons/save.png"));
 	saveDictAction->setShortcut(QKeySequence("Ctrl+S"));
+	saveDictAction->setEnabled(false);
 	
 	saveDictAsAction = new QAction(this);
 	saveDictAsAction->setText(tr("Save dictionary as"));
 	saveDictAsAction->setIcon(QIcon(":/icons/saveas.png"));
 	saveDictAsAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
+	saveDictAsAction->setEnabled(false);
+	
+	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAction,SLOT(setDisabled(bool)));
+	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAsAction,SLOT(setDisabled(bool)));
 	
 	openTabAction = new QAction(this);
 	openTabAction->setText(tr("New tab"));
 	openTabAction->setIcon(QIcon(":/icons/new_tab.png"));
 	openTabAction->setShortcut(QKeySequence("Ctrl+T"));
+	openTabAction->setEnabled(false);
 	connect(openTabAction,SIGNAL(triggered()),centralWidget,SLOT(openNewTab()));
 	
 	closeTabAction = new QAction(this);
 	closeTabAction->setText(tr("Close tab"));
 	closeTabAction->setIcon(QIcon(":/icons/close_tab.png"));
 	closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
+	closeTabAction->setEnabled(false);
 	connect(closeTabAction,SIGNAL(triggered()),centralWidget,SLOT(closeCurrentTab()));
+	
+	connect(centralWidget,SIGNAL(startPageShown(bool)),closeTabAction,SLOT(setDisabled(bool)));
+	connect(centralWidget,SIGNAL(startPageShown(bool)),openTabAction,SLOT(setDisabled(bool)));
 	
 	quitAction = new QAction(this);
 	quitAction->setText(tr("Quit"));
@@ -255,11 +268,12 @@ void MainWindow::openDictionary() {
 		return;
 	currentLoadingDictPath = dictionaryPath;
 	currentLoadingDictAbout.clear();
-	centralWidget->loadDictionary(currentLoadingDictPath,&currentLoadingDictAbout);
+	centralWidget->loadDictionary(currentLoadingDictPath);
 }
 
 void MainWindow::loadingCompleted(bool isSuccessful) {
 	if (isSuccessful) {
+		currentLoadingDictAbout = centralWidget->getLoadedDictAbout();
 		dictionariesManager->addDictionary(QFileInfo(currentLoadingDictPath).fileName(),currentLoadingDictPath,currentLoadingDictAbout);
 		recentOpenedDictionaries << QFileInfo(currentLoadingDictPath).fileName();
 		updateRecentDictsMenu();
@@ -277,6 +291,7 @@ void MainWindow::loadSettings() {
 	resize(settings.value("MainWindow/Size",QSize(800,400)).toSize());
 	move(settings.value("MainWindow/Position",QPoint(0,0)).toPoint());
 	restoreState(settings.value("MainWindow/State").toByteArray());
+	centralWidget->loadSettings();
 }
 
 void MainWindow::saveSettings() {
@@ -289,11 +304,14 @@ void MainWindow::saveSettings() {
 }
 
 void MainWindow::quit() {
+	if (!centralWidget->saveSettings())
+		return;
 	saveSettings();
 	emit (toQuit());
 }
 
-void MainWindow::closeEvent(QCloseEvent *) {
+void MainWindow::closeEvent(QCloseEvent *event) {
+	event->ignore();
 	quit();
 }
 
@@ -321,5 +339,18 @@ void MainWindow::updateRecentDictsMenu() {
 }
 
 void MainWindow::updateWindowTitle(const QString& addToTitle) {
+	if (addToTitle.isEmpty())
+		setWindowTitle("LightLang Editor");
+	else
 		setWindowTitle("LightLang Editor - " + addToTitle);
 }
+
+void MainWindow::removeDatabaseWithName(const QString& dbName) {
+	centralWidget->removeDatabaseWithName(dbName);
+	if (recentOpenedDictionaries.contains(dbName)) {
+		recentOpenedDictionaries.removeAll(dbName);
+		updateRecentDictsMenu();
+	}
+}
+
+

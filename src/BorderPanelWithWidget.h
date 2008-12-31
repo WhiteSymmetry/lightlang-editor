@@ -5,6 +5,7 @@
 
 class QLayout;
 class QPushButton;
+class QTimer;
 
 class BorderPanelWithWidget : public QWidget
 {
@@ -22,7 +23,11 @@ class BorderPanelWithWidget : public QWidget
 		int getOrientation() const;
 	private slots:
 		void hideOrShow();
+		void updateWidgetSize();
 	private:
+		QTimer *timer;
+		bool rollToShowWidget;
+	
 		void updateHideButtonIcon();
 	
 		Orientation currentOrientation;

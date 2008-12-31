@@ -29,6 +29,7 @@ class LoadDictionaryThread : public QThread
 		bool isStopped() const;
 	
 		QString getAboutDict() const;
+		QString getDictionaryPath() const;
 	protected:
 		void run();
 	private:
@@ -38,6 +39,7 @@ class LoadDictionaryThread : public QThread
 		volatile bool canceled;
 	
 		QString currentAboutDictionaryString;
+		QString currentDictionaryPath;
 	
 		DatabaseCenter *databaseCenter;
 	
