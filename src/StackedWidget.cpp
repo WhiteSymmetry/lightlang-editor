@@ -4,13 +4,13 @@
 #define NORMAL_SPEED 50
 #define VERY_SLOW_SPEED 100
 #define SLOW_SPEED 75
-#define FAST_SPEED 1
+#define FAST_SPEED 20
 #define IMMEDIATELY_SPEED 1
 
 StackedWidget::StackedWidget() {
 	
 	flipToNext = true;
-	setHandleWidth(0);
+	setHandleWidth(1);
 	
 	timer = new QTimer;
 	connect(timer,SIGNAL(timeout()),this,SLOT(updateSizes()));
