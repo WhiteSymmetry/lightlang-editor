@@ -2,37 +2,67 @@
 #define MANUAL_H
 
 #include <QtGui/QDialog>
+#include <QtGui/QTextBrowser>
 #include <QtCore/QUrl>
 
-class QPushButton;
-class QTextBrowser;
-class QListWidget;
-class QSplitter;
-class QLabel;
+class QToolButton;
+class QFrame;
+class QVBoxLayout;
+class QHBoxLayout;
+class QTimer;
 
-class Manual : public QDialog
+struct Link
+{
+	QToolButton *linkView;
+	QString linkSource;
+	Link(QToolButton *view,const QString& source) {
+		linkView = view;
+		linkSource = source;
+	}
+};
+
+class ManualBrowserWithWidgets : public QTextBrowser
 {
 	Q_OBJECT
 	public:
-		Manual(QWidget* parent = 0);
-		~Manual();
-		QByteArray getState();
-	private slots:
-		void changePage(int);
-		void changePage(const QUrl&);
-		void backward();
-		void forward();
-	private:
-		QPushButton *backwardButton;
-		QPushButton *forwardButton;
-		QTextBrowser *browser;
-		QListWidget *listWidget;
-		QSplitter *splitter;
-		QLabel *headerLabel;
-	
-		QString language;
+		ManualBrowserWithWidgets();
+		~ManualBrowserWithWidgets();
 		
-		void addItem(const QString title,const QString url);
+		void addLink(const QString& linkHeader,const QString& sourcePath);
+	private slots:
+		void changeSource();
+		void updateLinksSize();
+		void showLinks();
+	private:
+		QTimer *timer;
+		bool rollToDown;
+	
+		QFrame *buttonsFrame;
+		QHBoxLayout *buttonsFrameLayout;
+	
+		QFrame *linksFrame;
+		QVBoxLayout *linksFrameLayout;
+	
+		QToolButton *showLinksButton;
+		QToolButton *backwardButton;
+		QToolButton *forwardButton;
+	
+		QList<Link> links;
 };
 
+class Manual : public QDialog
+{
+	public:
+		Manual(QWidget *parent = 0);
+		~Manual();
+
+		void saveSettings();
+		void loadSettings();
+	private:
+		ManualBrowserWithWidgets *browser;
+		QString language;
+};
+
+
 #endif
+

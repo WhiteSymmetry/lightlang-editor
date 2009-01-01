@@ -13,6 +13,8 @@ class About : public QDialog
 	private:
 		QLabel *iconLabel;
 		QLabel *textLabel;
+		QHBoxLayout *topLayout;
+		QHBoxLayout *bottomLayout;
 		QVBoxLayout *mainLayout;
 	public:
 		About(QWidget *parent = 0);

@@ -6,7 +6,7 @@
 class NewDictWidget;
 class LoadDictionaryWidget;
 class TabsWidget;
-class QStackedWidget;
+class StackedWidget;
 class QTextBrowser;
 class BrowserWithWidgets;
 class QToolButton;
@@ -14,6 +14,7 @@ class DatabaseCenter;
 class LoadDictionaryThread;
 class QMessageBox;
 class QPushButton;
+class SettingsWidget;
 
 class CentralWidget : public QWidget
 {
@@ -46,6 +47,7 @@ class CentralWidget : public QWidget
 	private slots:
 		void cancelLoading();
 		void loadingFinished();
+		void openLastLoadedDictionary();
 	private:
 		QMessageBox *continueLoadingOfLastLoadedOrNotDialog;
 		QPushButton *continueLoadingLastLoadedButton;
@@ -66,12 +68,13 @@ class CentralWidget : public QWidget
 		QPushButton *ignoreLoadingButton;
 	
 		DatabaseCenter *databaseCenter;
-		QStackedWidget *stackedWidget;
+		StackedWidget *stackedWidget;
 		TabsWidget *tabsWidget;
 		NewDictWidget *newDictWidget;
 		LoadDictionaryWidget *loadDictionaryWidget;
 		BrowserWithWidgets *startPageViewer;
 		LoadDictionaryThread *loadDictionaryThread;
+		SettingsWidget *settingsWidget;
 	
 		QToolButton *createNewDictBorderButton;
 		QToolButton *openDictBorderButton;

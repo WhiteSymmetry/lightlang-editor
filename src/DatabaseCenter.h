@@ -35,6 +35,7 @@ class DatabaseCenter : public QObject
 		QString getCurrentDatabaseName() const;
 	
 		bool doesDictionaryExist(const QString& pathToDict);
+		bool isThereWordInDatabase(const QString& word);
 	private:
 		QString currentConnectionName;
 		QString previousConnectionName;

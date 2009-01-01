@@ -1,11 +1,11 @@
 #ifndef TRANSLATIONEDITOR_H
 #define TRANSLATIONEDITOR_H
 
-#include <QtGui/QTextEdit>
+#include "BrowserWithWidgets.h"
 
 class HighLighter;
 
-class TranslationEditor : public QTextEdit
+class TranslationEditor : public BrowserWithWidgets
 {
 	public:
 		TranslationEditor();

@@ -3,6 +3,9 @@
 
 TranslationEditor::TranslationEditor() {
 	highLighter = new HighLighter(document());
+	setReadOnly(false);
+	setOrientation(BrowserWithWidgets::Vertical);
+	setPosition(BrowserWithWidgets::Right);
 }
 
 TranslationEditor::~TranslationEditor() {

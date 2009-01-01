@@ -24,7 +24,7 @@ MainWindow::MainWindow() {
 	manual = new Manual;
 	
 	dictionariesManager = new DictionariesManager(this);
-	connect(dictionariesManager,SIGNAL(openDatabaseWithName(const QString&)),centralWidget,SLOT(setCurrentDatabase(const QString&)));
+	connect(dictionariesManager,SIGNAL(openDatabaseWithName(const QString&)),this,SLOT(openDatabaseWithName(const QString&)));
 	connect(dictionariesManager,SIGNAL(removeDatabaseWithName(const QString&)),this,SLOT(removeDatabaseWithName(const QString&)));
 	
 	centralWidget->setExistingDictionaries(dictionariesManager->getExistingDictionaries());
@@ -93,6 +93,7 @@ void MainWindow::createActions() {
 	connect(openDictAction,SIGNAL(triggered()),this,SLOT(openDictionary()));
 	
 	recentDictsMenu = new QMenu;
+	connect(recentDictsMenu,SIGNAL(triggered(QAction *)),this,SLOT(openDictionaryOfAction(QAction *)));
 	
 	openRecentDictsAction = new QAction(this);
 	openRecentDictsAction->setText(tr("Recently opened"));
@@ -102,7 +103,7 @@ void MainWindow::createActions() {
 	saveDictAction = new QAction(this);
 	saveDictAction->setText(tr("Save dictionary"));
 	saveDictAction->setIcon(QIcon(":/icons/save.png"));
-	saveDictAction->setShortcut(QKeySequence("Ctrl+S"));
+	saveDictAction->setShortcut(QKeySequence("Ctrl+Alt+S"));
 	saveDictAction->setEnabled(false);
 	
 	saveDictAsAction = new QAction(this);
@@ -116,7 +117,7 @@ void MainWindow::createActions() {
 	
 	openTabAction = new QAction(this);
 	openTabAction->setText(tr("New tab"));
-	openTabAction->setIcon(QIcon(":/icons/new_tab.png"));
+	openTabAction->setIcon(QIcon(":/icons/add.png"));
 	openTabAction->setShortcut(QKeySequence("Ctrl+T"));
 	openTabAction->setEnabled(false);
 	connect(openTabAction,SIGNAL(triggered()),centralWidget,SLOT(openNewTab()));
@@ -164,39 +165,41 @@ void MainWindow::createActions() {
 
 	pasteBlockAction = new QAction(this);
 	pasteBlockAction->setText(tr("Paste block"));       
-	pasteBlockAction->setShortcut(QKeySequence("Alt+S"));
+	pasteBlockAction->setShortcut(QKeySequence("Ctrl+R"));
 	pasteBlockAction->setIcon(QIcon(":/icons/text_block.png"));
 	
 	pasteBoldAction = new QAction(this);
 	pasteBoldAction->setText(tr("Paste bold"));              
-	pasteBoldAction->setShortcut(QKeySequence("Alt+B"));
+	pasteBoldAction->setShortcut(QKeySequence("Ctrl+B"));
 	pasteBoldAction->setIcon(QIcon(":/icons/text_bold.png"));
 	
 	pasteItalicAction = new QAction(this);
 	pasteItalicAction->setText(tr("Paste italic"));
 	pasteItalicAction->setIcon(QIcon(":/icons/text_italic.png"));
-	pasteItalicAction->setShortcut(QKeySequence("Alt+I"));
+	pasteItalicAction->setShortcut(QKeySequence("Ctrl+I"));
 	
 	pasteUnderlineAction = new QAction(this);
 	pasteUnderlineAction->setText(tr("Paste underline"));
 	pasteUnderlineAction->setIcon(QIcon(":/icons/text_underline.png"));
-	pasteUnderlineAction->setShortcut(QKeySequence("Alt+U"));
+	pasteUnderlineAction->setShortcut(QKeySequence("Ctrl+U"));
 	
 	pasteSpecialAction = new QAction(this);
 	pasteSpecialAction->setText(tr("Paste office word"));
 	pasteSpecialAction->setIcon(QIcon(":/icons/text_officeword.png"));
-	pasteSpecialAction->setShortcut(QKeySequence("Alt+O"));
+	pasteSpecialAction->setShortcut(QKeySequence("Ctrl+D"));
 	
 	pasteLinkAction = new QAction(this);
 	pasteLinkAction->setText(tr("Paste link"));
 	pasteLinkAction->setIcon(QIcon(":/icons/text_link.png"));
-	pasteLinkAction->setShortcut(QKeySequence("Alt+L"));
+	pasteLinkAction->setShortcut(QKeySequence("Ctrl+L"));
 	
 	pasteSoundAction = new QAction(this);
 	pasteSoundAction->setText(tr("Paste sound"));
 	pasteSoundAction->setStatusTip(tr("Paste teg \"sound of some words\""));
-	pasteSoundAction->setShortcut(QKeySequence("Alt+S"));
 	pasteSoundAction->setIcon(QIcon(":/icons/text_sound.png"));
+	
+	connect(centralWidget,SIGNAL(startPageShown(bool)),this,SLOT(disableEditionActions(bool)));
+	disableEditionActions(true);
 	
 	QMenu *editMenu = menuBar()->addMenu("&" + tr("Edit"));
 	editMenu->addAction(pasteBlockAction);
@@ -292,6 +295,7 @@ void MainWindow::loadSettings() {
 	move(settings.value("MainWindow/Position",QPoint(0,0)).toPoint());
 	restoreState(settings.value("MainWindow/State").toByteArray());
 	centralWidget->loadSettings();
+	manual->loadSettings();
 }
 
 void MainWindow::saveSettings() {
@@ -300,7 +304,9 @@ void MainWindow::saveSettings() {
 	settings.setValue("General/RecentOpenedDictionaries",recentOpenedDictionaries);
 	settings.setValue("MainWindow/Position",pos());
 	settings.setValue("MainWindow/Size",size());
+	editionToolBar->hide();
 	settings.setValue("MainWindow/State",saveState());
+	manual->saveSettings();
 }
 
 void MainWindow::quit() {
@@ -329,8 +335,8 @@ void MainWindow::updateRecentDictsMenu() {
 	QString startPageText = 
 		"<hr><table border=\"0\" width=\"100%\"><tr><td bgcolor=\"#DFEDFF\"><h2 align=\"center\"><em>" + 
 		tr("Start page") + 	
-		"</em></h2></td></tr></table><hr>" +
-		tr("Hello, thank you for LightLang Editor using! With editor help you can edit existed dictionaries, create new dictionaries and add dictionaries to SL database.") +
+		"</em></h2></td></tr></table><hr>&nbsp;&nbsp;&nbsp;&nbsp;" +
+		tr("Hello, thank you for LightLang Editor usage! The editor help you to edit existing dictionaries, create new dictionary and add dictionaries to SL database. Read documentation about SL tags before edition please to learn how to format text in SL dictionaries. If you started LightLang Editor in first time, you should open existing dictionary to edit it or create new dictionary in file menu.") +
 		"<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>" + tr("Recent opened dictionaries") + ":</b><ul>";
 	for (int i = recentOpenedDictionaries.count() - 1; i >= 0; i--)
 		startPageText += "<li><a href=\"" + recentOpenedDictionaries[i] + "\">" + recentOpenedDictionaries[i] + "</a></li>";
@@ -353,4 +359,22 @@ void MainWindow::removeDatabaseWithName(const QString& dbName) {
 	}
 }
 
+void MainWindow::openDatabaseWithName(const QString& databaseName) {
+	recentOpenedDictionaries << databaseName;
+	updateRecentDictsMenu();
+	centralWidget->setCurrentDatabase(databaseName);
+}
 
+void MainWindow::disableEditionActions(bool isDisabled) {
+	pasteBoldAction->setEnabled(!isDisabled);
+	pasteItalicAction->setEnabled(!isDisabled);
+	pasteUnderlineAction->setEnabled(!isDisabled);
+	pasteLinkAction->setEnabled(!isDisabled);
+	pasteBlockAction->setEnabled(!isDisabled);
+	pasteSoundAction->setEnabled(!isDisabled);
+	pasteSpecialAction->setEnabled(!isDisabled);
+}
+
+void MainWindow::openDictionaryOfAction(QAction *chosenAction) {
+	centralWidget->setCurrentDatabase(chosenAction->text());
+}

@@ -78,7 +78,7 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	
 	addToSlAction = new QAction(treeWidget);
 	addToSlAction->setText(tr("Add to SL"));
-	addToSlAction->setIcon(QIcon(":/icons/new_tab.png"));
+	addToSlAction->setIcon(QIcon(":/icons/add.png"));
 	
 	openButton = new QToolButton;
 	openButton->setAutoRaise(true);
@@ -94,7 +94,7 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	
 	addToSlButton = new QToolButton;
 	addToSlButton->setAutoRaise(true);
-	addToSlButton->setIcon(QIcon(":/icons/new_tab.png"));
+	addToSlButton->setIcon(QIcon(":/icons/add.png"));
 	addToSlAction->setToolTip(tr("Add the dictionary in SL databases"));
 	
 	treeWidget->addStretch();

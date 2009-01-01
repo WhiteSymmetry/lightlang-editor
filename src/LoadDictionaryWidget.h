@@ -8,6 +8,7 @@ class ProgressBarWithWidgets;
 class QShowEvent;
 class QLabel;
 class QTimer;
+class QPushButton;
 
 class LoadDictionaryWidget : public BorderPanelWithWidget
 {
@@ -16,6 +17,7 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 		void canceled();
 		void paused();
 		void continued();
+		void openLastLoadedDictionary();
 	public slots:
 		void setMaximum(int max);
 		void addValue();
@@ -39,6 +41,7 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 		QLabel *textLabel;
 		QToolButton *pauseLoadingButton;
 		QToolButton *continueLoadingButton;
+		QPushButton *openLoadedDictionaryButton;
 };
 
 #endif

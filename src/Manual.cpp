@@ -1,157 +1,216 @@
-#include <QtGui/QPushButton>
-#include <QtGui/QLabel>
-#include <QtGui/QTextBrowser>
-#include <QtGui/QListWidget>
-#include <QtGui/QSplitter>
-#include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
+#include <QtGui/QTextBrowser>
+#include <QtGui/QIcon>
+#include <QtGui/QApplication>
+#include <QtCore/QDir>
 #include <QtCore/QLocale>
+#include <QtCore/QTimer>
 #include <QtCore/QSettings>
-#include <QtCore/QFileInfo>
+#include <QtCore/QFile>
 #include "const.h"
 #include "Manual.h"
 
-Manual::Manual(QWidget *parent) : QDialog(parent)
-{
-	language = QLocale().name();
-	language = language.remove(language.indexOf("_"),language.length());
+const int SPEED = 15;
 
-	headerLabel = new QLabel;
-	headerLabel->setText("<center><b><font size=\'4\'>" + tr("LightLang Editor\'s manual") + "</font></b></center>");
-	// Create push buttons
-	// backward button
-	backwardButton = new QPushButton;
+ManualBrowserWithWidgets::ManualBrowserWithWidgets() {
+	timer = new QTimer;
+	timer->setInterval(5);
+	rollToDown = false;
+	
+	setOpenExternalLinks(true);
+	
+	buttonsFrame = new QFrame;
+	buttonsFrame->setFrameShape(QFrame::Box);
+	buttonsFrame->setFrameShadow(QFrame::Raised);
+	buttonsFrame->setStyleSheet("QFrame {border: 1px solid gray; border-radius: 4px; background-color: rgb(200, 200, 200, 180)}");
+	
+	buttonsFrameLayout = new QHBoxLayout;
+	buttonsFrame->setLayout(buttonsFrameLayout);
+	
+	showLinksButton = new QToolButton;
+	showLinksButton->setIcon(QIcon(":/icons/manual.png"));
+	showLinksButton->setIconSize(QSize(22, 22));
+	showLinksButton->setCursor(Qt::ArrowCursor);
+	showLinksButton->setAutoRaise(true);
+	
+	backwardButton = new QToolButton;
 	backwardButton->setIcon(QIcon(":/icons/backward.png"));
-	backwardButton->setIconSize(QSize(22,22));
-	backwardButton->setFlat(true);
+	backwardButton->setIconSize(QSize(22, 22));
+	backwardButton->setCursor(Qt::ArrowCursor);
+	backwardButton->setAutoRaise(true);
 	backwardButton->setEnabled(false);
-	backwardButton->adjustSize();
-	backwardButton->setFixedSize(backwardButton->size());
-	// Next button
-	forwardButton = new QPushButton;
+	
+	forwardButton = new QToolButton;
 	forwardButton->setIcon(QIcon(":/icons/forward.png"));
-	forwardButton->setIconSize(QSize(22,22));
-	forwardButton->setFlat(true);
+	forwardButton->setIconSize(QSize(22, 22));
+	forwardButton->setCursor(Qt::ArrowCursor);
+	forwardButton->setAutoRaise(true);
 	forwardButton->setEnabled(false);
-	forwardButton->adjustSize();
-	forwardButton->setFixedSize(forwardButton->size());
-	//=========================
-	// Create list widget
-	listWidget = new QListWidget;
-	listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	connect(listWidget,SIGNAL(currentRowChanged(int)),this,SLOT(changePage(int)));
-	// Create text browser
-	browser = new QTextBrowser;
 	
-	splitter = new QSplitter;
-	splitter->insertWidget(0,listWidget);
-	splitter->insertWidget(1,browser);
-	splitter->setChildrenCollapsible(false);
-	splitter->setStretchFactor(1,1);
+	QFrame *verticalFrame = new QFrame;
+	verticalFrame->setFrameStyle(QFrame::VLine | QFrame::Sunken);
 	
-	QSettings settings(ORGANIZATION,PROGRAM_NAME);
-	settings.beginGroup("GeneralSettings");
-	splitter->restoreState(settings.value("ManualState").toByteArray());
-	settings.endGroup();
+	buttonsFrameLayout->addWidget(showLinksButton);
+	buttonsFrameLayout->addWidget(verticalFrame);
+	buttonsFrameLayout->addWidget(backwardButton);
+	buttonsFrameLayout->addWidget(forwardButton);
+	buttonsFrameLayout->setContentsMargins(0,0,0,0);
 	
-	addItem(tr("About LightLang Editor"),"about.html");
-	addItem(tr("Tags and dictionary's format"),"tags.html");
-	addItem(tr("How to use the program"),"howtouse.html");
-	addItem(tr("Interaction of Editor and SL"),"interaction.html");
-	addItem(tr("Integradable friend applications"),"ifa.html");
-	addItem(tr("Bugs and offers"),"bugs.html");
-	addItem(tr("Authors and thanks"),"authors.html");
-	addItem(tr("Internet links"),"links.html");
-	addItem(tr("List of changes"),"changelog.html");
-	addItem(tr("License"),"license.html");
-	listWidget->setCurrentRow(0);
+	buttonsFrame->setFixedSize(buttonsFrameLayout->minimumSize());
 	
-	// Create connections 
-	connect(backwardButton,SIGNAL(clicked()),this,SLOT(backward()));
-	connect(forwardButton,SIGNAL(clicked()),this,SLOT(forward()));
-	connect(browser,SIGNAL(backwardAvailable(bool)),backwardButton,SLOT(setEnabled(bool)));
-	connect(browser,SIGNAL(forwardAvailable(bool)),forwardButton,SLOT(setEnabled(bool)));
-	connect(browser,SIGNAL(anchorClicked(const QUrl&)),this,SLOT(changePage(const QUrl&)));
+	linksFrame = new QFrame;
+	linksFrame->setFrameShape(QFrame::Box);
+	linksFrame->setFrameShadow(QFrame::Raised);
+	QColor color = QApplication::palette().color(QPalette::Window);
+	QString r = QVariant(color.red()).toString(); 
+	QString g = QVariant(color.green()).toString();
+	QString b = QVariant(color.blue()).toString();
+	linksFrame->setStyleSheet(QString("QFrame {border: 1px solid gray; border-radius: 4px; background-color: rgb(%1, %2, %3, 180)}").arg(r,g,b));
+	linksFrame->setMaximumHeight(0);
 	
-	// Create top Layout with home, backward and forward buttons
+	linksFrameLayout = new QVBoxLayout;
+	linksFrame->setLayout(linksFrameLayout);
+	linksFrameLayout->setContentsMargins(0,0,0,0);
+	
 	QHBoxLayout *topLayout = new QHBoxLayout;
-	topLayout->addWidget(backwardButton);
-	topLayout->addWidget(forwardButton);
-	topLayout->addWidget(headerLabel,1);
+	topLayout->addStretch();
+	topLayout->addWidget(buttonsFrame);
+	topLayout->setContentsMargins(0,0,0,0);
 	
-	//Create Main Layout
+	QHBoxLayout *bottomLayout = new QHBoxLayout;
+	bottomLayout->addStretch();
+	bottomLayout->addWidget(linksFrame);
+	bottomLayout->setContentsMargins(0,0,0,0);
+	
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(topLayout);
-	mainLayout->addWidget(splitter,1);
-	mainLayout->setMargin(0);
-
+	mainLayout->addLayout(bottomLayout);
+	mainLayout->addStretch();
+	mainLayout->setContentsMargins(0,6,18,0);
 	setLayout(mainLayout);
-	setWindowTitle(tr("Manual"));
+	
+	connect(showLinksButton,SIGNAL(clicked()),this,SLOT(showLinks()));
+	connect(timer,SIGNAL(timeout()),this,SLOT(updateLinksSize()));
+	connect(backwardButton,SIGNAL(clicked()),this,SLOT(backward()));
+	connect(forwardButton,SIGNAL(clicked()),this,SLOT(forward()));
+	connect(this,SIGNAL(backwardAvailable(bool)),backwardButton,SLOT(setEnabled(bool)));
+	connect(this,SIGNAL(forwardAvailable(bool)),forwardButton,SLOT(setEnabled(bool)));
+}
+
+ManualBrowserWithWidgets::~ManualBrowserWithWidgets() {
+	foreach (Link link,links)
+		delete link.linkView;
+	
+	delete timer;
+	
+	delete showLinksButton;
+	delete backwardButton;
+	delete forwardButton;
+	
+	delete buttonsFrameLayout;
+	delete buttonsFrame;
+	
+	delete linksFrameLayout;
+	delete linksFrame;
+}
+
+void ManualBrowserWithWidgets::addLink(const QString& linkTitle,const QString& sourcePath) {
+	QToolButton *linkView = new QToolButton;
+	linkView->setToolButtonStyle(Qt::ToolButtonTextOnly);
+	linkView->setText(linkTitle);
+	linkView->setAutoRaise(true);
+	linkView->setCheckable(true);
+	linkView->setMaximumHeight(20);
+	linksFrameLayout->addWidget(linkView);
+	connect(linkView,SIGNAL(clicked()),this,SLOT(changeSource()));
+	
+	links << Link(linkView,sourcePath);
+	if (links.count() == 1)
+		setSource(sourcePath);
+}
+
+void ManualBrowserWithWidgets::changeSource() {
+	foreach (Link link,links) {
+		if (link.linkView->isChecked()) {
+			link.linkView->setChecked(false);
+			setSource(link.linkSource);
+		}
+	}
+	//showLinks();
+}
+
+void ManualBrowserWithWidgets::showLinks() {
+	rollToDown = !rollToDown;
+	timer->start();
+}
+
+void ManualBrowserWithWidgets::updateLinksSize() {
+	if (rollToDown) {
+		if (linksFrame->height() + SPEED >= linksFrame->sizeHint().height())
+			linksFrame->setMaximumHeight(linksFrame->sizeHint().height());
+		else
+			linksFrame->setMaximumHeight(linksFrame->height() + SPEED);
+		if (linksFrame->height() != linksFrame->sizeHint().height())
+			timer->start();
+	} else {
+		if (linksFrame->height() - SPEED <= 0)
+			linksFrame->setMaximumHeight(0);
+		else
+			linksFrame->setMaximumHeight(linksFrame->height() - SPEED);
+		if (linksFrame->height() != 0)
+			timer->start();
+	}
+	linksFrame->resize(linksFrame->sizeHint());
+}
+
+Manual::Manual(QWidget *parent) : QDialog(parent) {
+	
+	language = QLocale().name();
+	language = language.remove(language.indexOf("_"),language.length());
+	
+	browser = new ManualBrowserWithWidgets;
+	
+	QVBoxLayout *mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(browser);
+	mainLayout->setContentsMargins(0,0,0,0);
+	
+	setLayout(mainLayout);
 	setWindowIcon(QIcon(":/icons/manual.png"));
-	resize(600,300);
+	setWindowTitle(tr("Documentation"));
+	
+	// If documentation with user language doesn't exist - show english
+	if (!QDir(QDir::toNativeSeparators(QDir::currentPath() + "/doc/" + language)).exists())
+		language = "en";
+	
+	QString documenationPath = QDir::toNativeSeparators(QDir::currentPath() + "/doc/" + language + "/html/");
+	
+	browser->addLink(tr("About the program"),documenationPath + "about.html");
+	browser->addLink(tr("Tags and dictionary's format"),documenationPath + "tags.html");
+	browser->addLink(tr("How to use the program"),documenationPath + "howtouse.html");
+	browser->addLink(tr("Interaction with SL"),documenationPath + "interaction.html");
+	browser->addLink(tr("IFA information"),documenationPath + "ifa.html");
+	browser->addLink(tr("Bugs in the program"),documenationPath + "bugs.html");
+	browser->addLink(tr("Authors"),documenationPath + "authors.html");
+	browser->addLink(tr("Web links"),documenationPath + "links.html");
+	browser->addLink(tr("Changelogs"),documenationPath + "changelog.html");
+	browser->addLink(tr("License"),documenationPath + "license.html");
+	
+	setMinimumSize(sizeHint());
 }
 
 Manual::~Manual() {
-	delete backwardButton;
-	delete forwardButton;
 	delete browser;
-	delete listWidget;
-	delete splitter;
-	delete headerLabel;
 }
 
-QByteArray Manual::getState()
-{
-	return splitter->saveState();
+void Manual::saveSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	settings.setValue("Manual/size",size());
 }
 
-void Manual::addItem(const QString title,const QString url)
-{
-	QListWidgetItem *item = new QListWidgetItem;
-	item->setData(1,url);
-	item->setText(title);
-	listWidget->addItem(item);
+void Manual::loadSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	resize(settings.value("Manual/size",QSize(500,300)).toSize());
 }
 
-void Manual::changePage(int index)
-{
-	browser->setSource(QUrl(DOC_PATH + language + '/' + listWidget->item(index)->data(1).toString()));
-}
-
-void Manual::changePage(const QUrl& url)
-{
-	QString name = QFileInfo(url.toString()).fileName();
-	for (int i = 0; i < listWidget->count(); i++)
-		if (name == listWidget->item(i)->data(1).toString())
-		{
-			listWidget->blockSignals(true);
-			listWidget->setCurrentRow(i);
-			listWidget->blockSignals(false);
-		}
-}
-
-void Manual::backward()
-{
-	browser->backward();
-	QString name = QFileInfo(browser->source().toString()).fileName();
-	for ( int i = 0; i < listWidget->count(); i++ )
-		if ( name == listWidget->item(i)->data(1).toString() )
-		{
-			listWidget->blockSignals(true);
-			listWidget->setCurrentRow(i);
-			listWidget->blockSignals(false);
-		}
-}
-
-void Manual::forward()
-{
-	browser->forward();
-	QString name = QFileInfo(browser->source().toString()).fileName();
-	for ( int i = 0; i < listWidget->count(); i++ )
-		if ( name == listWidget->item(i)->data(1).toString() )
-		{
-			listWidget->blockSignals(true);
-			listWidget->setCurrentRow(i);
-			listWidget->blockSignals(false);
-		}
-}

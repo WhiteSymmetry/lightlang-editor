@@ -4,7 +4,7 @@
 #include <QtGui/QTabWidget>
 
 class TabWidget;
-class QPushButton;
+class QToolButton;
 class DatabaseCenter;
 
 class TabsWidget : public QTabWidget
@@ -18,13 +18,16 @@ class TabsWidget : public QTabWidget
 	public:
 		TabsWidget(DatabaseCenter *databaseCenter,QWidget *parent = 0);
 		~TabsWidget();
+	private slots:
+		void renameTab(int index,const QString& name);
+		void currentTabChanged(int index);
 	private:
 		DatabaseCenter *databaseCenter;
 	
 		QList<TabWidget *> tabs;
 	
-		QPushButton *newTabButton;
-		QPushButton *closeCurrentTabButton;
+		QToolButton *newTabButton;
+		QToolButton *closeCurrentTabButton;
 };
 
 #endif

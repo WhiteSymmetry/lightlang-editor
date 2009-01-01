@@ -3,30 +3,41 @@
 #include <QtGui/QIcon>
 #include <QtGui/QVBoxLayout>
 #include "About.h"
+#include "const.h"
 
 About::About(QWidget *parent) : QDialog(parent) {
 	iconLabel = new QLabel;
-	iconLabel->setPixmap(QPixmap(":/images/about.png"));
+	iconLabel->setPixmap(QIcon(":/icons/lle.png").pixmap(100,100));
 		
 	textLabel = new QLabel;
 	textLabel->setWordWrap(true);
 	
-	textLabel->setText(tr("Copyright (c) 2007-2008 Tikhonov Sergey and ViaLinx Laboratories. All offers and reports you can send to e-mail: <b>sstikhonov@gmail.com</b>"));
+	textLabel->setText("<center><h3>" + tr("LightLang Editor") + "</h3></center>"
+					+ "<b>" + tr("Developers") + ":</b> <br>"
+						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Tikhonov Sergey</i><br>"
+					+ "<b>" + tr("Assistans") + ":</b> <br>"
+						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Devaev Maxim</i><br>"
+						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Nasyrov Renat</i><br>"
+						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Fomkin Vladimir</i><br>"
+					+ "<b>" + tr("Testers") + ":</b> <br>"
+						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Kolbin Yaroslav</i><br>"
+						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Ursul Alexey</i><br>"
+					+ "<font size='2'>" + tr("Copyright (c) 2007-2009 Tikhonov Sergey and ViaLinx Laboratories. %1 All offers and reports you can send to e-mail: <b>sstikhonov@gmail.com</b>").arg("<br>") + "</font>");
 			
-	setWindowTitle(tr("About the program"));
+	setWindowTitle(tr("About LightLang Editor"));
 	
-	QVBoxLayout *textLayout = new QVBoxLayout;
-	textLayout->setMargin(5);
-	textLayout->addWidget(textLabel);
+	QHBoxLayout *iconLayout = new QHBoxLayout;
+	iconLayout->addStretch();
+	iconLayout->addWidget(iconLabel);
+	iconLayout->addStretch();
 	
 	mainLayout = new QVBoxLayout;
-	mainLayout->setMargin(0);
-	mainLayout->addWidget(iconLabel);
-	mainLayout->addLayout(textLayout);
-	mainLayout->addStretch();
+	mainLayout->addLayout(iconLayout);
+	mainLayout->addWidget(textLabel);
 	
 	setLayout(mainLayout);
 	setFixedSize(sizeHint());
+	setStyleSheet("QDialog { background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 white, stop: 0.5 #c8e4ef, stop: 1 white); }");
 }
 
 About::~About() {
@@ -35,3 +46,4 @@ About::~About() {
 	
 	delete mainLayout;
 }
+

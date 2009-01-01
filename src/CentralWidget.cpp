@@ -1,4 +1,3 @@
-#include <QtGui/QStackedWidget>
 #include <QtGui/QToolButton>
 #include <QtGui/QTextBrowser>
 #include <QtGui/QVBoxLayout>
@@ -13,6 +12,8 @@
 #include "BrowserWithWidgets.h"
 #include "DatabaseCenter.h"
 #include "LoadDictionaryThread.h"
+#include "StackedWidget.h"
+#include "SettingsWidget.h"
 #include "const.h"
 #include "CentralWidget.h"
 
@@ -80,18 +81,22 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	startPageViewer->addWidget(showDictsManagerButton);
 	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(setCurrentDatabase(const QString&)));
 
-	stackedWidget = new QStackedWidget;
+	stackedWidget = new StackedWidget;
 	
 	tabsWidget = new TabsWidget(databaseCenter);
 	connect(tabsWidget,SIGNAL(closeTabButtonClicked()),this,SLOT(closeCurrentTab()));
 	
-	stackedWidget->addWidget(startPageViewer);
-	stackedWidget->addWidget(tabsWidget);
+	settingsWidget = new SettingsWidget;
+	
+	stackedWidget->addNewWidget(startPageViewer);
+	stackedWidget->addNewWidget(tabsWidget);
+	stackedWidget->addNewWidget(settingsWidget);
 	stackedWidget->setCurrentIndex(0);
 	
 	loadDictionaryWidget = new LoadDictionaryWidget;
 	loadDictionaryWidget->setMaximumHeight(0);
 	connect(loadDictionaryWidget,SIGNAL(canceled()),this,SLOT(cancelLoading()));
+	connect(loadDictionaryWidget,SIGNAL(openLastLoadedDictionary()),this,SLOT(openLastLoadedDictionary()));
 	
 	loadDictionaryThread = new LoadDictionaryThread;
 	connect(loadDictionaryThread,SIGNAL(rowsCounted(int)),loadDictionaryWidget,SLOT(setMaximum(int)));
@@ -130,6 +135,7 @@ CentralWidget::~CentralWidget() {
 	delete continueLoadingOfLastLoadedOrNotDialog;
 	delete cancelOrContinueCurrentLoadingDialog;
 	
+	delete settingsWidget;
 	delete loadDictionaryWidget;
     delete tabsWidget;
 	delete createNewDictBorderButton;
@@ -241,8 +247,6 @@ void CentralWidget::removeDatabaseWithName(const QString& dbName) {
 }
 
 void CentralWidget::loadingFinished() {
-	loadDictionaryWidget->hideWithRolling();
-	setCurrentDatabase(currentLoadingDictName);
 	existingDictionaries << currentLoadingDictName;
 	currentLoadingDictAbout = loadDictionaryThread->getAboutDict();
 	emit (loadingCompleted(true));
@@ -282,4 +286,9 @@ bool CentralWidget::saveSettings() {
 
 QString CentralWidget::getLoadedDictAbout() const {
 	return currentLoadingDictAbout;
+}
+
+void CentralWidget::openLastLoadedDictionary() {
+	loadDictionaryWidget->hideWithRolling();
+	setCurrentDatabase(currentLoadingDictName);
 }

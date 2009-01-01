@@ -1,6 +1,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QLabel>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QPushButton>
 #include <QtCore/QTimer>
 #include "ProgressBarWithWidgets.h"
 #include "LoadDictionaryWidget.h"
@@ -30,6 +31,12 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 	cancelLoadingButton->setAutoRaise(true);
 	cancelLoadingButton->setToolTip(tr("Cancel loading"));
 	
+	openLoadedDictionaryButton = new QPushButton;
+	openLoadedDictionaryButton->setIcon(QIcon(":/icons/open.png"));
+	openLoadedDictionaryButton->setText(tr("Open loaded dictionary"));
+	connect(openLoadedDictionaryButton,SIGNAL(clicked()),this,SIGNAL(openLastLoadedDictionary()));
+	openLoadedDictionaryButton->hide();
+	
 	textLabel = new QLabel(tr("Dictionary loading") + "...");
 	
 	progressBar->addWidget(cancelLoadingButton);
@@ -39,7 +46,14 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 	progressBar->addWidget(continueLoadingButton);
 	progressBar->addWidget(pauseLoadingButton);
 	
-	setWidget(progressBar);
+	QHBoxLayout *mainLayout = new QHBoxLayout;
+	mainLayout->addWidget(progressBar,1);
+	mainLayout->addWidget(openLoadedDictionaryButton);
+	
+	QWidget *mainWidget = new QWidget;
+	mainWidget->setLayout(mainLayout);
+	
+	setWidget(mainWidget);
 	
 	connect(cancelLoadingButton,SIGNAL(clicked()),this,SIGNAL(canceled()));
 	connect(cancelLoadingButton,SIGNAL(clicked()),this,SLOT(hideWithRolling()));
@@ -49,6 +63,7 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 
 LoadDictionaryWidget::~LoadDictionaryWidget() {
 	delete timer;
+	delete openLoadedDictionaryButton;
 	delete cancelLoadingButton;
 	delete continueLoadingButton;
 	delete pauseLoadingButton;
@@ -58,6 +73,13 @@ LoadDictionaryWidget::~LoadDictionaryWidget() {
 
 void LoadDictionaryWidget::addValue() {
 	progressBar->setValue(progressBar->value() + 1);
+	if (progressBar->value() >= progressBar->maximum()) {
+		openLoadedDictionaryButton->show();
+		continueLoadingButton->hide();
+		pauseLoadingButton->hide();
+		cancelLoadingButton->hide();
+		textLabel->setText(tr("Loading is finished"));
+	}
 }
 
 void LoadDictionaryWidget::setMaximum(int max) {
@@ -71,7 +93,8 @@ void LoadDictionaryWidget::reset() {
 	progressBar->reset();
 	continueLoadingButton->hide();
 	pauseLoadingButton->show();
-	textLabel->setText(tr("Dictionary loading") + "...");	
+	cancelLoadingButton->show();
+	textLabel->setText(tr("Dictionary is loading") + "...");	
 }
 
 void LoadDictionaryWidget::pauseLoading() {

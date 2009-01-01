@@ -28,6 +28,9 @@ class MainWindow : public QMainWindow
 	private slots:
 		void loadingCompleted(bool isSuccessful);
 		void quit();
+		void openDatabaseWithName(const QString& databaseName);
+		void disableEditionActions(bool isDisabled);
+		void openDictionaryOfAction(QAction *chosenAction);
 	private:
 		void saveSettings();
 		void loadSettings();

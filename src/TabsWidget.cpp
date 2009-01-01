@@ -1,25 +1,31 @@
-#include <QtGui/QPushButton>
+#include <QtGui/QToolButton>
 #include "TabWidget.h"
 #include "TabsWidget.h"
 
 TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(parent) {
 	databaseCenter = dbCenter;
 	
-	newTabButton = new QPushButton;
-	newTabButton->setFlat(true);
-	newTabButton->setIcon(QIcon(":/icons/new_tab.png"));
+	newTabButton = new QToolButton;
+	newTabButton->setAutoRaise(true);
+	newTabButton->setIcon(QIcon(":/icons/add.png"));
+	newTabButton->setToolTip(tr("Open new tab"));
 	connect(newTabButton,SIGNAL(clicked()),this,SLOT(openNewTab()));
 	
-	closeCurrentTabButton = new QPushButton;
-	closeCurrentTabButton->setFlat(true);
+	closeCurrentTabButton = new QToolButton;
+	closeCurrentTabButton->setAutoRaise(true);
 	closeCurrentTabButton->setIcon(QIcon(":/icons/close_tab.png"));
+	closeCurrentTabButton->setToolTip(tr("Close tab"));
 	connect(closeCurrentTabButton,SIGNAL(clicked()),this,SIGNAL(closeTabButtonClicked()));
 	
 	setCornerWidget(newTabButton,Qt::TopLeftCorner);
 	setCornerWidget(closeCurrentTabButton,Qt::TopRightCorner);
 	
+	connect(this,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+	
 	openNewTab();
 }
+
+#include <QDebug>
 
 TabsWidget::~TabsWidget() {
 	foreach (TabWidget *tab,tabs)
@@ -29,12 +35,23 @@ TabsWidget::~TabsWidget() {
 }
 
 TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
-	TabWidget *newTabWidget = new TabWidget(databaseCenter);
-	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "*" : tabTitle));
+	TabWidget *newTabWidget = new TabWidget(databaseCenter,tabs.count());
 	tabs << newTabWidget;
+	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "(" + tr("Unnamed") + ")" : tabTitle));
+	connect(newTabWidget,SIGNAL(renameTab(int,const QString&)),this,SLOT(renameTab(int,const QString&)));
 	return newTabWidget;
 }
 
 void TabsWidget::closeCurrentTab() {
+	tabs.removeAt(currentIndex());
 	removeTab(currentIndex());
+}
+
+void TabsWidget::renameTab(int index,const QString& name) {
+	setTabText(index,name.isEmpty() ? "(" + tr("Unnamed") + ")" : name);
+}
+
+void TabsWidget::currentTabChanged(int index) {
+	if (index > 0)
+		tabs[index]->setFocusAtThisTab();
 }
