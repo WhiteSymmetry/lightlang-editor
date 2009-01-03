@@ -4,11 +4,11 @@
 #define NORMAL_SPEED 50
 #define VERY_SLOW_SPEED 100
 #define SLOW_SPEED 75
-#define FAST_SPEED 20
+#define FAST_SPEED 5
 #define IMMEDIATELY_SPEED 1
 
 StackedWidget::StackedWidget() {
-	
+	steps = 0;
 	flipToNext = true;
 	setHandleWidth(1);
 	
@@ -44,10 +44,14 @@ void StackedWidget::backward() {
 void StackedWidget::setCurrentIndex(int index) {
 	if (index < 0)
 		return;
-	if (index > currentIndex)
+	if (index > currentIndex) {
+		steps = index - currentIndex;
 		forward();
-	else if (index < currentIndex)
+	}
+	else if (index < currentIndex) {
+		steps = currentIndex - index;
 		backward();
+	}
 }
 
 void StackedWidget::setCurrentWidget(QWidget *widget) {
@@ -88,7 +92,7 @@ QWidget* StackedWidget::getCurrentWidget() const {
 }
 
 void StackedWidget::updateSizes() {
-	int  SPEED = int(width() / 3);
+	int  SPEED = int(width() / 4);
 	QList<int> widgetsSizes;
 	for (int i = 0; i < currentIndex; i++)
 		widgetsSizes << 0;
@@ -113,10 +117,21 @@ void StackedWidget::updateSizes() {
 	
 	if (widgetsSizes[currentIndex] <= 0) {
 		timer->stop();
-		if (flipToNext)
+		steps--;
+		if (flipToNext) {
 			currentIndex++;
-		else
+			if (steps > 0) {
+				forward();
+				return;
+			}
+		} else {
 			currentIndex--;
+			if (steps > 0) {
+				backward();
+				return;
+			}
+		}
+		emit(currentIndexChanged(currentIndex));
 	}
 	else
 		timer->start();

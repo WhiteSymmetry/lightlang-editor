@@ -34,6 +34,9 @@ class DictionariesManager : public QDialog
 	
 		void addDictionary(const QString& fullName,const QString& path = QString(),const QString& about = QString());
 	
+		QString getPathForDictionaryWithName(const QString& dbName);
+		QString getDictionaryAboutWithName(const QString& dbName);
+	
 		QStringList getExistingDictionaries();
 	private slots:
 		void sendSignalToOpenDatabase();

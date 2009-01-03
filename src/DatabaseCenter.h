@@ -26,6 +26,8 @@ class DatabaseCenter : public QObject
 	
 		void removeDatabaseWithName(const QString& databaseName);
 	
+		void saveCurrentDatabaseAs(const QString& dictPath,const QString& aboutDictionaryText);
+	
 		QString getTranslationForWord(const QString& word);
 		bool setTranslationForWord(const QString& word,const QString& translation);
 		bool addNewWord(const QString& word,const QString& translation);

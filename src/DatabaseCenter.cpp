@@ -5,7 +5,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
-#include <QMessageBox>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
 #include <QDebug>
 #include "DatabaseCenter.h"
 
@@ -70,13 +71,13 @@ QString DatabaseCenter::getTranslationForWord(const QString& word) {
 
 bool DatabaseCenter::setTranslationForWord(const QString& word,const QString& translation) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("UPDATE `main` SET `translation` = \"%2\"  WHERE `word` = \"%1\"").arg(word).arg(translation));
+	query.exec(QString("UPDATE `main` SET `translation` = \"%2\"  WHERE `word` = \"%1\"").arg(word.toLower()).arg(translation));
 	return query.isActive();
 }
 
 bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("INSERT INTO main(word,translation,status) VALUES(\'%1\',\'%2\',\'0\')").arg(word.simplified()).arg(translation.simplified()));
+	query.exec(QString("INSERT INTO main(word,translation,status) VALUES(\'%1\',\'%2\',\'0\')").arg(word.simplified().toLower()).arg(translation.simplified()));
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Add new word" << word << " with error:" << query.lastError().text();
 	return query.isActive();
@@ -84,7 +85,7 @@ bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) 
 
 bool DatabaseCenter::removeWord(const QString& word) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("DELETE FROM `main` WHERE word = \"%1\"").arg(word));
+	query.exec(QString("DELETE FROM `main` WHERE word = \"%1\"").arg(word.toLower()));
 	return query.isActive();
 }
 
@@ -118,3 +119,16 @@ QString DatabaseCenter::getCurrentDatabaseName() const {
 	return currentConnectionName;
 }
 
+void DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const QString& aboutDictionaryText) {
+	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
+	QFile file(dictionaryPath);
+	if (!file.open(QIODevice::WriteOnly))
+		return;
+	QTextStream stream(&file);
+	if (!aboutDictionaryText.isEmpty())
+		stream << '#' << aboutDictionaryText << '\n';
+	query.exec("SELECT * FROM main");
+	while (query.next())
+		stream << query.record().value(0).toString().simplified() << "  " << query.record().value(1).toString().simplified() << '\n';
+	file.close();
+}

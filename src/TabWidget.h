@@ -9,6 +9,7 @@ class QAction;
 class DatabaseCenter;
 class QToolButton;
 class QTimer;
+class Menu;
 
 class TabWidget : public QWidget
 {
@@ -20,6 +21,7 @@ class TabWidget : public QWidget
 		~TabWidget();
 	
 		void setFocusAtThisTab();
+		void setEditorMenu(Menu *menu);
 	
 		void setHtml(const QString& htmlText);
 		void setReadOnly(bool readOnly);
@@ -29,7 +31,10 @@ class TabWidget : public QWidget
 		void addWord();
 		void editWord();
 		void removeWord();
+		void translationChanged();
 	private:
+		void resetButtonsAccessibility();
+	
 		QTimer *timer;
 	
 		int tabIndex;

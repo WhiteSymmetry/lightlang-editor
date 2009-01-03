@@ -41,6 +41,7 @@ class StackedWidget : public QSplitter
 		QTimer *timer;
 	
 		int currentIndex;
+		int steps;
 		FlipSpeed currentFlipSpeed;
 };
 

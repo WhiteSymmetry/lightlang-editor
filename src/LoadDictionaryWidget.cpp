@@ -70,7 +70,6 @@ LoadDictionaryWidget::~LoadDictionaryWidget() {
 	delete textLabel;
 	delete progressBar;
 }
-
 void LoadDictionaryWidget::addValue() {
 	progressBar->setValue(progressBar->value() + 1);
 	if (progressBar->value() >= progressBar->maximum()) {
@@ -92,6 +91,7 @@ void LoadDictionaryWidget::setMaximum(int max) {
 void LoadDictionaryWidget::reset() {
 	progressBar->reset();
 	continueLoadingButton->hide();
+	openLoadedDictionaryButton->hide();
 	pauseLoadingButton->show();
 	cancelLoadingButton->show();
 	textLabel->setText(tr("Dictionary is loading") + "...");	

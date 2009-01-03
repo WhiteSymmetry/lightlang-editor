@@ -6,6 +6,7 @@
 class TabWidget;
 class QToolButton;
 class DatabaseCenter;
+class Menu;
 
 class TabsWidget : public QTabWidget
 {
@@ -18,6 +19,9 @@ class TabsWidget : public QTabWidget
 	public:
 		TabsWidget(DatabaseCenter *databaseCenter,QWidget *parent = 0);
 		~TabsWidget();
+	
+		void setFocusOnCurrentTab();
+		void setEditorMenu(Menu *menu);
 	private slots:
 		void renameTab(int index,const QString& name);
 		void currentTabChanged(int index);
@@ -25,6 +29,7 @@ class TabsWidget : public QTabWidget
 		DatabaseCenter *databaseCenter;
 	
 		QList<TabWidget *> tabs;
+		Menu *editorMenu;
 	
 		QToolButton *newTabButton;
 		QToolButton *closeCurrentTabButton;

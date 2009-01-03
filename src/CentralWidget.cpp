@@ -80,6 +80,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	startPageViewer->addWidget(openDictBorderButton);
 	startPageViewer->addWidget(showDictsManagerButton);
 	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(setCurrentDatabase(const QString&)));
+	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(showTabsWidget()));
 
 	stackedWidget = new StackedWidget;
 	
@@ -87,11 +88,13 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	connect(tabsWidget,SIGNAL(closeTabButtonClicked()),this,SLOT(closeCurrentTab()));
 	
 	settingsWidget = new SettingsWidget;
+	connect(settingsWidget,SIGNAL(closed()),this,SLOT(closeSettings()));
 	
 	stackedWidget->addNewWidget(startPageViewer);
 	stackedWidget->addNewWidget(tabsWidget);
 	stackedWidget->addNewWidget(settingsWidget);
 	stackedWidget->setCurrentIndex(0);
+	connect(stackedWidget,SIGNAL(currentIndexChanged(int)),this,SLOT(currentWidgetChanged(int)));
 	
 	loadDictionaryWidget = new LoadDictionaryWidget;
 	loadDictionaryWidget->setMaximumHeight(0);
@@ -116,7 +119,6 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	setLayout(mainLayout);
 	
 	connect(newDictWidget,SIGNAL(createDictionary(const QString&)),mainWindowCommunicater,SLOT(createNewDictionary(const QString&)));
-	connect(newDictWidget,SIGNAL(createDictionary(const QString&)),this,SLOT(showTabsWidget()));
 }
 
 CentralWidget::~CentralWidget() {
@@ -153,36 +155,28 @@ void CentralWidget::showNewDictWidget() {
 }
 
 void CentralWidget::openNewTab() {
-	stackedWidget->setCurrentIndex(1);
-	emit(startPageShown(false));
 	tabsWidget->openNewTab();
-}
-
-void CentralWidget::closeCurrentTab() {
-	tabsWidget->closeCurrentTab();
-	if (tabsWidget->count() == 0) {
-		stackedWidget->setCurrentIndex(0);
-		emit (startPageShown(true));
-	}
-}
-
-void CentralWidget::resizeEvent(QResizeEvent *) {
-	emit (resized(width(),height()));
 }
 
 void CentralWidget::showTabsWidget() {
 	stackedWidget->setCurrentIndex(1);
 	if (tabsWidget->count() == 0)
 		tabsWidget->openNewTab();
-	emit (startPageShown(false));
+}
+
+void CentralWidget::closeCurrentTab() {
+	if (tabsWidget->count() == 1)
+		stackedWidget->setCurrentIndex(0);
+	tabsWidget->closeCurrentTab();
+}
+
+void CentralWidget::resizeEvent(QResizeEvent *) {
+	emit (resized(width(),height()));
 }
 
 void CentralWidget::setCurrentDatabase(const QString& dbName) {
 	databaseCenter->setDatabaseName(dbName);
-	stackedWidget->setCurrentIndex(1);
-	if (tabsWidget->count() == 0)
-		tabsWidget->openNewTab();
-	emit (startPageShown(false));
+	emit (databaseWasOpened(dbName));
 }
 
 void CentralWidget::setExistingDictionaries(const QStringList& list) {
@@ -193,6 +187,7 @@ void CentralWidget::setExistingDictionaries(const QStringList& list) {
 void CentralWidget::loadDictionary(const QString& dictPath) {
 	if (existingDictionaries.contains(QFileInfo(dictPath).fileName())) {
 		setCurrentDatabase(QFileInfo(dictPath).fileName());
+		showTabsWidget();
 		return;
 	}
 	
@@ -239,7 +234,6 @@ void CentralWidget::cancelLoading() {
 void CentralWidget::removeDatabaseWithName(const QString& dbName) {
 	if (dbName == databaseCenter->getCurrentDatabaseName()) {
 		stackedWidget->setCurrentIndex(0);
-		emit (startPageShown(true));
 		emit (changeWindowTitle(""));
 	}
 	existingDictionaries.removeAll(dbName);
@@ -291,4 +285,42 @@ QString CentralWidget::getLoadedDictAbout() const {
 void CentralWidget::openLastLoadedDictionary() {
 	loadDictionaryWidget->hideWithRolling();
 	setCurrentDatabase(currentLoadingDictName);
+	showTabsWidget();
+}
+
+void CentralWidget::currentWidgetChanged(int widgetIndex) {
+	emit (startPageShown(widgetIndex != 1));
+	if (widgetIndex == 1)
+		tabsWidget->setFocusOnCurrentTab();
+}
+
+void CentralWidget::setEditorMenu(Menu *menu) {
+	tabsWidget->setEditorMenu(menu);
+}
+
+bool CentralWidget::saveDictionary() {
+	if (currentOpenedDictPath.isEmpty())
+		return false;
+	saveDictionaryAs(currentOpenedDictPath);
+	return true;
+}
+
+void CentralWidget::saveDictionaryAs(const QString& path) {
+	databaseCenter->saveCurrentDatabaseAs(path,currentOpenedDictAbout);
+}
+
+void CentralWidget::setPathForOpenedDictionary(const QString& path,const QString& about) {
+	currentOpenedDictPath = path;
+	currentOpenedDictAbout = about;
+}
+
+void CentralWidget::showSettings() {
+	stackedWidget->setCurrentIndex(2);
+}
+
+void CentralWidget::closeSettings() {
+	if (tabsWidget->count() > 0)
+		stackedWidget->setCurrentIndex(1);
+	else
+		stackedWidget->setCurrentIndex(0);
 }

@@ -15,6 +15,7 @@ class LoadDictionaryThread;
 class QMessageBox;
 class QPushButton;
 class SettingsWidget;
+class Menu;
 
 class CentralWidget : public QWidget
 {
@@ -24,11 +25,13 @@ class CentralWidget : public QWidget
 		void startPageShown(bool);
 		void loadingCompleted(bool isSuccessful);
 		void changeWindowTitle(const QString& title);
+		void databaseWasOpened(const QString& dbName);
 	public slots:
 		void showNewDictWidget();
 		void openNewTab();
 		void closeCurrentTab();
 		void showTabsWidget();
+		void showSettings();
 	
 		void setCurrentDatabase(const QString& dbName);
 		void removeDatabaseWithName(const QString& dbName);
@@ -41,6 +44,13 @@ class CentralWidget : public QWidget
 		void loadDictionary(const QString& dictPath);
 		QString getLoadedDictAbout() const;
 	
+		void setEditorMenu(Menu *menu);
+	
+		bool saveDictionary();
+		void saveDictionaryAs(const QString& dictPath);
+	
+		void setPathForOpenedDictionary(const QString& pathOfOpenedDictionary,const QString& aboutDictionaryText);
+	
 		// If there is a loading, user will be asked is he sure, that he want to cancel loading and quit from program
 		bool saveSettings();
 		void loadSettings();
@@ -48,6 +58,8 @@ class CentralWidget : public QWidget
 		void cancelLoading();
 		void loadingFinished();
 		void openLastLoadedDictionary();
+		void currentWidgetChanged(int widgetIndex);
+		void closeSettings();
 	private:
 		QMessageBox *continueLoadingOfLastLoadedOrNotDialog;
 		QPushButton *continueLoadingLastLoadedButton;
@@ -82,6 +94,8 @@ class CentralWidget : public QWidget
 	
 		QString currentLoadingDictName;
 		QString currentLoadingDictAbout;
+		QString currentOpenedDictPath;
+		QString currentOpenedDictAbout;
 		QStringList existingDictionaries;
 	protected:
 		void resizeEvent(QResizeEvent *resizeEvent);

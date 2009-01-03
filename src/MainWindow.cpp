@@ -13,6 +13,7 @@
 #include "About.h"
 #include "CentralWidget.h"
 #include "const.h"
+#include "Menu.h"
 #include "MainWindow.h"
 
 MainWindow::MainWindow() {
@@ -34,6 +35,7 @@ MainWindow::MainWindow() {
 	connect(centralWidget,SIGNAL(startPageShown(bool)),editionToolBar,SLOT(setHidden(bool)));
 	connect(centralWidget,SIGNAL(loadingCompleted(bool)),this,SLOT(loadingCompleted(bool)));
 	connect(centralWidget,SIGNAL(changeWindowTitle(const QString&)),this,SLOT(updateWindowTitle(const QString&)));
+	connect(centralWidget,SIGNAL(databaseWasOpened(const QString&)),this,SLOT(setPathForOpenedDictionary(const QString&)));
 	
 	setCentralWidget(centralWidget);
 	
@@ -60,6 +62,7 @@ MainWindow::~MainWindow() {
 
     delete pluginsManagerAction;
     delete dictsManagerAction;
+	delete settingsAction;
 
     delete manualAction;
     delete aboutProgramAction;
@@ -71,6 +74,12 @@ MainWindow::~MainWindow() {
     delete pasteBlockAction;
     delete pasteSoundAction;
     delete pasteSpecialAction;
+	delete undoAction;
+	delete redoAction;
+	delete cutAction;
+	delete copyAction;
+	delete pasteAction;
+	delete editorMenu;
 	
 	delete dictionariesManager;
 	delete about;
@@ -105,12 +114,14 @@ void MainWindow::createActions() {
 	saveDictAction->setIcon(QIcon(":/icons/save.png"));
 	saveDictAction->setShortcut(QKeySequence("Ctrl+Alt+S"));
 	saveDictAction->setEnabled(false);
+	connect(saveDictAction,SIGNAL(triggered()),this,SLOT(saveDictionary()));
 	
 	saveDictAsAction = new QAction(this);
 	saveDictAsAction->setText(tr("Save dictionary as"));
 	saveDictAsAction->setIcon(QIcon(":/icons/saveas.png"));
 	saveDictAsAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 	saveDictAsAction->setEnabled(false);
+	connect(saveDictAsAction,SIGNAL(triggered()),this,SLOT(saveDictionaryAs()));
 	
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAction,SLOT(setDisabled(bool)));
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAsAction,SLOT(setDisabled(bool)));
@@ -159,12 +170,18 @@ void MainWindow::createActions() {
 	dictsManagerAction->setIcon(QIcon(":/icons/dicts_manager.png"));
 	connect(dictsManagerAction,SIGNAL(triggered()),dictionariesManager,SLOT(exec()));
 	
+	settingsAction = new QAction(this);
+	settingsAction->setText(tr("Preferences"));
+	settingsAction->setIcon(QIcon(":/icons/settings.png"));
+	connect(settingsAction,SIGNAL(triggered()),centralWidget,SLOT(showSettings()));
+	
 	QMenu *toolsMenu = menuBar()->addMenu("&" + tr("Tools"));
 	toolsMenu->addAction(pluginsManagerAction);
 	toolsMenu->addAction(dictsManagerAction);
+	toolsMenu->addAction(settingsAction);
 
 	pasteBlockAction = new QAction(this);
-	pasteBlockAction->setText(tr("Paste block"));       
+	pasteBlockAction->setText(tr("Paste indent"));       
 	pasteBlockAction->setShortcut(QKeySequence("Ctrl+R"));
 	pasteBlockAction->setIcon(QIcon(":/icons/text_block.png"));
 	
@@ -195,11 +212,51 @@ void MainWindow::createActions() {
 	
 	pasteSoundAction = new QAction(this);
 	pasteSoundAction->setText(tr("Paste sound"));
-	pasteSoundAction->setStatusTip(tr("Paste teg \"sound of some words\""));
 	pasteSoundAction->setIcon(QIcon(":/icons/text_sound.png"));
 	
-	connect(centralWidget,SIGNAL(startPageShown(bool)),this,SLOT(disableEditionActions(bool)));
-	disableEditionActions(true);
+	undoAction = new QAction(this);
+	undoAction->setText(tr("Undo action"));
+	undoAction->setIcon(QIcon(":/icons/undo.png"));
+	undoAction->setShortcut(QKeySequence("Ctrl+Z"));
+	
+	redoAction = new QAction(this);
+	redoAction->setText(tr("Redo action"));
+	redoAction->setIcon(QIcon(":/icons/redo.png"));
+	redoAction->setShortcut(QKeySequence("Ctrl+Shift+Z"));
+	
+	cutAction = new QAction(this);
+	cutAction->setText(tr("Cut"));
+	cutAction->setIcon(QIcon(":/icons/cut.png"));
+	cutAction->setShortcut(QKeySequence("Ctrl+X"));
+	
+	copyAction = new QAction(this);
+	copyAction->setText(tr("Copy"));
+	copyAction->setIcon(QIcon(":/icons/copy.png"));
+	copyAction->setShortcut(QKeySequence("Ctrl+C"));
+	
+	pasteAction = new QAction(this);
+	pasteAction->setText(tr("Paste"));
+	pasteAction->setIcon(QIcon(":/icons/paste.png"));
+	pasteAction->setShortcut(QKeySequence("Ctrl+V"));
+		
+	editorMenu = new Menu;
+	editorMenu->setHeaderIcon(QIcon(":/icons/edit.png"));
+	editorMenu->setHeaderText("LightLang Editor");
+	editorMenu->addAction(pasteBlockAction);
+	editorMenu->addAction(pasteBoldAction);
+	editorMenu->addAction(pasteItalicAction);
+	editorMenu->addAction(pasteUnderlineAction);
+	editorMenu->addAction(pasteSpecialAction);
+	editorMenu->addAction(pasteSpecialAction);
+	editorMenu->addAction(pasteLinkAction);
+	editorMenu->addAction(pasteSoundAction);
+	editorMenu->addSeparator();
+	editorMenu->addAction(cutAction);
+	editorMenu->addAction(copyAction);
+	editorMenu->addAction(pasteAction);
+	editorMenu->addSeparator();
+	editorMenu->addAction(undoAction);
+	editorMenu->addAction(redoAction);
 	
 	QMenu *editMenu = menuBar()->addMenu("&" + tr("Edit"));
 	editMenu->addAction(pasteBlockAction);
@@ -209,6 +266,13 @@ void MainWindow::createActions() {
 	editMenu->addAction(pasteSpecialAction);
 	editMenu->addAction(pasteLinkAction);
 	editMenu->addAction(pasteSoundAction);
+	editMenu->addSeparator();
+	editMenu->addAction(cutAction);
+	editMenu->addAction(copyAction);
+	editMenu->addAction(pasteAction);
+	editMenu->addSeparator();
+	editMenu->addAction(undoAction);
+	editMenu->addAction(redoAction);
 	
 	editionToolBar = addToolBar(tr("Edition tool bar"));
 	editionToolBar->setObjectName("EditionToolBar");
@@ -219,7 +283,19 @@ void MainWindow::createActions() {
 	editionToolBar->addAction(pasteSpecialAction);
 	editionToolBar->addAction(pasteLinkAction);
 	editionToolBar->addAction(pasteSoundAction);
+	editionToolBar->addSeparator();
+	editionToolBar->addAction(cutAction);
+	editionToolBar->addAction(copyAction);
+	editionToolBar->addAction(pasteAction);
+	editionToolBar->addSeparator();
+	editionToolBar->addAction(undoAction);
+	editionToolBar->addAction(redoAction);
 	editionToolBar->hide();
+	
+	centralWidget->setEditorMenu(editorMenu);
+	
+	connect(centralWidget,SIGNAL(startPageShown(bool)),this,SLOT(disableEditionActions(bool)));
+	disableEditionActions(true);
 	
 	manualAction = new QAction(this);
 	manualAction->setText(tr("Manual"));
@@ -363,6 +439,7 @@ void MainWindow::openDatabaseWithName(const QString& databaseName) {
 	recentOpenedDictionaries << databaseName;
 	updateRecentDictsMenu();
 	centralWidget->setCurrentDatabase(databaseName);
+	centralWidget->showTabsWidget();
 }
 
 void MainWindow::disableEditionActions(bool isDisabled) {
@@ -373,8 +450,31 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	pasteBlockAction->setEnabled(!isDisabled);
 	pasteSoundAction->setEnabled(!isDisabled);
 	pasteSpecialAction->setEnabled(!isDisabled);
+	cutAction->setEnabled(!isDisabled);
+	copyAction->setEnabled(!isDisabled);
+	pasteAction->setEnabled(!isDisabled);
+	undoAction->setEnabled(!isDisabled);
+	redoAction->setEnabled(!isDisabled);
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {
 	centralWidget->setCurrentDatabase(chosenAction->text());
+	centralWidget->showTabsWidget();
+}
+
+void MainWindow::saveDictionary() {
+	if (!centralWidget->saveDictionary())
+		saveDictionaryAs();
+}
+
+void MainWindow::saveDictionaryAs() {
+	QString filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
+	if (filePath.isEmpty())
+		return;
+	centralWidget->saveDictionaryAs(filePath);
+}
+
+void MainWindow::setPathForOpenedDictionary(const QString& dbName) {
+	centralWidget->setPathForOpenedDictionary(dictionariesManager->getPathForDictionaryWithName(dbName),
+											dictionariesManager->getDictionaryAboutWithName(dbName));
 }

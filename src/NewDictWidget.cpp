@@ -23,7 +23,7 @@ NewDictWidget::NewDictWidget() {
 	
 	closeButton = new QToolButton;
 	closeButton->setShortcut(QKeySequence("Esc"));
-	closeButton->setIcon(QIcon(":/icons/cancel.png"));
+	closeButton->setIcon(QIcon(":/icons/close.png"));
 	closeButton->setAutoRaise(true);
 	
 	connect(closeButton,SIGNAL(clicked()),this,SLOT(hideWithRolling()));

@@ -9,6 +9,7 @@ class About;
 class DictionariesManager;
 class CentralWidget;
 class QToolBar;
+class Menu;
 
 class MainWindow : public QMainWindow
 {
@@ -31,6 +32,9 @@ class MainWindow : public QMainWindow
 		void openDatabaseWithName(const QString& databaseName);
 		void disableEditionActions(bool isDisabled);
 		void openDictionaryOfAction(QAction *chosenAction);
+		void saveDictionary();
+		void saveDictionaryAs();
+		void setPathForOpenedDictionary(const QString& dbName);
 	private:
 		void saveSettings();
 		void loadSettings();
@@ -46,6 +50,7 @@ class MainWindow : public QMainWindow
 		CentralWidget *centralWidget;
 	
 		QToolBar *editionToolBar;
+		Menu *editorMenu;
 
 		QAction *createDictAction;
 		QAction *openDictAction;
@@ -59,6 +64,7 @@ class MainWindow : public QMainWindow
 
 		QAction *pluginsManagerAction;
 		QAction *dictsManagerAction;
+		QAction *settingsAction;
 
 		QAction *manualAction;
 		QAction *aboutProgramAction;
@@ -70,6 +76,11 @@ class MainWindow : public QMainWindow
 		QAction *pasteBlockAction;
 		QAction *pasteSoundAction;
 		QAction *pasteSpecialAction;
+		QAction *undoAction;
+		QAction *redoAction;
+		QAction *cutAction;
+		QAction *copyAction;
+		QAction *pasteAction;
 		
 		QString currentLoadingDictPath;
 		QString currentLoadingDictAbout;

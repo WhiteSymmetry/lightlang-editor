@@ -195,3 +195,23 @@ void DictionariesManager::removeCurrentDictionary() {
 	if (removeOrNotDicitionaryDialog->clickedButton() == removeDictionaryButton)
 		sendSignalToRemoveDatabase();
 }
+
+QString DictionariesManager::getPathForDictionaryWithName(const QString& dbName) {
+	QSqlQuery query;
+	query.exec(QString("SELECT `path` FROM `dicts` WHERE name = \"%1\"").arg(dbName));
+	if (query.isValid()) {
+		query.next();
+		return query.record().value(0).toString();
+	}
+	return "";
+}
+
+QString DictionariesManager::getDictionaryAboutWithName(const QString& dbName) {
+	QSqlQuery query;
+	query.exec(QString("SELECT `about` FROM `dicts` WHERE name = \"%1\"").arg(dbName));
+	if (query.isValid()) {
+		query.next();
+		return query.record().value(0).toString();
+	}
+	return "";
+}

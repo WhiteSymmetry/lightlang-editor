@@ -1,5 +1,6 @@
 #include <QtGui/QToolButton>
 #include "TabWidget.h"
+#include "Menu.h"
 #include "TabsWidget.h"
 
 TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(parent) {
@@ -21,11 +22,7 @@ TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(pa
 	setCornerWidget(closeCurrentTabButton,Qt::TopRightCorner);
 	
 	connect(this,SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
-	
-	openNewTab();
 }
-
-#include <QDebug>
 
 TabsWidget::~TabsWidget() {
 	foreach (TabWidget *tab,tabs)
@@ -37,6 +34,7 @@ TabsWidget::~TabsWidget() {
 TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
 	TabWidget *newTabWidget = new TabWidget(databaseCenter,tabs.count());
 	tabs << newTabWidget;
+	newTabWidget->setEditorMenu(editorMenu);
 	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "(" + tr("Unnamed") + ")" : tabTitle));
 	connect(newTabWidget,SIGNAL(renameTab(int,const QString&)),this,SLOT(renameTab(int,const QString&)));
 	return newTabWidget;
@@ -54,4 +52,13 @@ void TabsWidget::renameTab(int index,const QString& name) {
 void TabsWidget::currentTabChanged(int index) {
 	if (index > 0)
 		tabs[index]->setFocusAtThisTab();
+}
+
+
+void TabsWidget::setEditorMenu(Menu *menu) {
+	editorMenu = menu;
+}
+
+void TabsWidget::setFocusOnCurrentTab() {
+	tabs[currentIndex()]->setFocusAtThisTab();
 }
