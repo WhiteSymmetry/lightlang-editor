@@ -6,6 +6,8 @@
 #include <QtGui/QMoveEvent>
 #include <QtGui/QFileDialog>
 #include <QtGui/QCloseEvent>
+#include <QtGui/QStatusBar>
+#include <QtGui/QToolButton>
 #include <QtCore/QDir>	
 #include <QtCore/QSettings>
 #include "Manual.h"
@@ -14,10 +16,25 @@
 #include "CentralWidget.h"
 #include "const.h"
 #include "Menu.h"
+#include "StatusBarLabel.h"
 #include "MainWindow.h"
 
 MainWindow::MainWindow() {
 	createDirs();
+	
+	statusBarLabel = new StatusBarLabel(this);
+	
+	statusbar = statusBar();
+	statusbar->hide();
+	statusbar->setMaximumHeight(20);
+	
+	hideStatusBarButton = new QToolButton;
+	hideStatusBarButton->setAutoRaise(true);
+	hideStatusBarButton->setIcon(QIcon(":/icons/close.png"));
+	connect(hideStatusBarButton,SIGNAL(clicked()),statusbar,SLOT(hide()));
+	
+	statusbar->addWidget(statusBarLabel,1);
+	statusbar->addWidget(hideStatusBarButton,1);
 	
 	centralWidget = new CentralWidget(this);
 	
@@ -81,6 +98,8 @@ MainWindow::~MainWindow() {
 	delete pasteAction;
 	delete editorMenu;
 	
+	delete hideStatusBarButton;
+	delete statusBarLabel;
 	delete dictionariesManager;
 	delete about;
 	delete manual;
@@ -329,12 +348,8 @@ void MainWindow::createDirs() {
 }
 		
 void MainWindow::createNewDictionary(const QString& dictName) {
-	centralWidget->setCurrentDatabase(dictName);
 	dictionariesManager->addDictionary(dictName);
-	editionToolBar->show();
-	QDir::setCurrent(homePath);
-	recentOpenedDictionaries << dictName;
-	updateRecentDictsMenu();
+	showStatusMessage(tr("New dictionary with name %1 was created. Choose it in Dictionaries Manager to edit.").arg(dictName));
 }
 
 void MainWindow::moveEvent(QMoveEvent *event) {
@@ -477,4 +492,9 @@ void MainWindow::saveDictionaryAs() {
 void MainWindow::setPathForOpenedDictionary(const QString& dbName) {
 	centralWidget->setPathForOpenedDictionary(dictionariesManager->getPathForDictionaryWithName(dbName),
 											dictionariesManager->getDictionaryAboutWithName(dbName));
+}
+
+void MainWindow::showStatusMessage(const QString& message) {
+	statusbar->show();
+	statusBarLabel->setMessage(message);
 }

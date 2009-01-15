@@ -121,5 +121,6 @@ void NewDictWidget::updateSize() {
 		}
 	}
 	resize(width(),sizeHint().height());
+	lineEdit->setFocus();
 }
 

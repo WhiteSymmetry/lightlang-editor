@@ -30,7 +30,8 @@ HEADERS += src/const.h \
 	src/LoadDictionaryThread.h \
 	src/ProgressBarWithWidgets.h \
 	src/StackedWidget.h \
-	src/SettingsWidget.h
+	src/SettingsWidget.h \
+	src/StatusBarLabel.h
 	
 SOURCES += src/main.cpp \
     src/MainWindow.cpp \
@@ -52,6 +53,7 @@ SOURCES += src/main.cpp \
 	src/LoadDictionaryThread.cpp \
 	src/ProgressBarWithWidgets.cpp \
 	src/StackedWidget.cpp \
-	src/SettingsWidget.cpp
+	src/SettingsWidget.cpp \
+	src/StatusBarLabel.cpp
 	
 RESOURCES += lileditor.qrc

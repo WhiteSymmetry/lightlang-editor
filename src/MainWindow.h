@@ -9,6 +9,9 @@ class About;
 class DictionariesManager;
 class CentralWidget;
 class QToolBar;
+class StatusBarLabel;
+class QStatusBar;
+class QToolButton;
 class Menu;
 
 class MainWindow : public QMainWindow
@@ -23,6 +26,7 @@ class MainWindow : public QMainWindow
 		void updateWindowTitle(const QString &addToTitle);
 		void removeDatabaseWithName(const QString& dbName);
 		void showDictionariesManager();
+		void showStatusMessage(const QString& message);
 	public:
 		MainWindow();
 		~MainWindow();
@@ -48,6 +52,10 @@ class MainWindow : public QMainWindow
 		Manual *manual;
 		DictionariesManager *dictionariesManager;
 		CentralWidget *centralWidget;
+		
+		StatusBarLabel *statusBarLabel;
+		QStatusBar *statusbar;
+		QToolButton *hideStatusBarButton;
 	
 		QToolBar *editionToolBar;
 		Menu *editorMenu;
