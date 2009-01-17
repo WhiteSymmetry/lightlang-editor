@@ -72,13 +72,6 @@ LoadDictionaryWidget::~LoadDictionaryWidget() {
 }
 void LoadDictionaryWidget::addValue() {
 	progressBar->setValue(progressBar->value() + 1);
-	if (progressBar->value() >= progressBar->maximum()) {
-		openLoadedDictionaryButton->show();
-		continueLoadingButton->hide();
-		pauseLoadingButton->hide();
-		cancelLoadingButton->hide();
-		textLabel->setText(tr("Loading is finished"));
-	}
 }
 
 void LoadDictionaryWidget::setMaximum(int max) {
@@ -108,7 +101,7 @@ void LoadDictionaryWidget::continueLoading() {
 	emit (continued());
 	continueLoadingButton->hide();
 	pauseLoadingButton->show();
-	textLabel->setText(tr("Dictionary loading") + "...");
+	textLabel->setText(tr("Dictionary is loading") + "...");
 }
 
 void LoadDictionaryWidget::showWithRolling() {
@@ -148,3 +141,11 @@ void LoadDictionaryWidget::updateSize() {
 	resize(width(),sizeHint().height());
 }
 
+void LoadDictionaryWidget::loadingFinished() {
+	openLoadedDictionaryButton->show();
+	continueLoadingButton->hide();
+	pauseLoadingButton->hide();
+	cancelLoadingButton->hide();
+	progressBar->setValue(progressBar->maximum());
+	textLabel->setText(tr("Loading is finished"));
+}

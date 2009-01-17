@@ -7,9 +7,9 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QStatusBar>
-#include <QtGui/QToolButton>
 #include <QtCore/QDir>	
 #include <QtCore/QSettings>
+#include <QtCore/QTimer>
 #include "Manual.h"
 #include "DictionariesManager.h"
 #include "About.h"
@@ -28,13 +28,10 @@ MainWindow::MainWindow() {
 	statusbar->hide();
 	statusbar->setMaximumHeight(20);
 	
-	hideStatusBarButton = new QToolButton;
-	hideStatusBarButton->setAutoRaise(true);
-	hideStatusBarButton->setIcon(QIcon(":/icons/close.png"));
-	connect(hideStatusBarButton,SIGNAL(clicked()),statusbar,SLOT(hide()));
+	hideStatusBarTimer = new QTimer;
 	
 	statusbar->addWidget(statusBarLabel,1);
-	statusbar->addWidget(hideStatusBarButton,1);
+	connect(hideStatusBarTimer,SIGNAL(timeout()),statusbar,SLOT(hide()));
 	
 	centralWidget = new CentralWidget(this);
 	
@@ -98,7 +95,7 @@ MainWindow::~MainWindow() {
 	delete pasteAction;
 	delete editorMenu;
 	
-	delete hideStatusBarButton;
+	delete hideStatusBarTimer;
 	delete statusBarLabel;
 	delete dictionariesManager;
 	delete about;
@@ -497,4 +494,5 @@ void MainWindow::setPathForOpenedDictionary(const QString& dbName) {
 void MainWindow::showStatusMessage(const QString& message) {
 	statusbar->show();
 	statusBarLabel->setMessage(message);
+	hideStatusBarTimer->start(10000);
 }

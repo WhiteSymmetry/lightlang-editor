@@ -6,7 +6,7 @@
 class NewDictWidget;
 class LoadDictionaryWidget;
 class TabsWidget;
-class StackedWidget;
+class QStackedWidget;
 class QTextBrowser;
 class BrowserWithWidgets;
 class QToolButton;
@@ -80,7 +80,7 @@ class CentralWidget : public QWidget
 		QPushButton *ignoreLoadingButton;
 	
 		DatabaseCenter *databaseCenter;
-		StackedWidget *stackedWidget;
+		QStackedWidget *stackedWidget;
 		TabsWidget *tabsWidget;
 		NewDictWidget *newDictWidget;
 		LoadDictionaryWidget *loadDictionaryWidget;

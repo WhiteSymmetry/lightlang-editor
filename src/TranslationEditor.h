@@ -3,7 +3,6 @@
 
 #include "BrowserWithWidgets.h"
 
-class HighLighter;
 class Menu;
 class QAction;
 
@@ -14,12 +13,10 @@ class TranslationEditor : public BrowserWithWidgets
 		void focused();
 	public:
 		TranslationEditor();
-		~TranslationEditor();
 	
 		void setMenu(Menu *menu);
 	private:
 		Menu *menu;
-		HighLighter *highLighter;
 	protected:
 		void contextMenuEvent(QContextMenuEvent *event);
 };

@@ -34,6 +34,8 @@ class TabWidget : public QWidget
 		void translationChanged();
 	private:
 		void resetButtonsAccessibility();
+		void formatSlStringIntoHtmlString(QString& str);
+		void formatHtmlStringIntoSlString(QString& str);
 	
 		QTimer *timer;
 	

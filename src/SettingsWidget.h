@@ -7,6 +7,8 @@ class QLabel;
 class QToolButton;
 class QSpinBox;
 class QCheckBox;
+class InfoButton;
+class PopupWindow;
 
 class SettingsWidget : public QWidget
 {
@@ -24,6 +26,11 @@ class SettingsWidget : public QWidget
 		QSpinBox *updateTranslationTimeSpinBox;
 		QCheckBox *useHighlightingCheckBox;
 		QCheckBox *useStatusesCheckBox;
+	
+		PopupWindow *popupWindow;
+		InfoButton *updateTranslationInfoButton;
+		InfoButton *useHighlightingInfoButton;
+		InfoButton *useStatusesInfoButton;
 };
 
 #endif

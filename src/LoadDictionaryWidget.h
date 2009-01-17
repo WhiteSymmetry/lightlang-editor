@@ -28,6 +28,7 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 		~LoadDictionaryWidget();
 	
 		void reset();
+		void loadingFinished();
 	private slots:
 		void pauseLoading();
 		void continueLoading();

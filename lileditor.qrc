@@ -40,5 +40,6 @@
         <file>icons/undo.png</file>
         <file>icons/close.png</file>
         <file>icons/settings.png</file>
+        <file>icons/info.png</file>
     </qresource>
 </RCC>

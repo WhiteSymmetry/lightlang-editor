@@ -3,7 +3,7 @@
 #include <QtCore/QTimer>
 #include "StatusBarLabel.h"
 
-StatusBarLabel::StatusBarLabel(QWidget *parent) {
+StatusBarLabel::StatusBarLabel(QWidget *) {
 	
 	timer = new QTimer;
 	timer->setInterval(10);
@@ -21,6 +21,8 @@ StatusBarLabel::~StatusBarLabel() {
 }
 
 void StatusBarLabel::paintEvent(QPaintEvent *) {
+	if (isHidden())
+		timer->stop();
 	QPainter painter(this);
 	QColor backgroundColor = palette().brush(QPalette::Background).color();
     QColor foregroundColor = QColor(0,0,0);
@@ -32,7 +34,7 @@ void StatusBarLabel::paintEvent(QPaintEvent *) {
 		illumination = 0;
 	if (illumination > 255)
 		illumination = 255;
-	backgroundColor.setRgb(100, 100, 255,illumination);
+	backgroundColor.setRgb(200, 228, 239,illumination);
 	painter.setBrush(backgroundColor);
     painter.setPen(backgroundColor);
     painter.drawRect(QRect(0, 0, width(), height()));
@@ -47,9 +49,7 @@ void StatusBarLabel::paintEvent(QPaintEvent *) {
 		decolour = true;
 	else if (illumination == 0) {
 		decolour = false;
-		timer->stop();
-	} else
-		timer->start();
+	}
 }
 
 void StatusBarLabel::setMessage(const QString& message) {

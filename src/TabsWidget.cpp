@@ -50,7 +50,7 @@ void TabsWidget::renameTab(int index,const QString& name) {
 }
 
 void TabsWidget::currentTabChanged(int index) {
-	if (index > 0)
+	if (index >= 0)
 		tabs[index]->setFocusAtThisTab();
 }
 

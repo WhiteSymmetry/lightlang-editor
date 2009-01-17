@@ -29,8 +29,9 @@ HEADERS += src/const.h \
 	src/BorderPanelWithWidget.h \
 	src/LoadDictionaryThread.h \
 	src/ProgressBarWithWidgets.h \
-	src/StackedWidget.h \
 	src/SettingsWidget.h \
+	src/InfoButton.h \
+	src/PopupWindow.h \
 	src/StatusBarLabel.h
 	
 SOURCES += src/main.cpp \
@@ -52,8 +53,9 @@ SOURCES += src/main.cpp \
 	src/BorderPanelWithWidget.cpp \
 	src/LoadDictionaryThread.cpp \
 	src/ProgressBarWithWidgets.cpp \
-	src/StackedWidget.cpp \
 	src/SettingsWidget.cpp \
+	src/InfoButton.cpp \
+	src/PopupWindow.cpp \
 	src/StatusBarLabel.cpp
 	
 RESOURCES += lileditor.qrc

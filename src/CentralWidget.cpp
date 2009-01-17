@@ -3,6 +3,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QStackedWidget>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 #include <QDebug>
@@ -12,7 +13,6 @@
 #include "BrowserWithWidgets.h"
 #include "DatabaseCenter.h"
 #include "LoadDictionaryThread.h"
-#include "StackedWidget.h"
 #include "SettingsWidget.h"
 #include "const.h"
 #include "CentralWidget.h"
@@ -82,7 +82,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(setCurrentDatabase(const QString&)));
 	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(showTabsWidget()));
 
-	stackedWidget = new StackedWidget;
+	stackedWidget = new QStackedWidget;
 	
 	tabsWidget = new TabsWidget(databaseCenter);
 	connect(tabsWidget,SIGNAL(closeTabButtonClicked()),this,SLOT(closeCurrentTab()));
@@ -90,11 +90,11 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	settingsWidget = new SettingsWidget;
 	connect(settingsWidget,SIGNAL(closed()),this,SLOT(closeSettings()));
 	
-	stackedWidget->addNewWidget(startPageViewer);
-	stackedWidget->addNewWidget(tabsWidget);
-	stackedWidget->addNewWidget(settingsWidget);
+	stackedWidget->addWidget(startPageViewer);
+	stackedWidget->addWidget(tabsWidget);
+	stackedWidget->addWidget(settingsWidget);
 	stackedWidget->setCurrentIndex(0);
-	connect(stackedWidget,SIGNAL(currentIndexChanged(int)),this,SLOT(currentWidgetChanged(int)));
+	connect(stackedWidget,SIGNAL(currentChanged(int)),this,SLOT(currentWidgetChanged(int)));
 	
 	loadDictionaryWidget = new LoadDictionaryWidget;
 	loadDictionaryWidget->setMaximumHeight(0);
@@ -137,6 +137,7 @@ CentralWidget::~CentralWidget() {
 	delete continueLoadingOfLastLoadedOrNotDialog;
 	delete cancelOrContinueCurrentLoadingDialog;
 	
+	stackedWidget->blockSignals(true);
 	delete settingsWidget;
 	delete loadDictionaryWidget;
     delete tabsWidget;
@@ -159,9 +160,9 @@ void CentralWidget::openNewTab() {
 }
 
 void CentralWidget::showTabsWidget() {
-	stackedWidget->setCurrentIndex(1);
 	if (tabsWidget->count() == 0)
 		tabsWidget->openNewTab();
+	stackedWidget->setCurrentIndex(1);
 }
 
 void CentralWidget::closeCurrentTab() {
@@ -244,6 +245,7 @@ void CentralWidget::loadingFinished() {
 	existingDictionaries << currentLoadingDictName;
 	currentLoadingDictAbout = loadDictionaryThread->getAboutDict();
 	emit (loadingCompleted(true));
+	loadDictionaryWidget->loadingFinished();
 }
 
 void CentralWidget::setStartPageText(const QString& text) {

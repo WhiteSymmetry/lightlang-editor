@@ -55,7 +55,7 @@ class MainWindow : public QMainWindow
 		
 		StatusBarLabel *statusBarLabel;
 		QStatusBar *statusbar;
-		QToolButton *hideStatusBarButton;
+		QTimer *hideStatusBarTimer;
 	
 		QToolBar *editionToolBar;
 		Menu *editorMenu;
