@@ -4,6 +4,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QStackedWidget>
+#include <QtGui/QAction>
 #include <QtCore/QDir>
 #include <QtCore/QSettings>
 #include <QDebug>
@@ -14,6 +15,7 @@
 #include "DatabaseCenter.h"
 #include "LoadDictionaryThread.h"
 #include "SettingsWidget.h"
+#include "Menu.h"
 #include "const.h"
 #include "CentralWidget.h"
 
@@ -51,6 +53,29 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	databaseCenter = new DatabaseCenter;
 	connect(databaseCenter,SIGNAL(databaseNameChanged(const QString&)),mainWindowCommunicater,SLOT(updateWindowTitle(const QString&)));
 	
+	startPageContextMenu = new Menu(true);
+	startPageContextMenu->setHeaderText(tr("Start page"));
+	startPageContextMenu->setHeaderIcon(QIcon(":/icons/lle.png"));
+	
+	openDictAction = new QAction(startPageContextMenu);
+	openDictAction->setText(tr("Open dictionary"));
+	openDictAction->setIcon(QIcon(":/icons/open.png"));
+	connect(openDictAction,SIGNAL(triggered()),mainWindowCommunicater,SLOT(openDictionary()));
+	
+	createNewDictAction = new QAction(startPageContextMenu);
+	createNewDictAction->setText(tr("Create new dictionary"));
+	createNewDictAction->setIcon(QIcon(":/icons/new.png"));
+	connect(createNewDictAction,SIGNAL(triggered()),this,SLOT(showNewDictWidget()));
+	
+	showDictsManagerAction = new QAction(startPageContextMenu);
+	showDictsManagerAction->setText(tr("Show loaded dictionaries"));
+	showDictsManagerAction->setIcon(QIcon(":/icons/dicts_manager.png"));
+	connect(showDictsManagerAction,SIGNAL(triggered()),mainWindowCommunicater,SLOT(showDictionariesManager()));
+	
+	startPageContextMenu->addAction(openDictAction);
+	startPageContextMenu->addAction(createNewDictAction);
+	startPageContextMenu->addAction(showDictsManagerAction);
+	
 	openDictBorderButton = new QToolButton;
 	openDictBorderButton->setCursor(Qt::ArrowCursor);
 	openDictBorderButton->setAutoRaise(true);
@@ -79,8 +104,8 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	startPageViewer->addWidget(createNewDictBorderButton);
 	startPageViewer->addWidget(openDictBorderButton);
 	startPageViewer->addWidget(showDictsManagerButton);
-	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(setCurrentDatabase(const QString&)));
-	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(showTabsWidget()));
+	startPageViewer->setContextMenu(startPageContextMenu);
+	connect(startPageViewer,SIGNAL(linkWasClicked(const QString&)),this,SLOT(startPageLinkClicked(const QString&)));
 
 	stackedWidget = new QStackedWidget;
 	
@@ -136,6 +161,11 @@ CentralWidget::~CentralWidget() {
 	delete continueOrRestartLoadingDialog;
 	delete continueLoadingOfLastLoadedOrNotDialog;
 	delete cancelOrContinueCurrentLoadingDialog;
+	
+	delete openDictAction;
+	delete createNewDictAction;
+	delete showDictsManagerAction;
+	delete startPageContextMenu;
 	
 	stackedWidget->blockSignals(true);
 	delete settingsWidget;
@@ -325,4 +355,17 @@ void CentralWidget::closeSettings() {
 		stackedWidget->setCurrentIndex(1);
 	else
 		stackedWidget->setCurrentIndex(0);
+}
+
+void CentralWidget::startPageLinkClicked(const QString& link) {
+	if (link == "about")
+		emit (showProgramAbout());
+	else if (link == "preferences")
+		showSettings();
+	else if (link == "documentation")
+		emit (showProgramDocumentation());
+	else {
+		setCurrentDatabase(link);
+		showTabsWidget();
+	}
 }

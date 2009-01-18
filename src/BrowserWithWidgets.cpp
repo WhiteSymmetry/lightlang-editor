@@ -1,8 +1,10 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QFrame>
+#include <QtGui/QMenu>
+#include <QtGui/QContextMenuEvent>
 #include "BrowserWithWidgets.h"
 
-BrowserWithWidgets::BrowserWithWidgets(QWidget *parent) : QTextBrowser(parent) {
+BrowserWithWidgets::BrowserWithWidgets(QWidget *parent) : QTextBrowser(parent), menu(0) {
 	widgetsFrame = new QFrame;
 	widgetsFrame->setFrameShape(QFrame::Box);
 	widgetsFrame->setFrameShadow(QFrame::Raised);
@@ -100,4 +102,15 @@ void BrowserWithWidgets::anchorClickedSlot(const QUrl& url) {
 
 void BrowserWithWidgets::updateCurrentText() {
 	currentText = toHtml();
+}
+
+void BrowserWithWidgets::setContextMenu(QMenu *contextMenu) {
+	menu = contextMenu;
+}
+
+void BrowserWithWidgets::contextMenuEvent(QContextMenuEvent *event) {
+	if (menu) {
+		menu->move(event->globalX(),event->globalY());
+		menu->exec();
+	}
 }

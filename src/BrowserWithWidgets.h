@@ -6,6 +6,8 @@
 class QFrame;
 class QLayout;
 class QGridLayout;
+class QContextMenuEvent;
+class QMenu;
 
 class BrowserWithWidgets : public QTextBrowser
 {
@@ -16,6 +18,8 @@ class BrowserWithWidgets : public QTextBrowser
 		BrowserWithWidgets(QWidget *parent = 0);
 		~BrowserWithWidgets();
 	
+		void setContextMenu(QMenu *menu);
+		
 		enum Position { LeftTopCorner, Top, RightTopCorner, Left, Right, LeftBottomCorner, Bottom, RightBottomCorner, Center };
 		enum Orientation { Vertical, Horizontal };
 		
@@ -27,6 +31,7 @@ class BrowserWithWidgets : public QTextBrowser
 		void anchorClickedSlot(const QUrl& link);
 		void updateCurrentText();
 	private:
+		QMenu *menu;
 		QString currentText;
 	
 		QFrame *widgetsFrame;
@@ -34,6 +39,8 @@ class BrowserWithWidgets : public QTextBrowser
 		QGridLayout *mainLayout;
 	
 		QWidgetList widgets;
+	protected:
+		void contextMenuEvent(QContextMenuEvent *);
 };
 
 #endif

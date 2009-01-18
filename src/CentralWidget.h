@@ -16,6 +16,7 @@ class QMessageBox;
 class QPushButton;
 class SettingsWidget;
 class Menu;
+class QAction;
 
 class CentralWidget : public QWidget
 {
@@ -26,6 +27,8 @@ class CentralWidget : public QWidget
 		void loadingCompleted(bool isSuccessful);
 		void changeWindowTitle(const QString& title);
 		void databaseWasOpened(const QString& dbName);
+		void showProgramAbout();
+		void showProgramDocumentation();
 	public slots:
 		void showNewDictWidget();
 		void openNewTab();
@@ -60,6 +63,7 @@ class CentralWidget : public QWidget
 		void openLastLoadedDictionary();
 		void currentWidgetChanged(int widgetIndex);
 		void closeSettings();
+		void startPageLinkClicked(const QString& link);
 	private:
 		QMessageBox *continueLoadingOfLastLoadedOrNotDialog;
 		QPushButton *continueLoadingLastLoadedButton;
@@ -87,6 +91,11 @@ class CentralWidget : public QWidget
 		BrowserWithWidgets *startPageViewer;
 		LoadDictionaryThread *loadDictionaryThread;
 		SettingsWidget *settingsWidget;
+		
+		Menu *startPageContextMenu;
+		QAction *openDictAction;
+		QAction *createNewDictAction;
+		QAction *showDictsManagerAction;
 	
 		QToolButton *createNewDictBorderButton;
 		QToolButton *openDictBorderButton;

@@ -50,6 +50,8 @@ MainWindow::MainWindow() {
 	connect(centralWidget,SIGNAL(loadingCompleted(bool)),this,SLOT(loadingCompleted(bool)));
 	connect(centralWidget,SIGNAL(changeWindowTitle(const QString&)),this,SLOT(updateWindowTitle(const QString&)));
 	connect(centralWidget,SIGNAL(databaseWasOpened(const QString&)),this,SLOT(setPathForOpenedDictionary(const QString&)));
+	connect(centralWidget,SIGNAL(showProgramAbout()),about,SLOT(exec()));
+	connect(centralWidget,SIGNAL(showProgramDocumentation()),manual,SLOT(show()));
 	
 	setCentralWidget(centralWidget);
 	
@@ -424,11 +426,15 @@ void MainWindow::updateRecentDictsMenu() {
 		"<hr><table border=\"0\" width=\"100%\"><tr><td bgcolor=\"#DFEDFF\"><h2 align=\"center\"><em>" + 
 		tr("Start page") + 	
 		"</em></h2></td></tr></table><hr>&nbsp;&nbsp;&nbsp;&nbsp;" +
-		tr("Hello, thank you for LightLang Editor usage! The editor help you to edit existing dictionaries, create new dictionary and add dictionaries to SL database. Read documentation about SL tags before edition please to learn how to format text in SL dictionaries. If you started LightLang Editor in first time, you should open existing dictionary to edit it or create new dictionary in file menu.") +
-		"<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>" + tr("Recent opened dictionaries") + ":</b><ul>";
+		tr("Hello, thank you for LightLang Editor usage! The editor can help you to edit existing dictionaries, create new dictionary and add dictionaries to SL database. %1Read documentation%4 about SL tags before edition please to learn how to format text in SL dictionaries. If you started LightLang Editor in first time, you should open existing dictionary to edit it or create new dictionary. Also you can %2point your preferences%4 to make your work with editor easier and %3watch a little bit information%4 about the program.").arg("<a href=\"documentation\">").arg("<a href=\"preferences\">").arg("<a href=\"about\">").arg("</a>") +
+		"<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>" + tr("Recent opened dictionaries") + ":</b>";
+		
+	startPageText += "<ul>";
 	for (int i = recentOpenedDictionaries.count() - 1; i >= 0; i--)
-		startPageText += "<li><a href=\"" + recentOpenedDictionaries[i] + "\">" + recentOpenedDictionaries[i] + "</a></li>";
+		if (dictionariesManager->getExistingDictionaries().contains(recentOpenedDictionaries[i]))
+			startPageText += "<li><a href=\"" + recentOpenedDictionaries[i] + "\">" + recentOpenedDictionaries[i] + "</a></li>";
 	startPageText += "</ul>";
+	
 	centralWidget->setStartPageText(startPageText);
 }
 
