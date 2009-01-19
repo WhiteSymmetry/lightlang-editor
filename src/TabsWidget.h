@@ -13,6 +13,7 @@ class TabsWidget : public QTabWidget
 	Q_OBJECT
 	signals:
 		void closeTabButtonClicked();
+		void showStatusMessage(const QString& message);
 	public slots:
 		TabWidget* openNewTab(const QString& tabTitle = QString());
 		void closeCurrentTab();
@@ -22,12 +23,17 @@ class TabsWidget : public QTabWidget
 	
 		void setFocusOnCurrentTab();
 		void setEditorMenu(Menu *menu);
+		void setUpdateTranslationInterval(int interval);
 	private slots:
 		void renameTab(int index,const QString& name);
 		void currentTabChanged(int index);
+		void hideAllTips();
 	private:
 		DatabaseCenter *databaseCenter;
 	
+		bool showTips;
+		int updateTranslationInterval;
+		
 		QList<TabWidget *> tabs;
 		Menu *editorMenu;
 	

@@ -32,6 +32,17 @@ void BrowserWithWidgets::addWidget(QWidget *newWidget) {
 	widgetsFrame->setFixedSize(widgetsFrameLayout->minimumSize());
 }
 
+// This is function was made only for situation with TranslationEditor
+void BrowserWithWidgets::addWidgetAt(Position position,QWidget *widget) {
+	if (mainLayout != 0)
+		if (position == RightBottomCorner) {
+			QHBoxLayout *widgetLayout = new QHBoxLayout;
+			widgetLayout->addStretch();
+			widgetLayout->addWidget(widget);
+			mainLayout->addLayout(widgetLayout,1,0,1,2);
+		}
+}
+
 void BrowserWithWidgets::setOrientation(Orientation orientation) {
 	
 	if (widgetsFrameLayout)
@@ -54,6 +65,7 @@ void BrowserWithWidgets::setPosition(Position position) {
 		delete mainLayout;
 	
 	mainLayout = new QGridLayout;
+	mainLayout->setContentsMargins(0,0,0,0);
 	
 	switch (position) {
 		case LeftTopCorner:

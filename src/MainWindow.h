@@ -13,6 +13,7 @@ class StatusBarLabel;
 class QStatusBar;
 class QToolButton;
 class Menu;
+class QMessageBox;
 
 class MainWindow : public QMainWindow
 {
@@ -48,6 +49,8 @@ class MainWindow : public QMainWindow
 	
 		QStringList recentOpenedDictionaries;
 	
+		QMessageBox *formatIsNotSuitableDialog;
+		
 		About *about;
 		Manual *manual;
 		DictionariesManager *dictionariesManager;

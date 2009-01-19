@@ -27,6 +27,7 @@ class BrowserWithWidgets : public QTextBrowser
 		void setOrientation(Orientation orientation);
 		
 		void addWidget(QWidget *newWidget);
+		void addWidgetAt(Position pos,QWidget *widget);
 	private slots:
 		void anchorClickedSlot(const QUrl& link);
 		void updateCurrentText();

@@ -2,7 +2,6 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QToolTip>
 #include <QtGui/QToolButton>
 #include <QtGui/QFrame>
 #include <QtGui/QCursor>
@@ -11,18 +10,28 @@
 #include <QtCore/QStack>
 #include "TranslationEditor.h"
 #include "DatabaseCenter.h"
+#include "EditorTipsWidget.h"
 #include "TabWidget.h"
 
-const int TIMER_INTERVAL = 800;
 
-TabWidget::TabWidget(DatabaseCenter *dbCenter,int index) {
+TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInterval) {
 	databaseCenter = dbCenter;
 	
 	tabIndex = index;
 	
 	timer = new QTimer;
-	timer->setInterval(TIMER_INTERVAL);
+	setUpdateTranslationInterval(updateTranslationInterval);
 	connect(timer,SIGNAL(timeout()),this,SLOT(updateTranslation()));
+	
+	editorTipsWidget = new EditorTipsWidget;
+	connect(editorTipsWidget,SIGNAL(hideAllTips()),this,SIGNAL(hideAllTips()));
+	
+	editorTipsWidget->addMessages(QStringList()
+				<< tr("Use Tab and Shift+Tab to navigate between fields")
+				<< tr("Use hotkeys to edit,add and remove words")
+				<< tr("Report about bugs to us by e-mail in documentation")
+				<< tr("You can use statuses to point some words for yourself")
+	);
 	
 	textEdit = new TranslationEditor;
 	
@@ -69,6 +78,7 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index) {
 	textEdit->addWidget(editWordButton);
 	textEdit->addWidget(horizontalFrame);
 	textEdit->addWidget(removeWordButton);
+	textEdit->addWidgetAt(TranslationEditor::RightBottomCorner,editorTipsWidget);
 	connect(textEdit,SIGNAL(textChanged()),this,SLOT(translationChanged()));
 	
 	clearLineEditButton = new QToolButton;
@@ -90,6 +100,7 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index) {
 }
 
 TabWidget::~TabWidget() {
+	delete editorTipsWidget;
 	delete updateTranslationButton;
 	delete addWordButton;
 	delete editWordButton;
@@ -112,7 +123,9 @@ void TabWidget::textChanged(const QString&) {
 	editWordButton->setEnabled(false);
 	removeWordButton->setEnabled(false);
 	timer->stop();
-	timer->start();
+	if (updateTranslationDuringEntering)
+		timer->start();
+	resetButtonsAccessibility();
 }
 
 void TabWidget::formatSlStringIntoHtmlString(QString& slString) {
@@ -273,7 +286,6 @@ void TabWidget::updateTranslation() {
 			textEdit->setFocus();
 	} else
 		textEdit->clear();
-	resetButtonsAccessibility();
 	emit(renameTab(tabIndex,lineEdit->text()));
 }
 
@@ -297,9 +309,9 @@ void TabWidget::addWord() {
 	QString translation = textEdit->toPlainText().trimmed();
 	if (!translation.isEmpty()) {
 		if (databaseCenter->addNewWord(word,translation))
-			QToolTip::showText(QCursor::pos(),tr("You have added the new word \"%1\"").arg(word));
+			emit(showStatusMessage(tr("You have added the new word \"%1\"").arg(word)));
 		else
-			QToolTip::showText(QCursor::pos(),tr("Cannot add the new word \"%1\"").arg(word));
+			emit(showStatusMessage(tr("Cannot add the new word \"%1\"").arg(word)));
 		resetButtonsAccessibility();
 	} else
 		textEdit->setFocus();
@@ -310,17 +322,17 @@ void TabWidget::editWord() {
 	QString translation = textEdit->toPlainText().trimmed();
 	if (!translation.isEmpty()) {
 		if (databaseCenter->setTranslationForWord(word,translation))
-			QToolTip::showText(QCursor::pos(),tr("You have edited the word \"%1\"").arg(word));
+			emit(showStatusMessage(tr("You have edited the word \"%1\"").arg(word)));
 		else
-			QToolTip::showText(QCursor::pos(),tr("Cannot edit the word \"%1\"").arg(word));
+			emit(showStatusMessage(tr("Cannot edit the word \"%1\"").arg(word)));
 	}
 }
 
 void TabWidget::removeWord() {
 	if (databaseCenter->removeWord(lineEdit->text().toLower()))
-		QToolTip::showText(QCursor::pos(),tr("You have removed the word \"%1\"").arg(lineEdit->text()));
+		emit(showStatusMessage(tr("You have removed the word \"%1\"").arg(lineEdit->text())));
 	else
-		QToolTip::showText(QCursor::pos(),tr("Cannot remove the word \"%1\"").arg(lineEdit->text()));
+		emit(showStatusMessage(tr("Cannot remove the word \"%1\"").arg(lineEdit->text())));
 	resetButtonsAccessibility();
 }
 
@@ -336,4 +348,13 @@ void TabWidget::setEditorMenu(Menu *menu) {
 void TabWidget::translationChanged() {
 	if (timer->isActive())
 		updateTranslation();
+}
+
+void TabWidget::setUpdateTranslationInterval(int interval) {
+	updateTranslationDuringEntering = interval != 0;
+	timer->setInterval(interval);
+}
+
+void TabWidget::hideTips() {
+	editorTipsWidget->hide();
 }

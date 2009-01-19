@@ -64,6 +64,7 @@ class CentralWidget : public QWidget
 		void currentWidgetChanged(int widgetIndex);
 		void closeSettings();
 		void startPageLinkClicked(const QString& link);
+		void updateSettings();
 	private:
 		QMessageBox *continueLoadingOfLastLoadedOrNotDialog;
 		QPushButton *continueLoadingLastLoadedButton;

@@ -32,7 +32,8 @@ HEADERS += src/const.h \
 	src/SettingsWidget.h \
 	src/InfoButton.h \
 	src/PopupWindow.h \
-	src/StatusBarLabel.h
+	src/StatusBarLabel.h \
+	src/EditorTipsWidget.h
 	
 SOURCES += src/main.cpp \
     src/MainWindow.cpp \
@@ -56,6 +57,7 @@ SOURCES += src/main.cpp \
 	src/SettingsWidget.cpp \
 	src/InfoButton.cpp \
 	src/PopupWindow.cpp \
-	src/StatusBarLabel.cpp
+	src/StatusBarLabel.cpp \
+	src/EditorTipsWidget.cpp
 	
 RESOURCES += lileditor.qrc

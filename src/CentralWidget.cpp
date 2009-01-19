@@ -19,6 +19,7 @@
 #include "const.h"
 #include "CentralWidget.h"
 
+
 CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	
 	continueLoadingOfLastLoadedOrNotDialog = new QMessageBox(mainWindowCommunicater);
@@ -111,9 +112,11 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	
 	tabsWidget = new TabsWidget(databaseCenter);
 	connect(tabsWidget,SIGNAL(closeTabButtonClicked()),this,SLOT(closeCurrentTab()));
+	connect(tabsWidget,SIGNAL(showStatusMessage(const QString&)),mainWindowCommunicater,SLOT(showStatusMessage(const QString&)));
 	
 	settingsWidget = new SettingsWidget;
 	connect(settingsWidget,SIGNAL(closed()),this,SLOT(closeSettings()));
+	connect(settingsWidget,SIGNAL(updateSettings()),this,SLOT(updateSettings()));
 	
 	stackedWidget->addWidget(startPageViewer);
 	stackedWidget->addWidget(tabsWidget);
@@ -144,6 +147,8 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	setLayout(mainLayout);
 	
 	connect(newDictWidget,SIGNAL(createDictionary(const QString&)),mainWindowCommunicater,SLOT(createNewDictionary(const QString&)));
+	
+	updateSettings();
 }
 
 CentralWidget::~CentralWidget() {
@@ -368,4 +373,8 @@ void CentralWidget::startPageLinkClicked(const QString& link) {
 		setCurrentDatabase(link);
 		showTabsWidget();
 	}
+}
+
+void CentralWidget::updateSettings() {
+	tabsWidget->setUpdateTranslationInterval(settingsWidget->translationRenovation());
 }

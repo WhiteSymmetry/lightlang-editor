@@ -2,9 +2,11 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QCheckBox>
-#include <QtGui/QSpinBox>
+#include <QtGui/QDoubleSpinBox>
+#include <QtCore/QSettings>
 #include "PopupWindow.h"
 #include "InfoButton.h"
+#include "const.h"
 #include "SettingsWidget.h"
 
 SettingsWidget::SettingsWidget() {
@@ -20,11 +22,18 @@ SettingsWidget::SettingsWidget() {
 	introductionLabel->setWordWrap(true);
 	introductionLabel->setText("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + tr("The LightLang Editor interface is considered, that's why the options number is few. But we tried to explain all available options to make your work with our program faster and easier for you. If you think, that we should add some options, inform us about it on our forum: %1http://vialinx.org/forum/%2,please.").arg("<a href='http://vialinx.org/forum/'>").arg("</a>"));
 	
-	updateTranslationTimeSpinBox = new QSpinBox;
+	updateTranslationTimeSpinBox = new QDoubleSpinBox;
+	updateTranslationTimeSpinBox->setSingleStep(0.1);
+	updateTranslationTimeSpinBox->setMaximum(2.0);
+	updateTranslationTimeSpinBox->setMinimum(0.0);
+	updateTranslationTimeSpinBox->setSuffix(" " + tr("seconds"));
+	updateTranslationTimeSpinBox->setDecimals(1);
 	QLabel *updateTranslationLittleLabel = new QLabel;
 	updateTranslationLittleLabel->setText(tr("The time between translation renovation and stop of word entering"));
+	connect(updateTranslationTimeSpinBox,SIGNAL(valueChanged(double)),this,SLOT(saveSettings()));
 	
 	useHighlightingCheckBox = new QCheckBox(tr("Highlight translation"));
+	
 	useStatusesCheckBox = new QCheckBox(tr("Use statuses"));
 	
 	popupWindow = new PopupWindow;
@@ -63,6 +72,10 @@ SettingsWidget::SettingsWidget() {
 	mainLayout->setRowStretch(6,1);
 	
 	setLayout(mainLayout);
+	loadSettings();
+	
+	connect(useHighlightingCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
+	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 }
 
 SettingsWidget::~SettingsWidget() {
@@ -76,4 +89,31 @@ SettingsWidget::~SettingsWidget() {
 	delete updateTranslationTimeSpinBox;
 	delete useHighlightingCheckBox;
 	delete useStatusesCheckBox;
+}
+
+
+void SettingsWidget::saveSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	settings.setValue("Settings/TranslationRenovation",updateTranslationTimeSpinBox->value());
+	settings.setValue("Settings/UseHighlighting",useHighlightingCheckBox->isChecked());
+	settings.setValue("Settings/UseStatuses",useStatusesCheckBox->isChecked());
+	emit (updateSettings());
+}
+void SettingsWidget::loadSettings() {
+	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	updateTranslationTimeSpinBox->setValue(settings.value("Settings/TranslationRenovation",0.8).toDouble());
+	useHighlightingCheckBox->setChecked(settings.value("Settings/UseHighlighting",true).toBool());
+	useStatusesCheckBox->setChecked(settings.value("Settings/UseStatuses",true).toBool());
+}
+
+int SettingsWidget::translationRenovation() const {
+	return int(updateTranslationTimeSpinBox->value()*1000);
+}
+
+bool SettingsWidget::useStatuses() const {
+	return useStatusesCheckBox->isChecked();
+}
+
+bool SettingsWidget::useHighlighting() const {
+	return useHighlightingCheckBox->isChecked();
 }

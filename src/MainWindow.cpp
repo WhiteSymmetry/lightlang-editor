@@ -7,6 +7,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QStatusBar>
+#include <QtGui/QMessageBox>
 #include <QtCore/QDir>	
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
@@ -21,6 +22,11 @@
 
 MainWindow::MainWindow() {
 	createDirs();
+	
+	formatIsNotSuitableDialog = new QMessageBox(this);
+	formatIsNotSuitableDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
+	formatIsNotSuitableDialog->setWindowTitle(tr("Notification"));
+	formatIsNotSuitableDialog->setText("<b>" + tr("You have chosen file with unsupported format") + "</b><br>" + tr("Format must be: &lt;dictionary name&gt;.&lt;from language&gt;-&lt;to language&gt;. Check one more time the file format, please."));
 	
 	statusBarLabel = new StatusBarLabel(this);
 	
@@ -65,6 +71,7 @@ MainWindow::MainWindow() {
 }
 
 MainWindow::~MainWindow() {
+	delete formatIsNotSuitableDialog;
 	
     delete createDictAction;
     delete openDictAction;
@@ -356,9 +363,16 @@ void MainWindow::moveEvent(QMoveEvent *event) {
 }
 
 void MainWindow::openDictionary() {
-	QString dictionaryPath = QFileDialog::getOpenFileName(this,tr("Open dictionary"),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
-	if (dictionaryPath.isEmpty())
-		return;
+	QString dictionaryPath;
+	while(true) {
+		dictionaryPath = QFileDialog::getOpenFileName(this,tr("Open a dictionary"),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
+		if (dictionaryPath.isEmpty())
+			return;
+		if (!dictionaryPath.contains(QRegExp("^(.*\\.[a-z][a-z]\\-[a-z][a-z])$")))
+			formatIsNotSuitableDialog->exec();
+		else
+			break;
+	}
 	currentLoadingDictPath = dictionaryPath;
 	currentLoadingDictAbout.clear();
 	centralWidget->loadDictionary(currentLoadingDictPath);
@@ -486,7 +500,7 @@ void MainWindow::saveDictionary() {
 }
 
 void MainWindow::saveDictionaryAs() {
-	QString filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
+	QString filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*"));
 	if (filePath.isEmpty())
 		return;
 	centralWidget->saveDictionaryAs(filePath);

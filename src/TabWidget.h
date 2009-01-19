@@ -10,15 +10,21 @@ class DatabaseCenter;
 class QToolButton;
 class QTimer;
 class Menu;
+class EditorTipsWidget;
 
 class TabWidget : public QWidget
 {
 	Q_OBJECT
 	signals:
 		void renameTab(int index,const QString& name);
+		void showStatusMessage(const QString& message);
+		void hideAllTips();
 	public:
-		TabWidget(DatabaseCenter *databaseCenter,int index);
+		TabWidget(DatabaseCenter *databaseCenter,int index,int updateTranslationInterval);
 		~TabWidget();
+		
+		void setUpdateTranslationInterval(int interval);
+		void hideTips();
 	
 		void setFocusAtThisTab();
 		void setEditorMenu(Menu *menu);
@@ -37,7 +43,10 @@ class TabWidget : public QWidget
 		void formatSlStringIntoHtmlString(QString& str);
 		void formatHtmlStringIntoSlString(QString& str);
 	
+		bool updateTranslationDuringEntering;
 		QTimer *timer;
+		
+		EditorTipsWidget *editorTipsWidget;
 	
 		int tabIndex;
 	

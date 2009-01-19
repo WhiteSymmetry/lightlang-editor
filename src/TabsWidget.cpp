@@ -5,6 +5,8 @@
 
 TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(parent) {
 	databaseCenter = dbCenter;
+	updateTranslationInterval = 0;
+	showTips = true;
 	
 	newTabButton = new QToolButton;
 	newTabButton->setAutoRaise(true);
@@ -25,6 +27,7 @@ TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(pa
 }
 
 TabsWidget::~TabsWidget() {
+	blockSignals(true);
 	foreach (TabWidget *tab,tabs)
 		delete tab;
 	delete newTabButton;
@@ -32,11 +35,17 @@ TabsWidget::~TabsWidget() {
 }
 
 TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
-	TabWidget *newTabWidget = new TabWidget(databaseCenter,tabs.count());
+	TabWidget *newTabWidget = new TabWidget(databaseCenter,tabs.count(),updateTranslationInterval);
 	tabs << newTabWidget;
 	newTabWidget->setEditorMenu(editorMenu);
 	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "(" + tr("Unnamed") + ")" : tabTitle));
+	if (!showTips)
+		newTabWidget->hideTips();
+	
 	connect(newTabWidget,SIGNAL(renameTab(int,const QString&)),this,SLOT(renameTab(int,const QString&)));
+	connect(newTabWidget,SIGNAL(showStatusMessage(const QString&)),this,SIGNAL(showStatusMessage(const QString&)));
+	connect(newTabWidget,SIGNAL(hideAllTips()),this,SLOT(hideAllTips()));
+	
 	return newTabWidget;
 }
 
@@ -61,4 +70,16 @@ void TabsWidget::setEditorMenu(Menu *menu) {
 
 void TabsWidget::setFocusOnCurrentTab() {
 	tabs[currentIndex()]->setFocusAtThisTab();
+}
+
+void TabsWidget::setUpdateTranslationInterval(int interval) {
+	updateTranslationInterval = interval;
+	foreach (TabWidget *tab,tabs)
+		tab->setUpdateTranslationInterval(updateTranslationInterval);
+}
+
+void TabsWidget::hideAllTips() {
+	foreach (TabWidget *tab,tabs)
+		tab->hideTips();
+	showTips = false;
 }

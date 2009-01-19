@@ -40,7 +40,6 @@ void StatusBarLabel::paintEvent(QPaintEvent *) {
     painter.drawRect(QRect(0, 0, width(), height()));
 
     painter.setPen(foregroundColor);
-	painter.setFont(QFont("Sans",10,1));
     int flags = Qt::AlignVCenter | Qt::TextWordWrap;
     painter.drawText(QRect(5, 0, width(), height()), flags, currentMessage);
 
