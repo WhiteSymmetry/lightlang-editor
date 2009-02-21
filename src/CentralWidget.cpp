@@ -377,4 +377,5 @@ void CentralWidget::startPageLinkClicked(const QString& link) {
 
 void CentralWidget::updateSettings() {
 	tabsWidget->setUpdateTranslationInterval(settingsWidget->translationRenovation());
+	tabsWidget->setAllTipsHidden(!settingsWidget->showTips());
 }

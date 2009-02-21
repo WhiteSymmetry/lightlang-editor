@@ -18,16 +18,16 @@ class TabWidget : public QWidget
 	signals:
 		void renameTab(int index,const QString& name);
 		void showStatusMessage(const QString& message);
-		void hideAllTips();
 	public:
 		TabWidget(DatabaseCenter *databaseCenter,int index,int updateTranslationInterval);
 		~TabWidget();
 		
 		void setUpdateTranslationInterval(int interval);
-		void hideTips();
+		void setTipsHidden(bool toHide);
 	
 		void setFocusAtThisTab();
 		void setEditorMenu(Menu *menu);
+		void setTipsMenu(Menu *menu);
 	
 		void setHtml(const QString& htmlText);
 		void setReadOnly(bool readOnly);

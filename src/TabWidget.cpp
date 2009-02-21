@@ -24,7 +24,6 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	connect(timer,SIGNAL(timeout()),this,SLOT(updateTranslation()));
 	
 	editorTipsWidget = new EditorTipsWidget;
-	connect(editorTipsWidget,SIGNAL(hideAllTips()),this,SIGNAL(hideAllTips()));
 	
 	editorTipsWidget->addMessages(QStringList()
 				<< tr("Use Tab and Shift+Tab to navigate between fields")
@@ -355,6 +354,10 @@ void TabWidget::setUpdateTranslationInterval(int interval) {
 	timer->setInterval(interval);
 }
 
-void TabWidget::hideTips() {
-	editorTipsWidget->hide();
+void TabWidget::setTipsHidden(bool toHide) {
+	editorTipsWidget->setHidden(toHide);
+}
+
+void TabWidget::setTipsMenu(Menu *menu) {
+	editorTipsWidget->setContextMenu(menu);
 }

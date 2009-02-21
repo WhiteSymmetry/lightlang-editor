@@ -434,15 +434,15 @@ void MainWindow::updateRecentDictsMenu() {
 		if (recentOpenedDictionaries.count(recentOpenedDictionaries[i]) > 1)
 			recentOpenedDictionaries.removeAt(i);
 	for (int i = recentOpenedDictionaries.count() - 1; i >= 0; i--)
-		recentDictsMenu->addAction(recentOpenedDictionaries[i]);
+		if (dictionariesManager->getExistingDictionaries().contains(recentOpenedDictionaries[i]))
+			recentDictsMenu->addAction(recentOpenedDictionaries[i]);
 	
 	QString startPageText = 
 		"<hr><table border=\"0\" width=\"100%\"><tr><td bgcolor=\"#DFEDFF\"><h2 align=\"center\"><em>" + 
 		tr("Start page") + 	
 		"</em></h2></td></tr></table><hr>&nbsp;&nbsp;&nbsp;&nbsp;" +
-		tr("Hello, thank you for LightLang Editor usage! The editor can help you to edit existing dictionaries, create new dictionary and add dictionaries to SL database. %1Read documentation%4 about SL tags before edition please to learn how to format text in SL dictionaries. If you started LightLang Editor in first time, you should open existing dictionary to edit it or create new dictionary. Also you can %2point your preferences%4 to make your work with editor easier and %3watch a little bit information%4 about the program.").arg("<a href=\"documentation\">").arg("<a href=\"preferences\">").arg("<a href=\"about\">").arg("</a>") +
+		tr("Hello, thank you for using LightLang Editor! This program can help you to edit existing dictionaries, create new and add it to SL database. Please, %1read documentation%4 about SL tags before starting edition to learn about formatting text in SL dictionaries. If you started LightLang in first time, you should open existing dictionary to edit or create new. Also you can %2point your preferences%4 to make your working process with editor easier and %3read some extra information%4 about program.").arg("<a href=\"documentation\">").arg("<a href=\"preferences\">").arg("<a href=\"about\">").arg("</a>") +
 		"<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>" + tr("Recent opened dictionaries") + ":</b>";
-		
 	startPageText += "<ul>";
 	for (int i = recentOpenedDictionaries.count() - 1; i >= 0; i--)
 		if (dictionariesManager->getExistingDictionaries().contains(recentOpenedDictionaries[i]))

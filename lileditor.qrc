@@ -41,5 +41,6 @@
         <file>icons/close.png</file>
         <file>icons/settings.png</file>
         <file>icons/info.png</file>
+        <file>icons/tip.png</file>
     </qresource>
 </RCC>

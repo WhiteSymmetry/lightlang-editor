@@ -25,6 +25,7 @@ class SettingsWidget : public QWidget
 		int translationRenovation() const;
 		bool useStatuses() const;
 		bool useHighlighting() const;
+		bool showTips() const;
 		
 		void loadSettings();
 	private:
@@ -35,11 +36,13 @@ class SettingsWidget : public QWidget
 		QDoubleSpinBox *updateTranslationTimeSpinBox;
 		QCheckBox *useHighlightingCheckBox;
 		QCheckBox *useStatusesCheckBox;
+		QCheckBox *showTipsCheckBox;
 	
 		PopupWindow *popupWindow;
 		InfoButton *updateTranslationInfoButton;
 		InfoButton *useHighlightingInfoButton;
 		InfoButton *useStatusesInfoButton;
+		InfoButton *showTipsInfoButton;
 };
 
 #endif

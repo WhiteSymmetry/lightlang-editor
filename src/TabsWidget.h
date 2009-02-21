@@ -7,6 +7,7 @@ class TabWidget;
 class QToolButton;
 class DatabaseCenter;
 class Menu;
+class QAction;
 
 class TabsWidget : public QTabWidget
 {
@@ -17,6 +18,7 @@ class TabsWidget : public QTabWidget
 	public slots:
 		TabWidget* openNewTab(const QString& tabTitle = QString());
 		void closeCurrentTab();
+		void setAllTipsHidden(bool toHide);
 	public:
 		TabsWidget(DatabaseCenter *databaseCenter,QWidget *parent = 0);
 		~TabsWidget();
@@ -36,6 +38,11 @@ class TabsWidget : public QTabWidget
 		
 		QList<TabWidget *> tabs;
 		Menu *editorMenu;
+		
+		Menu *tipsMenu;
+		QAction *hideAllTipsAction;
+		QAction *nextTipAction;
+		QAction *previousTipAction;
 	
 		QToolButton *newTabButton;
 		QToolButton *closeCurrentTabButton;

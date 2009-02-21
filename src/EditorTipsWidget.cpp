@@ -1,10 +1,14 @@
 #include <QtGui/QPainter>
 #include <QtGui/QColor>
+#include <QtGui/QContextMenuEvent>
 #include <QtGui/QMouseEvent>
 #include <QtCore/QTimer>
+#include "Menu.h"
 #include "EditorTipsWidget.h"
 
 EditorTipsWidget::EditorTipsWidget() {
+	
+	menu = 0;
 	timer = new QTimer;
 	timer->setInterval(10000);
 	connect(timer,SIGNAL(timeout()),timer,SLOT(stop()));
@@ -70,11 +74,23 @@ QString EditorTipsWidget::getNextMessage() {
 	return messages[currentMessageIndex];
 }
 
-void EditorTipsWidget::mousePressEvent(QMouseEvent *event) {
-	if (event->button() == Qt::RightButton)
-		emit (hideAllTips());
-	else {
-		timer->stop();
-		update();
+void EditorTipsWidget::contextMenuEvent(QContextMenuEvent *event) {
+	if (menu) {
+		menu->move(event->globalX(),event->globalY());
+		menu->show();
 	}
+}
+
+void EditorTipsWidget::mousePressEvent(QMouseEvent *event) {
+	if (event->button() == Qt::LeftButton)
+		nextTip();
+}
+
+void EditorTipsWidget::setContextMenu(Menu *m) {
+	menu = m;
+}
+
+void EditorTipsWidget::nextTip() {
+	timer->stop();
+	update();
 }

@@ -1,12 +1,33 @@
 #include <QtGui/QToolButton>
-#include "TabWidget.h"
+#include <QtGui/QAction>
 #include "Menu.h"
+#include "TabWidget.h"
 #include "TabsWidget.h"
 
 TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(parent) {
 	databaseCenter = dbCenter;
 	updateTranslationInterval = 0;
 	showTips = true;
+	
+	tipsMenu = new Menu(true);
+	tipsMenu->setHeaderText(tr("Tips"));
+	tipsMenu->setHeaderIcon(QIcon(":/icons/tip.png"));
+	
+	hideAllTipsAction = new QAction(tipsMenu);
+	hideAllTipsAction->setText(tr("Hide tips in all tabs"));
+	connect(hideAllTipsAction,SIGNAL(triggered()),this,SLOT(hideAllTips()));
+	
+	nextTipAction = new QAction(tipsMenu);
+	nextTipAction->setText(tr("Show next tip"));
+	nextTipAction->setIcon(QIcon(":/icons/forward.png"));
+	
+	previousTipAction = new QAction(tipsMenu);
+	previousTipAction->setText(tr("show previous tip"));
+	previousTipAction->setIcon(QIcon(":/icons/backward.png"));
+	
+	tipsMenu->addAction(nextTipAction);
+	tipsMenu->addAction(previousTipAction);
+	tipsMenu->addAction(hideAllTipsAction);
 	
 	newTabButton = new QToolButton;
 	newTabButton->setAutoRaise(true);
@@ -30,6 +51,10 @@ TabsWidget::~TabsWidget() {
 	blockSignals(true);
 	foreach (TabWidget *tab,tabs)
 		delete tab;
+	delete hideAllTipsAction;
+	delete nextTipAction;
+	delete previousTipAction;
+	delete tipsMenu;
 	delete newTabButton;
 	delete closeCurrentTabButton;
 }
@@ -38,13 +63,12 @@ TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
 	TabWidget *newTabWidget = new TabWidget(databaseCenter,tabs.count(),updateTranslationInterval);
 	tabs << newTabWidget;
 	newTabWidget->setEditorMenu(editorMenu);
+	newTabWidget->setTipsMenu(tipsMenu);
 	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "(" + tr("Unnamed") + ")" : tabTitle));
-	if (!showTips)
-		newTabWidget->hideTips();
+	newTabWidget->setTipsHidden(!showTips);
 	
 	connect(newTabWidget,SIGNAL(renameTab(int,const QString&)),this,SLOT(renameTab(int,const QString&)));
 	connect(newTabWidget,SIGNAL(showStatusMessage(const QString&)),this,SIGNAL(showStatusMessage(const QString&)));
-	connect(newTabWidget,SIGNAL(hideAllTips()),this,SLOT(hideAllTips()));
 	
 	return newTabWidget;
 }
@@ -78,8 +102,12 @@ void TabsWidget::setUpdateTranslationInterval(int interval) {
 		tab->setUpdateTranslationInterval(updateTranslationInterval);
 }
 
-void TabsWidget::hideAllTips() {
+void TabsWidget::setAllTipsHidden(bool toHide) {
 	foreach (TabWidget *tab,tabs)
-		tab->hideTips();
-	showTips = false;
+		tab->setTipsHidden(toHide);
+	showTips = !toHide;
+}
+
+void TabsWidget::hideAllTips() {
+	setAllTipsHidden(true);
 }
