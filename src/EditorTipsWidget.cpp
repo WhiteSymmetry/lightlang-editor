@@ -90,6 +90,21 @@ void EditorTipsWidget::setContextMenu(Menu *m) {
 	menu = m;
 }
 
+void  EditorTipsWidget::previousTip() {
+	if (messages.count() == 0) {
+		timer->stop();
+		currentMessageIndex = -1;
+		return;
+	}
+	if (timer->isActive())
+		timer->stop();
+	currentMessageIndex--;
+	if (currentMessageIndex < 0)
+		currentMessageIndex = messages.count() - 1;
+	timer->start();
+	update();
+}
+
 void EditorTipsWidget::nextTip() {
 	timer->stop();
 	update();

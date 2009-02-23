@@ -28,6 +28,9 @@ class TabWidget : public QWidget
 		void setUpdateTranslationInterval(int interval);
 		void setTipsHidden(bool toHide);
 	
+		void showNextTip();
+		void showPreviousTip();
+		
 		void setFocusAtThisTab();
 		void setEditorMenu(Menu *menu);
 		void setTipsMenu(Menu *menu);

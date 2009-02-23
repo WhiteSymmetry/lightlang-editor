@@ -21,10 +21,12 @@ TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(pa
 	nextTipAction = new QAction(tipsMenu);
 	nextTipAction->setText(tr("Show next tip"));
 	nextTipAction->setIcon(QIcon(":/icons/forward.png"));
+	connect(nextTipAction,SIGNAL(triggered()),this,SLOT(showNextTipInCurrentTab()));
 	
 	previousTipAction = new QAction(tipsMenu);
-	previousTipAction->setText(tr("show previous tip"));
+	previousTipAction->setText(tr("Show previous tip"));
 	previousTipAction->setIcon(QIcon(":/icons/backward.png"));
+	connect(previousTipAction,SIGNAL(triggered()),this,SLOT(showPreviousTipInCurrentTab()));
 	
 	tipsMenu->addAction(nextTipAction);
 	tipsMenu->addAction(previousTipAction);
@@ -134,4 +136,12 @@ void TabsWidget::hideAllTips() {
 
 void TabsWidget::showFindWidgetInCurrentTab() {
 	tabs[currentIndex()]->showSearchingPanel();
+}
+
+void TabsWidget::showNextTipInCurrentTab() {
+	tabs[currentIndex()]->showNextTip();
+}
+
+void TabsWidget::showPreviousTipInCurrentTab() {
+	tabs[currentIndex()]->showPreviousTip();
 }

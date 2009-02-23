@@ -379,3 +379,11 @@ void TabWidget::showSearchingPanel() {
 	findInTranslationPanel->show();
 	findInTranslationPanel->setLineEditFocus();
 }
+
+void TabWidget::showNextTip() {
+	editorTipsWidget->nextTip();
+}
+
+void TabWidget::showPreviousTip() {
+	editorTipsWidget->previousTip();
+}

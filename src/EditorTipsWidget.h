@@ -13,6 +13,7 @@ class EditorTipsWidget : public QWidget
 	Q_OBJECT
 	public slots:
 		void nextTip();
+		void previousTip();
 	public:
 		EditorTipsWidget();
 		~EditorTipsWidget();

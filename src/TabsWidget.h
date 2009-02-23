@@ -33,6 +33,8 @@ class TabsWidget : public QTabWidget
 		void renameTab(int index,const QString& name);
 		void currentTabChanged(int index);
 		void hideAllTips();
+		void showNextTipInCurrentTab();
+		void showPreviousTipInCurrentTab();
 	private:
 		DatabaseCenter *databaseCenter;
 	
