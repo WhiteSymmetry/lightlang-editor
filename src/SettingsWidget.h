@@ -1,25 +1,23 @@
 #ifndef SETTINGSWIDGET_H
 #define SETTINGSWIDGET_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QDialog>
 
 class QLabel;
-class QToolButton;
 class QDoubleSpinBox;
 class QCheckBox;
 class InfoButton;
 class PopupWindow;
 
-class SettingsWidget : public QWidget
+class SettingsWidget : public QDialog
 {
 	Q_OBJECT
 	signals:
-		void closed();
 		void updateSettings();
 	public slots:
 		void saveSettings();
 	public:
-		SettingsWidget();
+		SettingsWidget(QWidget *parent = 0);
 		~SettingsWidget();
 		
 		int translationRenovation() const;
@@ -30,7 +28,6 @@ class SettingsWidget : public QWidget
 		void loadSettings();
 	private:
 		QLabel *headerLabel;
-		QToolButton *closeButton;
 		QLabel *introductionLabel;
 	
 		QDoubleSpinBox *updateTranslationTimeSpinBox;

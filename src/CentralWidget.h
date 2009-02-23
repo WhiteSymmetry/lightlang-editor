@@ -64,7 +64,6 @@ class CentralWidget : public QWidget
 		void loadingFinished();
 		void openLastLoadedDictionary();
 		void currentWidgetChanged(int widgetIndex);
-		void closeSettings();
 		void startPageLinkClicked(const QString& link);
 		void updateSettings();
 	private:

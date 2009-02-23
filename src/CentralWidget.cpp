@@ -114,13 +114,11 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	connect(tabsWidget,SIGNAL(closeTabButtonClicked()),this,SLOT(closeCurrentTab()));
 	connect(tabsWidget,SIGNAL(showStatusMessage(const QString&)),mainWindowCommunicater,SLOT(showStatusMessage(const QString&)));
 	
-	settingsWidget = new SettingsWidget;
-	connect(settingsWidget,SIGNAL(closed()),this,SLOT(closeSettings()));
+	settingsWidget = new SettingsWidget(mainWindowCommunicater);
 	connect(settingsWidget,SIGNAL(updateSettings()),this,SLOT(updateSettings()));
 	
 	stackedWidget->addWidget(startPageViewer);
 	stackedWidget->addWidget(tabsWidget);
-	stackedWidget->addWidget(settingsWidget);
 	stackedWidget->setCurrentIndex(0);
 	connect(stackedWidget,SIGNAL(currentChanged(int)),this,SLOT(currentWidgetChanged(int)));
 	
@@ -354,14 +352,7 @@ void CentralWidget::setPathForOpenedDictionary(const QString& path,const QString
 }
 
 void CentralWidget::showSettings() {
-	stackedWidget->setCurrentIndex(2);
-}
-
-void CentralWidget::closeSettings() {
-	if (tabsWidget->count() > 0)
-		stackedWidget->setCurrentIndex(1);
-	else
-		stackedWidget->setCurrentIndex(0);
+	settingsWidget->exec();
 }
 
 void CentralWidget::startPageLinkClicked(const QString& link) {

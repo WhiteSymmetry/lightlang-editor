@@ -1,6 +1,5 @@
 #include <QtGui/QLabel>
 #include <QtGui/QGridLayout>
-#include <QtGui/QToolButton>
 #include <QtGui/QCheckBox>
 #include <QtGui/QDoubleSpinBox>
 #include <QtCore/QSettings>
@@ -9,14 +8,8 @@
 #include "const.h"
 #include "SettingsWidget.h"
 
-SettingsWidget::SettingsWidget() {
+SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	headerLabel = new QLabel("<font size='6'>" + tr("Preferences") + "</font>");
-	
-	closeButton = new QToolButton;
-	closeButton->setAutoRaise(true);
-	closeButton->setIcon(QIcon(":/icons/close.png"));
-	closeButton->setToolTip(tr("Save changes and close settings"));
-	connect(closeButton,SIGNAL(clicked()),this,SIGNAL(closed()));
 	
 	introductionLabel = new QLabel;
 	introductionLabel->setWordWrap(true);
@@ -59,12 +52,8 @@ SettingsWidget::SettingsWidget() {
 	updateTranslationLayout->addWidget(updateTranslationTimeSpinBox);
 	updateTranslationLayout->addWidget(updateTranslationLittleLabel,1);
 	
-	QHBoxLayout *topLayout = new QHBoxLayout;
-	topLayout->addWidget(headerLabel,1);
-	topLayout->addWidget(closeButton);
-	
 	QGridLayout *mainLayout = new QGridLayout;
-	mainLayout->addLayout(topLayout,0,0,1,2);
+	mainLayout->addWidget(headerLabel,0,0,1,2);
 	mainLayout->addWidget(introductionLabel,1,0,1,2);
 	mainLayout->addWidget(new QLabel("<hr>"),2,0,1,2);
 	mainLayout->addWidget(updateTranslationInfoButton,3,0);
@@ -79,6 +68,8 @@ SettingsWidget::SettingsWidget() {
 	mainLayout->setRowStretch(7,1);
 	
 	setLayout(mainLayout);
+	setWindowTitle(tr("Your preferences"));
+	setMinimumSize(sizeHint());
 }
 
 SettingsWidget::~SettingsWidget() {
@@ -88,7 +79,6 @@ SettingsWidget::~SettingsWidget() {
 	delete useStatusesInfoButton;
 	delete popupWindow;
 	delete headerLabel;
-	delete closeButton;
 	delete introductionLabel;
 	delete showTipsCheckBox;
 	delete updateTranslationTimeSpinBox;
