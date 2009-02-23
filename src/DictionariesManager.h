@@ -9,6 +9,7 @@ class QToolButton;
 class QHBoxLayout;
 class QMessageBox;
 class QPushButton;
+class InfoButton;
 	
 class TreeWidgetWithButtons : public TreeWidget
 {
@@ -56,6 +57,8 @@ class DictionariesManager : public QDialog
 		QToolButton *openButton;
 		QToolButton *removeButton;
 		QToolButton *addToSlButton;
+		
+		InfoButton *infoButton;
 };
 
 

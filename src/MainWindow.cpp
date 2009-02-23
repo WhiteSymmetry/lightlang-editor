@@ -52,7 +52,6 @@ MainWindow::MainWindow() {
 	
 	createActions();
 	
-	connect(centralWidget,SIGNAL(startPageShown(bool)),editionToolBar,SLOT(setHidden(bool)));
 	connect(centralWidget,SIGNAL(loadingCompleted(bool)),this,SLOT(loadingCompleted(bool)));
 	connect(centralWidget,SIGNAL(changeWindowTitle(const QString&)),this,SLOT(updateWindowTitle(const QString&)));
 	connect(centralWidget,SIGNAL(databaseWasOpened(const QString&)),this,SLOT(setPathForOpenedDictionary(const QString&)));
@@ -102,6 +101,7 @@ MainWindow::~MainWindow() {
 	delete cutAction;
 	delete copyAction;
 	delete pasteAction;
+	delete findAction;
 	delete editorMenu;
 	
 	delete hideStatusBarTimer;
@@ -263,6 +263,13 @@ void MainWindow::createActions() {
 	pasteAction->setText(tr("Paste"));
 	pasteAction->setIcon(QIcon(":/icons/paste.png"));
 	pasteAction->setShortcut(QKeySequence("Ctrl+V"));
+	
+	findAction = new QAction(this);
+	findAction->setText(tr("Find..."));
+	findAction->setIcon(QIcon(":/icons/search.png"));
+	findAction->setShortcut(QKeySequence("Ctrl+F"));
+	connect(findAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(showFindWidgetInCurrentTab()));
+	
 		
 	editorMenu = new Menu;
 	editorMenu->setHeaderIcon(QIcon(":/icons/edit.png"));
@@ -282,6 +289,8 @@ void MainWindow::createActions() {
 	editorMenu->addSeparator();
 	editorMenu->addAction(undoAction);
 	editorMenu->addAction(redoAction);
+	editorMenu->addSeparator();
+	editorMenu->addAction(findAction);
 	
 	QMenu *editMenu = menuBar()->addMenu("&" + tr("Edit"));
 	editMenu->addAction(pasteBlockAction);
@@ -298,6 +307,8 @@ void MainWindow::createActions() {
 	editMenu->addSeparator();
 	editMenu->addAction(undoAction);
 	editMenu->addAction(redoAction);
+	editMenu->addSeparator();
+	editMenu->addAction(findAction);
 	
 	editionToolBar = addToolBar(tr("Edition tool bar"));
 	editionToolBar->setObjectName("EditionToolBar");
@@ -315,10 +326,14 @@ void MainWindow::createActions() {
 	editionToolBar->addSeparator();
 	editionToolBar->addAction(undoAction);
 	editionToolBar->addAction(redoAction);
+	editionToolBar->addSeparator();
+	editionToolBar->addAction(findAction);
 	editionToolBar->hide();
+	editionToolBar->setOrientation(Qt::Vertical);
 	
 	centralWidget->setEditorMenu(editorMenu);
 	
+	connect(centralWidget,SIGNAL(startPageShown(bool)),editionToolBar,SLOT(setHidden(bool)));
 	connect(centralWidget,SIGNAL(startPageShown(bool)),this,SLOT(disableEditionActions(bool)));
 	disableEditionActions(true);
 	
@@ -336,6 +351,18 @@ void MainWindow::createActions() {
 	QMenu *helpMenu = menuBar()->addMenu("&" + tr("Help"));
 	helpMenu->addAction(manualAction);
 	helpMenu->addAction(aboutProgramAction);
+	
+	// Different actions to make navigation easier
+	QAction *moveNextTabAction = new QAction(this);
+	moveNextTabAction->setShortcut(QKeySequence("Alt+Right"));
+	connect(moveNextTabAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(moveNextTab()));
+	
+	QAction *movePreviousTabAction = new QAction(this);
+	movePreviousTabAction->setShortcut(QKeySequence("Alt+Left"));
+	connect(movePreviousTabAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(movePreviousTab()));
+	
+	addAction(movePreviousTabAction);
+	addAction(moveNextTabAction);
 }
 
 void MainWindow::createDirs() {

@@ -201,8 +201,10 @@ void CentralWidget::showTabsWidget() {
 }
 
 void CentralWidget::closeCurrentTab() {
-	if (tabsWidget->count() == 1)
+	if (tabsWidget->count() == 1) {
 		stackedWidget->setCurrentIndex(0);
+		emit(changeWindowTitle(""));
+	}
 	tabsWidget->closeCurrentTab();
 }
 
@@ -378,4 +380,8 @@ void CentralWidget::startPageLinkClicked(const QString& link) {
 void CentralWidget::updateSettings() {
 	tabsWidget->setUpdateTranslationInterval(settingsWidget->translationRenovation());
 	tabsWidget->setAllTipsHidden(!settingsWidget->showTips());
+}
+
+QWidget *CentralWidget::getTabsWidget() const {
+	return tabsWidget;
 }

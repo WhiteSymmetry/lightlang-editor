@@ -92,6 +92,7 @@ class MainWindow : public QMainWindow
 		QAction *cutAction;
 		QAction *copyAction;
 		QAction *pasteAction;
+		QAction *findAction;
 		
 		QString currentLoadingDictPath;
 		QString currentLoadingDictAbout;

@@ -51,6 +51,8 @@ class CentralWidget : public QWidget
 	
 		bool saveDictionary();
 		void saveDictionaryAs(const QString& dictPath);
+		
+		QWidget *getTabsWidget() const;
 	
 		void setPathForOpenedDictionary(const QString& pathOfOpenedDictionary,const QString& aboutDictionaryText);
 	

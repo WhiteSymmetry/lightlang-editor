@@ -15,6 +15,7 @@ TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(pa
 	
 	hideAllTipsAction = new QAction(tipsMenu);
 	hideAllTipsAction->setText(tr("Hide tips in all tabs"));
+	hideAllTipsAction->setIcon(QIcon(":/icons/close.png"));
 	connect(hideAllTipsAction,SIGNAL(triggered()),this,SLOT(hideAllTips()));
 	
 	nextTipAction = new QAction(tipsMenu);
@@ -87,6 +88,25 @@ void TabsWidget::currentTabChanged(int index) {
 		tabs[index]->setFocusAtThisTab();
 }
 
+void TabsWidget::moveNextTab() {
+	if (count() <= 1)
+		return;
+	int nextIndex = 0;
+	if (currentIndex() < count() - 1)
+		nextIndex = currentIndex() + 1;
+	setCurrentIndex(nextIndex);
+}
+
+void TabsWidget::movePreviousTab() {
+	if (count() <= 1)
+		return;
+	int nextIndex = 0;
+	if (currentIndex() == 0)
+		nextIndex = count() - 1;
+	else
+		nextIndex = currentIndex() - 1;
+	setCurrentIndex(nextIndex);
+}
 
 void TabsWidget::setEditorMenu(Menu *menu) {
 	editorMenu = menu;
@@ -110,4 +130,8 @@ void TabsWidget::setAllTipsHidden(bool toHide) {
 
 void TabsWidget::hideAllTips() {
 	setAllTipsHidden(true);
+}
+
+void TabsWidget::showFindWidgetInCurrentTab() {
+	tabs[currentIndex()]->showSearchingPanel();
 }

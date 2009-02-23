@@ -11,6 +11,7 @@ class QToolButton;
 class QTimer;
 class Menu;
 class EditorTipsWidget;
+class FindInTranslationPanel;
 
 class TabWidget : public QWidget
 {
@@ -18,6 +19,8 @@ class TabWidget : public QWidget
 	signals:
 		void renameTab(int index,const QString& name);
 		void showStatusMessage(const QString& message);
+	public slots:
+		void showSearchingPanel();
 	public:
 		TabWidget(DatabaseCenter *databaseCenter,int index,int updateTranslationInterval);
 		~TabWidget();
@@ -47,6 +50,8 @@ class TabWidget : public QWidget
 		QTimer *timer;
 		
 		EditorTipsWidget *editorTipsWidget;
+		
+		FindInTranslationPanel *findInTranslationPanel;
 	
 		int tabIndex;
 	

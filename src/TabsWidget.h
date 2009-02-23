@@ -19,6 +19,9 @@ class TabsWidget : public QTabWidget
 		TabWidget* openNewTab(const QString& tabTitle = QString());
 		void closeCurrentTab();
 		void setAllTipsHidden(bool toHide);
+		void moveNextTab();
+		void movePreviousTab();
+		void showFindWidgetInCurrentTab();
 	public:
 		TabsWidget(DatabaseCenter *databaseCenter,QWidget *parent = 0);
 		~TabsWidget();

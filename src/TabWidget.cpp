@@ -11,6 +11,7 @@
 #include "TranslationEditor.h"
 #include "DatabaseCenter.h"
 #include "EditorTipsWidget.h"
+#include "FindInTranslationPanel.h"
 #include "TabWidget.h"
 
 
@@ -18,6 +19,9 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	databaseCenter = dbCenter;
 	
 	tabIndex = index;
+	
+	findInTranslationPanel = new FindInTranslationPanel;
+	findInTranslationPanel->hide();
 	
 	timer = new QTimer;
 	setUpdateTranslationInterval(updateTranslationInterval);
@@ -37,6 +41,7 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	lineEdit = new QLineEdit;
 	lineEdit->setToolTip(tr("Enter phrase here, which you want to translate"));
 	connect(lineEdit,SIGNAL(textChanged(const QString&)),this,SLOT(textChanged(const QString&)));
+	connect(lineEdit,SIGNAL(returnPressed()),this,SLOT(updateTranslation()));
 	
 	addWordButton = new QToolButton;
 	addWordButton->setAutoRaise(true);
@@ -61,7 +66,7 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	
 	updateTranslationButton = new QToolButton;
 	updateTranslationButton->setIcon(QIcon(":/icons/search.png"));
-	updateTranslationButton->setShortcut(QKeySequence("Return"));
+	updateTranslationButton->setShortcut(QKeySequence("Enter"));
 	updateTranslationButton->setEnabled(false);
 	connect(updateTranslationButton,SIGNAL(clicked()),this,SLOT(updateTranslation()));
 	updateTranslationButton->setFocusPolicy(Qt::ClickFocus);
@@ -86,6 +91,13 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	connect(clearLineEditButton,SIGNAL(clicked()),lineEdit,SLOT(clear()));
 	clearLineEditButton->setFocusPolicy(Qt::ClickFocus);
 	
+	connect(findInTranslationPanel,SIGNAL(searchSignal(const QString&)),textEdit,SLOT(findFirst(const QString&)));
+	connect(findInTranslationPanel,SIGNAL(findNextRequestSignal(const QString&)),textEdit,SLOT(findNext(const QString&)));
+	connect(findInTranslationPanel,SIGNAL(findPreviousRequestSignal(const QString&)),textEdit,SLOT(findPrevious(const QString&)));
+	connect(textEdit,SIGNAL(setRedPalette()),findInTranslationPanel,SLOT(setRedPalette()));
+	connect(textEdit,SIGNAL(setGreenPalette()),findInTranslationPanel,SLOT(setGreenPalette()));
+	connect(textEdit,SIGNAL(setDefaultPalette()),findInTranslationPanel,SLOT(setDefaultPalette()));
+	
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
 	lineEditLayout->addWidget(lineEdit,1);
 	lineEditLayout->addWidget(clearLineEditButton);
@@ -94,6 +106,7 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(lineEditLayout);
 	mainLayout->addWidget(textEdit);
+	mainLayout->addWidget(findInTranslationPanel);
 	mainLayout->setContentsMargins(3,3,3,3);
 	setLayout(mainLayout);
 }
@@ -360,4 +373,9 @@ void TabWidget::setTipsHidden(bool toHide) {
 
 void TabWidget::setTipsMenu(Menu *menu) {
 	editorTipsWidget->setContextMenu(menu);
+}
+
+void TabWidget::showSearchingPanel() {
+	findInTranslationPanel->show();
+	findInTranslationPanel->setLineEditFocus();
 }

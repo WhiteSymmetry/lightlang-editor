@@ -10,6 +10,8 @@
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlError>
 #include <QDebug>
+#include "InfoButton.h"
+#include "PopupWindow.h"
 #include "DictionariesManager.h"
 
 //==============TreeWidgetWithButtons==================//
@@ -92,16 +94,23 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	removeButton->setToolTip(tr("Remove the dictionary"));
 	connect(removeButton,SIGNAL(clicked()),this,SLOT(removeCurrentDictionary()));
 	
+	PopupWindow *popupWindow = new PopupWindow(this);
+	
+	infoButton = new InfoButton(popupWindow);
+	infoButton->setPopupText(tr("In this dialog you can see the list of loaded dictionaries. To start dictionary edition you should open it. Also you can remove some dictionary or add it to the programs \"SL, XSL\"."));
+	infoButton->setPopupHeaderText(tr("Dictionaries manager"));
+	
 	addToSlButton = new QToolButton;
 	addToSlButton->setAutoRaise(true);
 	addToSlButton->setIcon(QIcon(":/icons/add.png"));
-	addToSlAction->setToolTip(tr("Add the dictionary in SL databases"));
+	addToSlButton->setToolTip(tr("Add the dictionary in SL databases"));
 	
 	treeWidget->addStretch();
 	treeWidget->addWidget(openButton);
 	treeWidget->addWidget(removeButton);
 	treeWidget->addWidget(addToSlButton);
 	treeWidget->addStretch();
+	treeWidget->addWidget(infoButton);
 	
 	treeWidget->addContextMenuAction(openAction);
 	treeWidget->addContextMenuAction(removeAction);
@@ -141,6 +150,7 @@ DictionariesManager::~DictionariesManager() {
 	delete addToSlAction;
 	delete addToSlButton;
 	delete openButton;
+	delete infoButton;
 	delete removeButton;
 	delete treeWidget;
 }
