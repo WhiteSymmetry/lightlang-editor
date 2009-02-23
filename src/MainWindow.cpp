@@ -514,6 +514,7 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	pasteAction->setEnabled(!isDisabled);
 	undoAction->setEnabled(!isDisabled);
 	redoAction->setEnabled(!isDisabled);
+	findAction->setEnabled(!isDisabled);
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {

@@ -147,8 +147,6 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	setLayout(mainLayout);
 	
 	connect(newDictWidget,SIGNAL(createDictionary(const QString&)),mainWindowCommunicater,SLOT(createNewDictionary(const QString&)));
-	
-	updateSettings();
 }
 
 CentralWidget::~CentralWidget() {
@@ -290,6 +288,8 @@ void CentralWidget::setStartPageText(const QString& text) {
 }
 
 void CentralWidget::loadSettings() {
+	settingsWidget->loadSettings();
+	
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
 	QString lastLoadedDictionary = settings.value("CentralWidget/LastLoadedDictionary").toString();
 	if (!lastLoadedDictionary.isEmpty()) {

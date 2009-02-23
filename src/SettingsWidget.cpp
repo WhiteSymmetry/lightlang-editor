@@ -30,7 +30,6 @@ SettingsWidget::SettingsWidget() {
 	updateTranslationTimeSpinBox->setDecimals(1);
 	QLabel *updateTranslationLittleLabel = new QLabel;
 	updateTranslationLittleLabel->setText(tr("The time between translation renovation and stop of word entering"));
-	connect(updateTranslationTimeSpinBox,SIGNAL(valueChanged(double)),this,SLOT(saveSettings()));
 	
 	useHighlightingCheckBox = new QCheckBox(tr("Highlight translation"));
 	
@@ -80,11 +79,6 @@ SettingsWidget::SettingsWidget() {
 	mainLayout->setRowStretch(7,1);
 	
 	setLayout(mainLayout);
-	loadSettings();
-	
-	connect(useHighlightingCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
-	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
-	connect(showTipsCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 }
 
 SettingsWidget::~SettingsWidget() {
@@ -111,12 +105,21 @@ void SettingsWidget::saveSettings() {
 	settings.setValue("GeneralSettings/ShowTips",showTipsCheckBox->isChecked());
 	emit (updateSettings());
 }
+
 void SettingsWidget::loadSettings() {
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	
 	updateTranslationTimeSpinBox->setValue(settings.value("GeneralSettings/TranslationRenovation",0.8).toDouble());
 	useHighlightingCheckBox->setChecked(settings.value("GeneralSettings/UseHighlighting",true).toBool());
 	useStatusesCheckBox->setChecked(settings.value("GeneralSettings/UseStatuses",false).toBool());
 	showTipsCheckBox->setChecked(settings.value("GeneralSettings/ShowTips",false).toBool());
+	
+	connect(updateTranslationTimeSpinBox,SIGNAL(valueChanged(double)),this,SLOT(saveSettings()));
+	connect(useHighlightingCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
+	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
+	connect(showTipsCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
+	
+	emit (updateSettings());
 }
 
 int SettingsWidget::translationRenovation() const {
