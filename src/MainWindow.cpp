@@ -310,7 +310,8 @@ void MainWindow::createActions() {
 	editMenu->addSeparator();
 	editMenu->addAction(findAction);
 	
-	editionToolBar = addToolBar(tr("Edition tool bar"));
+	editionToolBar = new QToolBar(tr("Edition tool bar"));
+	addToolBar(Qt::LeftToolBarArea,editionToolBar);
 	editionToolBar->setObjectName("EditionToolBar");
 	editionToolBar->addAction(pasteBlockAction);
 	editionToolBar->addAction(pasteBoldAction);
@@ -329,7 +330,6 @@ void MainWindow::createActions() {
 	editionToolBar->addSeparator();
 	editionToolBar->addAction(findAction);
 	editionToolBar->hide();
-	editionToolBar->setOrientation(Qt::Vertical);
 	
 	centralWidget->setEditorMenu(editorMenu);
 	
@@ -424,7 +424,8 @@ void MainWindow::loadSettings() {
 	updateRecentDictsMenu();
 	resize(settings.value("MainWindow/Size",QSize(800,400)).toSize());
 	move(settings.value("MainWindow/Position",QPoint(0,0)).toPoint());
-	restoreState(settings.value("MainWindow/State").toByteArray());
+	if (!settings.value("MainWindow/State").toByteArray().isEmpty())
+		restoreState(settings.value("MainWindow/State").toByteArray());
 	centralWidget->loadSettings();
 	manual->loadSettings();
 }
