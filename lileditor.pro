@@ -11,11 +11,11 @@ MOC_DIR = build
 
 # Input
 HEADERS += src/const.h \
-    src/MainWindow.h \
-    src/TabsWidget.h \
-    src/TabWidget.h \
-    src/TranslationEditor.h \
-    src/HighLighter.h \
+	src/MainWindow.h \
+	src/TabsWidget.h \
+	src/TabWidget.h \
+	src/TranslationEditor.h \
+	src/HighLighter.h \
 	src/NewDictWidget.h \
 	src/DatabaseCenter.h \
 	src/Manual.h \
@@ -37,11 +37,11 @@ HEADERS += src/const.h \
 	src/FindInTranslationPanel.h
 	
 SOURCES += src/main.cpp \
-    src/MainWindow.cpp \
-    src/TabsWidget.cpp \
-    src/TabWidget.cpp \
-    src/TranslationEditor.cpp \
-    src/HighLighter.cpp \
+	src/MainWindow.cpp \
+	src/TabsWidget.cpp \
+	src/TabWidget.cpp \
+	src/TranslationEditor.cpp \
+	src/HighLighter.cpp \
 	src/NewDictWidget.cpp \
 	src/DatabaseCenter.cpp \
 	src/Manual.cpp \

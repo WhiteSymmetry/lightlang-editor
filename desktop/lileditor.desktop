@@ -5,8 +5,8 @@
 Version=0.7.5-beta3
 Encoding=UTF-8
 Name=LightLang Editor 
-Name[ru]=LightLang редатор
-GenericName=Editor of sl dictionaries
+Name[ru]=Редактор LightLang
+GenericName=Editor of SL dictionaries
 GenericName[ru]=Редактор словарей формата SL
 Comment=Editor of dictionaries for the system LightLang
 Comment[ru]=Редактор словарей для системы LightLang
