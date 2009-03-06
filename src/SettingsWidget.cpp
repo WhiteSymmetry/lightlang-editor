@@ -30,6 +30,8 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	
 	showTipsCheckBox = new QCheckBox(tr("Show tips in translation editor"));
 	
+	showSideButtonCheckBox = new QCheckBox(tr("Show side bar"));
+	
 	popupWindow = new PopupWindow;
 	
 	updateTranslationInfoButton = new InfoButton(popupWindow);
@@ -48,6 +50,10 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	showTipsInfoButton->setPopupHeaderText(tr("Tips"));
 	showTipsInfoButton->setPopupText(tr("There are a lot of things, which can make your work with editor easier. Tips can help you to learn all these things"));
 	
+	showSideButtonInfoButton = new InfoButton(popupWindow);
+	showSideButtonInfoButton->setPopupHeaderText(tr("Side bar"));
+	showSideButtonInfoButton->setPopupText(tr("This bar is situated at right side of the program when you edit any dictionary. If click on it, you will able to see dictionary searching."));
+	
 	QHBoxLayout *updateTranslationLayout = new QHBoxLayout;
 	updateTranslationLayout->addWidget(updateTranslationTimeSpinBox);
 	updateTranslationLayout->addWidget(updateTranslationLittleLabel,1);
@@ -64,8 +70,10 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	mainLayout->addWidget(useStatusesCheckBox,5,1);
 	mainLayout->addWidget(showTipsInfoButton,6,0);
 	mainLayout->addWidget(showTipsCheckBox,6,1);
+	mainLayout->addWidget(showSideButtonInfoButton,7,0);
+	mainLayout->addWidget(showSideButtonCheckBox,7,1);
 	mainLayout->setColumnStretch(1,1);
-	mainLayout->setRowStretch(7,1);
+	mainLayout->setRowStretch(8,1);
 	
 	setLayout(mainLayout);
 	setWindowTitle(tr("Your preferences"));
@@ -77,6 +85,7 @@ SettingsWidget::~SettingsWidget() {
 	delete updateTranslationInfoButton;
 	delete useHighlightingInfoButton;
 	delete useStatusesInfoButton;
+	delete showSideButtonInfoButton;
 	delete popupWindow;
 	delete headerLabel;
 	delete introductionLabel;
@@ -84,6 +93,7 @@ SettingsWidget::~SettingsWidget() {
 	delete updateTranslationTimeSpinBox;
 	delete useHighlightingCheckBox;
 	delete useStatusesCheckBox;
+	delete showSideButtonCheckBox;
 }
 
 
@@ -93,6 +103,7 @@ void SettingsWidget::saveSettings() {
 	settings.setValue("GeneralSettings/UseHighlighting",useHighlightingCheckBox->isChecked());
 	settings.setValue("GeneralSettings/UseStatuses",useStatusesCheckBox->isChecked());
 	settings.setValue("GeneralSettings/ShowTips",showTipsCheckBox->isChecked());
+	settings.setValue("GeneralSettings/ShowSideBar",showSideButtonCheckBox->isChecked());
 	emit (updateSettings());
 }
 
@@ -103,11 +114,13 @@ void SettingsWidget::loadSettings() {
 	useHighlightingCheckBox->setChecked(settings.value("GeneralSettings/UseHighlighting",true).toBool());
 	useStatusesCheckBox->setChecked(settings.value("GeneralSettings/UseStatuses",false).toBool());
 	showTipsCheckBox->setChecked(settings.value("GeneralSettings/ShowTips",false).toBool());
+	showSideButtonCheckBox->setChecked(settings.value("GeneralSettings/ShowSideBar",true).toBool());
 	
 	connect(updateTranslationTimeSpinBox,SIGNAL(valueChanged(double)),this,SLOT(saveSettings()));
 	connect(useHighlightingCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	connect(showTipsCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
+	connect(showSideButtonCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	
 	emit (updateSettings());
 }
@@ -126,4 +139,8 @@ bool SettingsWidget::useHighlighting() const {
 
 bool SettingsWidget::showTips() const {
 	return showTipsCheckBox->isChecked();
+}
+
+bool SettingsWidget::showSideBar() const {
+	return showSideButtonCheckBox->isChecked();
 }

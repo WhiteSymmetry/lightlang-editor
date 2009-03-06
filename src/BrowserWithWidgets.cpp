@@ -66,6 +66,7 @@ void BrowserWithWidgets::setPosition(Position position) {
 	
 	mainLayout = new QGridLayout;
 	mainLayout->setContentsMargins(0,0,0,0);
+	mainLayout->setRowStretch(0,1);
 	
 	switch (position) {
 		case LeftTopCorner:
@@ -125,4 +126,8 @@ void BrowserWithWidgets::contextMenuEvent(QContextMenuEvent *event) {
 		menu->move(event->globalX(),event->globalY());
 		menu->exec();
 	}
+}
+
+void BrowserWithWidgets::showFrame(bool toShow) {
+	widgetsFrame->setVisible(toShow);
 }

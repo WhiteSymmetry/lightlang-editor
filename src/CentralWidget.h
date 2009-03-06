@@ -16,6 +16,7 @@ class QMessageBox;
 class QPushButton;
 class SettingsWidget;
 class Menu;
+class SearchPanel;
 class QAction;
 
 class CentralWidget : public QWidget
@@ -35,6 +36,9 @@ class CentralWidget : public QWidget
 		void closeCurrentTab();
 		void showTabsWidget();
 		void showSettings();
+		void hideOrShowSearchPanel();
+		void setFocusOnSearchPanel();
+		void showStartPage();
 	
 		void setCurrentDatabase(const QString& dbName);
 		void removeDatabaseWithName(const QString& dbName);
@@ -84,7 +88,7 @@ class CentralWidget : public QWidget
 		QPushButton *continueLoadingButton;
 		QPushButton *restartLoadingButton;
 		QPushButton *ignoreLoadingButton;
-	
+
 		DatabaseCenter *databaseCenter;
 		QStackedWidget *stackedWidget;
 		TabsWidget *tabsWidget;
@@ -93,6 +97,8 @@ class CentralWidget : public QWidget
 		BrowserWithWidgets *startPageViewer;
 		LoadDictionaryThread *loadDictionaryThread;
 		SettingsWidget *settingsWidget;
+		SearchPanel *searchPanel;
+		QPushButton *searchPanelButton;
 		
 		Menu *startPageContextMenu;
 		QAction *openDictAction;

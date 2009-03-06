@@ -78,7 +78,8 @@ void LoadDictionaryThread::run() {
 			QString translation;
 			for (int i = 1; i < list.count(); i++)
 				translation += list[i] + "  ";
-			databaseCenter->addNewWord(word,translation);
+			if (!databaseCenter->addNewWord(word,translation))
+				qDebug() << translation;
 		}
 	}
 	if (!canceled && !stopped)

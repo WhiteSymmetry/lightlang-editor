@@ -15,7 +15,7 @@
 #include "TabWidget.h"
 
 
-TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInterval) {
+TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int updateTranslationInterval) {
 	databaseCenter = dbCenter;
 	
 	tabIndex = index;
@@ -37,58 +37,61 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	);
 	
 	textEdit = new TranslationEditor;
+	textEdit->addWidgetAt(TranslationEditor::RightBottomCorner,editorTipsWidget);
+	connect(textEdit,SIGNAL(showFindPanel()),this,SLOT(showSearchingPanel()));
+	
+	connect(findInTranslationPanel,SIGNAL(wasHidden()),textEdit,SLOT(setFocus()));
 	
 	lineEdit = new QLineEdit;
 	lineEdit->setToolTip(tr("Enter phrase here, which you want to translate"));
 	connect(lineEdit,SIGNAL(textChanged(const QString&)),this,SLOT(textChanged(const QString&)));
 	connect(lineEdit,SIGNAL(returnPressed()),this,SLOT(updateTranslation()));
 	
-	addWordButton = new QToolButton;
-	addWordButton->setAutoRaise(true);
-	addWordButton->setIcon(QIcon(":/icons/add.png"));
-	addWordButton->setToolTip(tr("Add the phrase into dictionary database. Shortcut: Ctrl+Enter"));
-	addWordButton->setShortcut(QKeySequence("Ctrl+Return"));
-	connect(addWordButton,SIGNAL(clicked()),this,SLOT(addWord()));
+	addWordToolButton = new QToolButton;
+	addWordToolButton->setAutoRaise(true);
+	addWordToolButton->setIcon(QIcon(":/icons/add.png"));
+	addWordToolButton->setToolTip(tr("Add the phrase into dictionary database. Shortcut: Ctrl+Enter"));
+	addWordToolButton->setShortcut(QKeySequence("Ctrl+Return"));
+	addWordToolButton->setIconSize(QSize(16,16));
+	connect(addWordToolButton,SIGNAL(clicked()),this,SLOT(addWord()));
 	
-	editWordButton = new QToolButton;
-	editWordButton->setAutoRaise(true);
-	editWordButton->setIcon(QIcon(":/icons/edit.png"));
-	editWordButton->setShortcut(QKeySequence("Ctrl+S"));
-	editWordButton->setToolTip(tr("Edit the phrase. Shourtcut: Ctrl+S"));
-	connect(editWordButton,SIGNAL(clicked()),this,SLOT(editWord()));
+	editWordToolButton = new QToolButton;
+	editWordToolButton->setAutoRaise(true);
+	editWordToolButton->setIcon(QIcon(":/icons/edit.png"));
+	editWordToolButton->setShortcut(QKeySequence("Ctrl+S"));
+	editWordToolButton->setIconSize(QSize(16,16));
+	editWordToolButton->setToolTip(tr("Edit the phrase. Shourtcut: Ctrl+S"));
+	connect(editWordToolButton,SIGNAL(clicked()),this,SLOT(editWord()));
 	
-	removeWordButton = new QToolButton;
-	removeWordButton->setAutoRaise(true);
-	removeWordButton->setIcon(QIcon(":/icons/remove.png"));
-	removeWordButton->setShortcut(QKeySequence("Ctrl+Delete"));
-	removeWordButton->setToolTip(tr("Remove the phrase from dictionary database. Shortcut: Ctrl+Backspace"));
-	connect(removeWordButton,SIGNAL(clicked()),this,SLOT(removeWord()));
+	removeWordToolButton = new QToolButton;
+	removeWordToolButton->setAutoRaise(true);
+	removeWordToolButton->setIcon(QIcon(":/icons/remove.png"));
+	removeWordToolButton->setShortcut(QKeySequence("Ctrl+Delete"));
+	removeWordToolButton->setIconSize(QSize(16,16));
+	removeWordToolButton->setToolTip(tr("Remove the phrase from dictionary database. Shortcut: Ctrl+Delete"));
+	connect(removeWordToolButton,SIGNAL(clicked()),this,SLOT(removeWord()));
 	
 	updateTranslationButton = new QToolButton;
-	updateTranslationButton->setIcon(QIcon(":/icons/search.png"));
+	updateTranslationButton->setIcon(QIcon(":/icons/update.png"));
 	updateTranslationButton->setShortcut(QKeySequence("Enter"));
 	updateTranslationButton->setEnabled(false);
+	updateTranslationButton->setIconSize(QSize(16,16));
+	updateTranslationButton->setToolTip(tr("Update translation"));
 	connect(updateTranslationButton,SIGNAL(clicked()),this,SLOT(updateTranslation()));
 	updateTranslationButton->setFocusPolicy(Qt::ClickFocus);
 	
-	addWordButton->setEnabled(false);
-	editWordButton->setEnabled(false);
-	removeWordButton->setEnabled(false);
+	addWordToolButton->setEnabled(false);
+	editWordToolButton->setEnabled(false);
+	removeWordToolButton->setEnabled(false);
 	
-	QFrame *horizontalFrame = new QFrame;
-	horizontalFrame->setFrameStyle(QFrame::HLine | QFrame::Sunken);
-	
-	textEdit->addWidget(addWordButton);
-	textEdit->addWidget(editWordButton);
-	textEdit->addWidget(horizontalFrame);
-	textEdit->addWidget(removeWordButton);
-	textEdit->addWidgetAt(TranslationEditor::RightBottomCorner,editorTipsWidget);
 	connect(textEdit,SIGNAL(textChanged()),this,SLOT(translationChanged()));
 	
 	clearLineEditButton = new QToolButton;
 	clearLineEditButton->setAutoRaise(true);
 	clearLineEditButton->setIcon(QIcon(":/icons/clear.png"));
+	clearLineEditButton->setIconSize(QSize(16,16));
 	connect(clearLineEditButton,SIGNAL(clicked()),lineEdit,SLOT(clear()));
+	connect(clearLineEditButton,SIGNAL(clicked()),lineEdit,SLOT(setFocus()));
 	clearLineEditButton->setFocusPolicy(Qt::ClickFocus);
 	
 	connect(findInTranslationPanel,SIGNAL(searchSignal(const QString&)),textEdit,SLOT(findFirst(const QString&)));
@@ -98,25 +101,43 @@ TabWidget::TabWidget(DatabaseCenter *dbCenter,int index,int updateTranslationInt
 	connect(textEdit,SIGNAL(setGreenPalette()),findInTranslationPanel,SLOT(setGreenPalette()));
 	connect(textEdit,SIGNAL(setDefaultPalette()),findInTranslationPanel,SLOT(setDefaultPalette()));
 	
+	QVBoxLayout *toolButtonsLayout = new QVBoxLayout;
+	toolButtonsLayout->addWidget(addWordToolButton);
+	toolButtonsLayout->addWidget(editWordToolButton);
+	toolButtonsLayout->addWidget(removeWordToolButton);
+	toolButtonsLayout->addStretch();
+	toolButtonsLayout->setContentsMargins(0,0,0,0);
+	
 	QHBoxLayout *lineEditLayout = new QHBoxLayout;
+	lineEditLayout->addWidget(new QLabel(tr("Word") + ": "));
 	lineEditLayout->addWidget(lineEdit,1);
 	lineEditLayout->addWidget(clearLineEditButton);
 	lineEditLayout->addWidget(updateTranslationButton);
 	
+	QHBoxLayout *textEditLayout = new QHBoxLayout;
+	textEditLayout->addWidget(textEdit,1);
+	textEditLayout->addLayout(toolButtonsLayout);
+	textEditLayout->setContentsMargins(0,0,0,0);
+	
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(lineEditLayout);
-	mainLayout->addWidget(textEdit);
+	mainLayout->addLayout(textEditLayout);
 	mainLayout->addWidget(findInTranslationPanel);
 	mainLayout->setContentsMargins(3,3,3,3);
 	setLayout(mainLayout);
+	
+	if (!firstWord.isEmpty()) {
+		lineEdit->setText(firstWord);
+		updateTranslation();
+	}
 }
 
 TabWidget::~TabWidget() {
 	delete editorTipsWidget;
 	delete updateTranslationButton;
-	delete addWordButton;
-	delete editWordButton;
-	delete removeWordButton;
+	delete addWordToolButton;
+	delete editWordToolButton;
+	delete removeWordToolButton;
 	delete textEdit;
 	delete lineEdit;
 	delete clearLineEditButton;
@@ -131,9 +152,6 @@ void TabWidget::setReadOnly(bool readOnly) {
 }
 
 void TabWidget::textChanged(const QString&) {
-	addWordButton->setEnabled(false);
-	editWordButton->setEnabled(false);
-	removeWordButton->setEnabled(false);
 	timer->stop();
 	if (updateTranslationDuringEntering)
 		timer->start();
@@ -304,14 +322,14 @@ void TabWidget::updateTranslation() {
 void TabWidget::resetButtonsAccessibility() {
 	if (!lineEdit->text().isEmpty()) {
 		bool translationIsEmpty = databaseCenter->getTranslationForWord(lineEdit->text().toLower()).isEmpty();
-		addWordButton->setEnabled(translationIsEmpty);
-		editWordButton->setEnabled(!translationIsEmpty);
-		removeWordButton->setEnabled(!translationIsEmpty);
+		addWordToolButton->setEnabled(translationIsEmpty);
+		editWordToolButton->setEnabled(!translationIsEmpty);
+		removeWordToolButton->setEnabled(!translationIsEmpty);
 		updateTranslationButton->setEnabled(true);
 	} else {
-		addWordButton->setEnabled(false);
-		editWordButton->setEnabled(false);
-		removeWordButton->setEnabled(false);
+		addWordToolButton->setEnabled(false);
+		editWordToolButton->setEnabled(false);
+		removeWordToolButton->setEnabled(false);
 		updateTranslationButton->setEnabled(false);
 	}
 }

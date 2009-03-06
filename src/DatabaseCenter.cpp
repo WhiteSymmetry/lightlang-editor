@@ -136,3 +136,14 @@ void DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const Q
 		stream << query.record().value(0).toString().simplified() << "  " << query.record().value(1).toString().simplified() << '\n';
 	file.close();
 }
+
+QStringList DatabaseCenter::getWordsStartsWith(const QString& preString,int limit) {
+	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
+	query.exec(QString("SELECT * FROM main WHERE word LIKE \'%1%\' LIMIT 0,%2").arg(preString).arg(limit));
+	QStringList list;
+	while (query.next())
+		list << query.record().value(0).toString();
+	if (!query.isActive())
+		qDebug() << "[DatabaseCenter] Get all words starts with" << preString << "with error" << query.lastError().text();
+	return list;
+}

@@ -14,6 +14,7 @@ class QStatusBar;
 class QToolButton;
 class Menu;
 class QMessageBox;
+class QPushButton;
 
 class MainWindow : public QMainWindow
 {
@@ -23,7 +24,7 @@ class MainWindow : public QMainWindow
 		void toQuit();
 	public slots:
 		void createNewDictionary(const QString& dictName);
-		void openDictionary();
+		void openDictionaryFile();
 		void updateWindowTitle(const QString &addToTitle);
 		void removeDatabaseWithName(const QString& dbName);
 		void showDictionariesManager();
@@ -34,11 +35,11 @@ class MainWindow : public QMainWindow
 	private slots:
 		void loadingCompleted(bool isSuccessful);
 		void quit();
-		void openDatabaseWithName(const QString& databaseName);
+		void openDatabaseWithName(const QString& databaseName,bool addToRecentOpenedDicts = true);
 		void disableEditionActions(bool isDisabled);
 		void openDictionaryOfAction(QAction *chosenAction);
-		void saveDictionary();
-		void saveDictionaryAs();
+		void saveDictionaryFile();
+		void saveDictionaryFileAs();
 		void setPathForOpenedDictionary(const QString& dbName);
 	private:
 		void saveSettings();
@@ -51,6 +52,10 @@ class MainWindow : public QMainWindow
 	
 		QMessageBox *formatIsNotSuitableDialog;
 		
+		QMessageBox *newDictionaryCreatedDialog;
+		QPushButton *openDictionaryNowButton;
+		QPushButton *openDictionaryLaterButton;
+
 		About *about;
 		Manual *manual;
 		DictionariesManager *dictionariesManager;
@@ -73,9 +78,10 @@ class MainWindow : public QMainWindow
 		QAction *closeTabAction;
 		QAction *quitAction;
 
-		QAction *pluginsManagerAction;
 		QAction *dictsManagerAction;
 		QAction *settingsAction;
+		QAction *dictionarySearchAction;
+		QAction *startPageAction;
 
 		QAction *manualAction;
 		QAction *aboutProgramAction;

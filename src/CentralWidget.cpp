@@ -15,12 +15,26 @@
 #include "DatabaseCenter.h"
 #include "LoadDictionaryThread.h"
 #include "SettingsWidget.h"
+#include "SearchPanel.h"
 #include "Menu.h"
 #include "const.h"
 #include "CentralWidget.h"
 
 
 CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
+
+	
+	searchPanelButton = new QPushButton;
+	
+	QPalette searchPanelButtonPalette;
+	searchPanelButtonPalette.setColor(searchPanelButton->backgroundRole(),QColor(230,230,230));
+	searchPanelButton->setPalette(searchPanelButtonPalette);
+	
+	searchPanelButton->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Preferred);
+	
+	searchPanelButton->setMaximumWidth(5);
+	searchPanelButton->setMinimumHeight(300);
+	connect(searchPanelButton,SIGNAL(clicked()),this,SLOT(hideOrShowSearchPanel()));
 	
 	continueLoadingOfLastLoadedOrNotDialog = new QMessageBox(mainWindowCommunicater);
 	continueLoadingOfLastLoadedOrNotDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
@@ -61,7 +75,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	openDictAction = new QAction(startPageContextMenu);
 	openDictAction->setText(tr("Open dictionary"));
 	openDictAction->setIcon(QIcon(":/icons/open.png"));
-	connect(openDictAction,SIGNAL(triggered()),mainWindowCommunicater,SLOT(openDictionary()));
+	connect(openDictAction,SIGNAL(triggered()),mainWindowCommunicater,SLOT(openDictionaryFile()));
 	
 	createNewDictAction = new QAction(startPageContextMenu);
 	createNewDictAction->setText(tr("Create new dictionary"));
@@ -83,7 +97,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	openDictBorderButton->setIcon(QIcon(":/icons/open.png"));
 	openDictBorderButton->setIconSize(QSize(22,22));
 	openDictBorderButton->setToolTip(tr("Open a dictionary"));
-	connect(openDictBorderButton,SIGNAL(clicked()),mainWindowCommunicater,SLOT(openDictionary()));
+	connect(openDictBorderButton,SIGNAL(clicked()),mainWindowCommunicater,SLOT(openDictionaryFile()));
 	
 	createNewDictBorderButton = new QToolButton;
 	createNewDictBorderButton->setCursor(Qt::ArrowCursor);
@@ -120,6 +134,7 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	stackedWidget->addWidget(startPageViewer);
 	stackedWidget->addWidget(tabsWidget);
 	stackedWidget->setCurrentIndex(0);
+	searchPanelButton->hide();
 	connect(stackedWidget,SIGNAL(currentChanged(int)),this,SLOT(currentWidgetChanged(int)));
 	
 	loadDictionaryWidget = new LoadDictionaryWidget;
@@ -135,12 +150,23 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	connect(loadDictionaryWidget,SIGNAL(continued()),loadDictionaryThread,SLOT(continueLoading()));
 	
 	newDictWidget = new NewDictWidget;
-	newDictWidget->setMaximumHeight(0);
+	newDictWidget->hide();
 	
-	QVBoxLayout *mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(newDictWidget);
-	mainLayout->addWidget(stackedWidget,1);
-	mainLayout->addWidget(loadDictionaryWidget);
+	searchPanel = new SearchPanel(databaseCenter);
+	searchPanel->hide();
+	connect(searchPanel,SIGNAL(closed()),tabsWidget,SLOT(setFocusOnCurrentTab()));
+	connect(searchPanel,SIGNAL(wordChosen(const QString&)),tabsWidget,SLOT(openNewTab(const QString&)));
+	
+	QVBoxLayout *leftLayout = new QVBoxLayout;
+	leftLayout->addWidget(newDictWidget);
+	leftLayout->addWidget(stackedWidget,1);
+	leftLayout->addWidget(loadDictionaryWidget);
+	leftLayout->setContentsMargins(0,0,0,0);
+	
+	QHBoxLayout *mainLayout = new QHBoxLayout;
+	mainLayout->addLayout(leftLayout);
+	mainLayout->addWidget(searchPanel);
+	mainLayout->addWidget(searchPanelButton);
 	mainLayout->setContentsMargins(0,0,0,0);
 	setLayout(mainLayout);
 	
@@ -157,7 +183,7 @@ CentralWidget::~CentralWidget() {
 	delete continueLoadingButton;
 	delete restartLoadingButton;
 	delete ignoreLoadingButton;
-	
+
 	delete closeOrNoIfLoadingDialog;
 	delete continueOrRestartLoadingDialog;
 	delete continueLoadingOfLastLoadedOrNotDialog;
@@ -169,9 +195,11 @@ CentralWidget::~CentralWidget() {
 	delete startPageContextMenu;
 	
 	stackedWidget->blockSignals(true);
+	delete searchPanelButton;
+	delete searchPanel;
 	delete settingsWidget;
 	delete loadDictionaryWidget;
-    delete tabsWidget;
+	delete tabsWidget;
 	delete createNewDictBorderButton;
 	delete openDictBorderButton;
 	delete showDictsManagerButton;
@@ -194,14 +222,13 @@ void CentralWidget::showTabsWidget() {
 	if (tabsWidget->count() == 0)
 		tabsWidget->openNewTab();
 	stackedWidget->setCurrentIndex(1);
+	searchPanelButton->setVisible(settingsWidget->showSideBar());
 }
 
 void CentralWidget::closeCurrentTab() {
-	if (tabsWidget->count() == 1) {
-		stackedWidget->setCurrentIndex(0);
-		emit(changeWindowTitle(""));
-	}
 	tabsWidget->closeCurrentTab();
+	if (tabsWidget->count() == 0)
+		openNewTab();
 }
 
 void CentralWidget::resizeEvent(QResizeEvent *) {
@@ -266,11 +293,10 @@ void CentralWidget::cancelLoading() {
 }
 
 void CentralWidget::removeDatabaseWithName(const QString& dbName) {
-	if (dbName == databaseCenter->getCurrentDatabaseName()) {
-		stackedWidget->setCurrentIndex(0);
-		emit (changeWindowTitle(""));
-	}
+	if (dbName == databaseCenter->getCurrentDatabaseName())
+		showStartPage();
 	existingDictionaries.removeAll(dbName);
+	newDictWidget->setInvalidNames(existingDictionaries);
 	databaseCenter->removeDatabaseWithName(dbName);
 }
 
@@ -302,6 +328,8 @@ void CentralWidget::loadSettings() {
 
 bool CentralWidget::saveSettings() {
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
+	
+	searchPanel->saveSettings();
 	
 	if (loadDictionaryThread->isRunning()) {
 		closeOrNoIfLoadingDialog->exec();
@@ -371,8 +399,29 @@ void CentralWidget::startPageLinkClicked(const QString& link) {
 void CentralWidget::updateSettings() {
 	tabsWidget->setUpdateTranslationInterval(settingsWidget->translationRenovation());
 	tabsWidget->setAllTipsHidden(!settingsWidget->showTips());
+	if (stackedWidget->currentIndex() == 1)
+		searchPanelButton->setVisible(settingsWidget->showSideBar());
 }
 
 QWidget *CentralWidget::getTabsWidget() const {
 	return tabsWidget;
+}
+
+void CentralWidget::hideOrShowSearchPanel() {
+	if (searchPanel->isHidden())
+		searchPanel->showWithRolling();
+	else
+		searchPanel->hideWithRolling();
+}
+
+void CentralWidget::setFocusOnSearchPanel() {
+	if (searchPanel->isHidden())
+		searchPanel->showWithRolling();
+	searchPanel->setFocusAtLineEdit();
+}
+
+void CentralWidget::showStartPage() {
+	stackedWidget->setCurrentIndex(0);
+	emit(changeWindowTitle(""));
+	searchPanelButton->hide();
 }

@@ -28,6 +28,8 @@ class DatabaseCenter : public QObject
 	
 		void saveCurrentDatabaseAs(const QString& dictPath,const QString& aboutDictionaryText);
 	
+		QStringList getWordsStartsWith(const QString& preString,int limit = 50);
+		
 		QString getTranslationForWord(const QString& word);
 		bool setTranslationForWord(const QString& word,const QString& translation);
 		bool addNewWord(const QString& word,const QString& translation);

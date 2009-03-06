@@ -22,11 +22,11 @@ class TabsWidget : public QTabWidget
 		void moveNextTab();
 		void movePreviousTab();
 		void showFindWidgetInCurrentTab();
+		void setFocusOnCurrentTab();
 	public:
 		TabsWidget(DatabaseCenter *databaseCenter,QWidget *parent = 0);
 		~TabsWidget();
 	
-		void setFocusOnCurrentTab();
 		void setEditorMenu(Menu *menu);
 		void setUpdateTranslationInterval(int interval);
 	private slots:

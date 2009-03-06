@@ -4,9 +4,8 @@
 #include "TranslationEditor.h"
 
 TranslationEditor::TranslationEditor() {
+	showFrame(false);
 	setReadOnly(false);
-	setOrientation(BrowserWithWidgets::Vertical);
-	setPosition(BrowserWithWidgets::Right);
 	menu = 0;
 }
 
@@ -83,4 +82,10 @@ void TranslationEditor::findFirst(const QString& expression) {
 		emit (setGreenPalette());
 		findExpression(expression);
 	}
+}
+
+void TranslationEditor::keyPressEvent(QKeyEvent *keyEvent) {
+	if (keyEvent->key() == Qt::Key_Slash)
+		emit(showFindPanel());
+	BrowserWithWidgets::keyPressEvent(keyEvent);
 }

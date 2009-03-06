@@ -5,9 +5,11 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMoveEvent>
 #include <QtGui/QFileDialog>
+#include <QtGui/QPushButton>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QStatusBar>
 #include <QtGui/QMessageBox>
+#include <QtGui/QCheckBox>
 #include <QtCore/QDir>	
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
@@ -22,6 +24,12 @@
 
 MainWindow::MainWindow() {
 	createDirs();
+
+	newDictionaryCreatedDialog = new QMessageBox(this);
+	newDictionaryCreatedDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
+	newDictionaryCreatedDialog->setText("<b>" + tr("You have created the new dictionary") + "</b><br>" + tr("You can edit it now by clicking on special button, or open created dictionary in dictionaries manager later."));
+	openDictionaryNowButton = newDictionaryCreatedDialog->addButton(tr("Open dictionary Now"),QMessageBox::ActionRole);
+	openDictionaryLaterButton = newDictionaryCreatedDialog->addButton(tr("Open dictionary Later"),QMessageBox::ActionRole);
 	
 	formatIsNotSuitableDialog = new QMessageBox(this);
 	formatIsNotSuitableDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
@@ -71,37 +79,42 @@ MainWindow::MainWindow() {
 
 MainWindow::~MainWindow() {
 	delete formatIsNotSuitableDialog;
-	
-    delete createDictAction;
-    delete openDictAction;
+
+	delete openDictionaryNowButton;
+	delete openDictionaryLaterButton;
+	delete newDictionaryCreatedDialog;
+
+	delete createDictAction;
+	delete openDictAction;
 	delete recentDictsMenu;
 	delete openRecentDictsAction;
 	delete saveDictAction;
-    delete saveDictAsAction;
-    delete openTabAction;
-    delete closeTabAction;
-    delete quitAction;
+	delete saveDictAsAction;
+	delete openTabAction;
+	delete closeTabAction;
+	delete quitAction;
 
-    delete pluginsManagerAction;
-    delete dictsManagerAction;
+	delete dictsManagerAction;
 	delete settingsAction;
+	delete startPageAction;
+	delete dictionarySearchAction;
 
-    delete manualAction;
-    delete aboutProgramAction;
-	
-    delete pasteBoldAction;
-    delete pasteItalicAction;
-    delete pasteUnderlineAction;
-    delete pasteLinkAction;
-    delete pasteBlockAction;
-    delete pasteSoundAction;
-    delete pasteSpecialAction;
+	delete manualAction;
+	delete aboutProgramAction;
+	  
+	delete findAction;
+	delete pasteBoldAction;
+	delete pasteItalicAction;
+	delete pasteUnderlineAction;
+	delete pasteLinkAction;
+	delete pasteBlockAction;
+	delete pasteSoundAction;
+	delete pasteSpecialAction;
 	delete undoAction;
 	delete redoAction;
 	delete cutAction;
 	delete copyAction;
 	delete pasteAction;
-	delete findAction;
 	delete editorMenu;
 	
 	delete hideStatusBarTimer;
@@ -124,7 +137,7 @@ void MainWindow::createActions() {
 	openDictAction->setText(tr("Open dictionary"));
 	openDictAction->setIcon(QIcon(":/icons/open.png"));
 	openDictAction->setShortcut(QKeySequence("Ctrl+O"));
-	connect(openDictAction,SIGNAL(triggered()),this,SLOT(openDictionary()));
+	connect(openDictAction,SIGNAL(triggered()),this,SLOT(openDictionaryFile()));
 	
 	recentDictsMenu = new QMenu;
 	connect(recentDictsMenu,SIGNAL(triggered(QAction *)),this,SLOT(openDictionaryOfAction(QAction *)));
@@ -139,28 +152,28 @@ void MainWindow::createActions() {
 	saveDictAction->setIcon(QIcon(":/icons/save.png"));
 	saveDictAction->setShortcut(QKeySequence("Ctrl+Alt+S"));
 	saveDictAction->setEnabled(false);
-	connect(saveDictAction,SIGNAL(triggered()),this,SLOT(saveDictionary()));
+	connect(saveDictAction,SIGNAL(triggered()),this,SLOT(saveDictionaryFile()));
 	
 	saveDictAsAction = new QAction(this);
 	saveDictAsAction->setText(tr("Save dictionary as"));
 	saveDictAsAction->setIcon(QIcon(":/icons/saveas.png"));
 	saveDictAsAction->setShortcut(QKeySequence("Ctrl+Shift+S"));
 	saveDictAsAction->setEnabled(false);
-	connect(saveDictAsAction,SIGNAL(triggered()),this,SLOT(saveDictionaryAs()));
+	connect(saveDictAsAction,SIGNAL(triggered()),this,SLOT(saveDictionaryFileAs()));
 	
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAction,SLOT(setDisabled(bool)));
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAsAction,SLOT(setDisabled(bool)));
 	
 	openTabAction = new QAction(this);
 	openTabAction->setText(tr("New tab"));
-	openTabAction->setIcon(QIcon(":/icons/add.png"));
+	openTabAction->setIcon(QIcon(":/icons/tab-new.png"));
 	openTabAction->setShortcut(QKeySequence("Ctrl+T"));
 	openTabAction->setEnabled(false);
 	connect(openTabAction,SIGNAL(triggered()),centralWidget,SLOT(openNewTab()));
 	
 	closeTabAction = new QAction(this);
 	closeTabAction->setText(tr("Close tab"));
-	closeTabAction->setIcon(QIcon(":/icons/close_tab.png"));
+	closeTabAction->setIcon(QIcon(":/icons/tab-close.png"));
 	closeTabAction->setShortcut(QKeySequence("Ctrl+W"));
 	closeTabAction->setEnabled(false);
 	connect(closeTabAction,SIGNAL(triggered()),centralWidget,SLOT(closeCurrentTab()));
@@ -186,10 +199,6 @@ void MainWindow::createActions() {
 	dictionaryMenu->addSeparator();
 	dictionaryMenu->addAction(quitAction);
 
-	pluginsManagerAction = new QAction(this);
-	pluginsManagerAction->setText(tr("Plugins manager"));
-	pluginsManagerAction->setIcon(QIcon(":/icons/plugins_manager.png"));
-	
 	dictsManagerAction = new QAction(this);
 	dictsManagerAction->setText(tr("Dictionaries manager"));
 	dictsManagerAction->setIcon(QIcon(":/icons/dicts_manager.png"));
@@ -200,10 +209,22 @@ void MainWindow::createActions() {
 	settingsAction->setIcon(QIcon(":/icons/settings.png"));
 	connect(settingsAction,SIGNAL(triggered()),centralWidget,SLOT(showSettings()));
 	
+	dictionarySearchAction = new QAction(this);
+	dictionarySearchAction->setText(tr("Dictionary searching"));
+	dictionarySearchAction->setIcon(QIcon(":/icons/search.png"));
+	dictionarySearchAction->setShortcut(QKeySequence("Ctrl+F"));
+	connect(dictionarySearchAction,SIGNAL(triggered()),centralWidget,SLOT(setFocusOnSearchPanel()));
+	
+	startPageAction = new QAction(this);
+	startPageAction->setText(tr("Show start page"));
+	startPageAction->setIcon(QIcon(":/icons/start_page.png"));
+	connect(startPageAction,SIGNAL(triggered()),centralWidget,SLOT(showStartPage()));
+	
 	QMenu *toolsMenu = menuBar()->addMenu("&" + tr("Tools"));
-	toolsMenu->addAction(pluginsManagerAction);
 	toolsMenu->addAction(dictsManagerAction);
 	toolsMenu->addAction(settingsAction);
+	toolsMenu->addAction(dictionarySearchAction);
+	toolsMenu->addAction(startPageAction);
 
 	pasteBlockAction = new QAction(this);
 	pasteBlockAction->setText(tr("Paste indent"));       
@@ -265,12 +286,11 @@ void MainWindow::createActions() {
 	pasteAction->setShortcut(QKeySequence("Ctrl+V"));
 	
 	findAction = new QAction(this);
-	findAction->setText(tr("Find..."));
-	findAction->setIcon(QIcon(":/icons/search.png"));
-	findAction->setShortcut(QKeySequence("Ctrl+F"));
+	findAction->setText(tr("Find in translation..."));
+	findAction->setIcon(QIcon(":/icons/find_in_text.png"));
+	findAction->setShortcut(QKeySequence("/"));
 	connect(findAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(showFindWidgetInCurrentTab()));
-	
-		
+
 	editorMenu = new Menu;
 	editorMenu->setHeaderIcon(QIcon(":/icons/edit.png"));
 	editorMenu->setHeaderText("LightLang Editor");
@@ -311,6 +331,7 @@ void MainWindow::createActions() {
 	editMenu->addAction(findAction);
 	
 	editionToolBar = new QToolBar(tr("Edition tool bar"));
+	editionToolBar->setIconSize(QSize(16,16));
 	addToolBar(Qt::LeftToolBarArea,editionToolBar);
 	editionToolBar->setObjectName("EditionToolBar");
 	editionToolBar->addAction(pasteBlockAction);
@@ -383,13 +404,17 @@ void MainWindow::createDirs() {
 void MainWindow::createNewDictionary(const QString& dictName) {
 	dictionariesManager->addDictionary(dictName);
 	showStatusMessage(tr("New dictionary with name %1 was created. Choose it in Dictionaries Manager to edit.").arg(dictName));
+
+	newDictionaryCreatedDialog->exec();
+	if (newDictionaryCreatedDialog->clickedButton() == openDictionaryNowButton)
+		openDatabaseWithName(dictName);
 }
 
 void MainWindow::moveEvent(QMoveEvent *event) {
 	emit (moved(event->pos().x(),event->pos().y()));
 }
 
-void MainWindow::openDictionary() {
+void MainWindow::openDictionaryFile() {
 	QString dictionaryPath;
 	while(true) {
 		dictionaryPath = QFileDialog::getOpenFileName(this,tr("Open a dictionary"),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
@@ -495,9 +520,11 @@ void MainWindow::removeDatabaseWithName(const QString& dbName) {
 	}
 }
 
-void MainWindow::openDatabaseWithName(const QString& databaseName) {
-	recentOpenedDictionaries << databaseName;
-	updateRecentDictsMenu();
+void MainWindow::openDatabaseWithName(const QString& databaseName,bool addToRecentOpenedDicts) {
+	if (addToRecentOpenedDicts) {
+		recentOpenedDictionaries << databaseName;
+		updateRecentDictsMenu();
+	}
 	centralWidget->setCurrentDatabase(databaseName);
 	centralWidget->showTabsWidget();
 }
@@ -515,21 +542,23 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	pasteAction->setEnabled(!isDisabled);
 	undoAction->setEnabled(!isDisabled);
 	redoAction->setEnabled(!isDisabled);
+	dictionarySearchAction->setEnabled(!isDisabled);
+	startPageAction->setEnabled(!isDisabled);
 	findAction->setEnabled(!isDisabled);
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {
-	centralWidget->setCurrentDatabase(chosenAction->text());
-	centralWidget->showTabsWidget();
+	// Open database to edit without addition to recent opened dictionaries menu
+	openDatabaseWithName(chosenAction->text(),false);
 }
 
-void MainWindow::saveDictionary() {
+void MainWindow::saveDictionaryFile() {
 	if (!centralWidget->saveDictionary())
-		saveDictionaryAs();
+		saveDictionaryFileAs();
 }
 
-void MainWindow::saveDictionaryAs() {
-	QString filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*"));
+void MainWindow::saveDictionaryFileAs() {
+	QString filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
 	if (filePath.isEmpty())
 		return;
 	centralWidget->saveDictionaryAs(filePath);

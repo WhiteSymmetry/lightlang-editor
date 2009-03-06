@@ -31,20 +31,20 @@ ManualBrowserWithWidgets::ManualBrowserWithWidgets() {
 	
 	showLinksButton = new QToolButton;
 	showLinksButton->setIcon(QIcon(":/icons/manual.png"));
-	showLinksButton->setIconSize(QSize(22, 22));
+	showLinksButton->setIconSize(QSize(16, 16));
 	showLinksButton->setCursor(Qt::ArrowCursor);
 	showLinksButton->setAutoRaise(true);
 	
 	backwardButton = new QToolButton;
 	backwardButton->setIcon(QIcon(":/icons/backward.png"));
-	backwardButton->setIconSize(QSize(22, 22));
+	backwardButton->setIconSize(QSize(16, 16));
 	backwardButton->setCursor(Qt::ArrowCursor);
 	backwardButton->setAutoRaise(true);
 	backwardButton->setEnabled(false);
 	
 	forwardButton = new QToolButton;
 	forwardButton->setIcon(QIcon(":/icons/forward.png"));
-	forwardButton->setIconSize(QSize(22, 22));
+	forwardButton->setIconSize(QSize(16, 16));
 	forwardButton->setCursor(Qt::ArrowCursor);
 	forwardButton->setAutoRaise(true);
 	forwardButton->setEnabled(false);

@@ -26,6 +26,8 @@ class BrowserWithWidgets : public QTextBrowser
 		void setPosition(Position position);
 		void setOrientation(Orientation orientation);
 		
+		void showFrame(bool toShow);
+		
 		void addWidget(QWidget *newWidget);
 		void addWidgetAt(Position pos,QWidget *widget);
 	private slots:

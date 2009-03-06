@@ -13,23 +13,30 @@ FindInTranslationPanel::FindInTranslationPanel(QWidget *parent) : QWidget(parent
 	closePanelButton = new QToolButton;
 	closePanelButton->setIcon(QIcon(":/icons/close.png"));
 	closePanelButton->setAutoRaise(true);
+	closePanelButton->setIconSize(QSize(16,16));
 	connect(closePanelButton,SIGNAL(clicked()),this,SLOT(hide()));
 	
 	clearLineButton = new QToolButton;
 	clearLineButton->setIcon(QIcon(":/icons/clear.png"));
 	clearLineButton->setEnabled(false);
+	clearLineButton->setAutoRaise(true);
+	clearLineButton->setIconSize(QSize(16,16));
 	connect(clearLineButton,SIGNAL(clicked()),lineEdit,SLOT(clear()));
 	connect(clearLineButton,SIGNAL(clicked()),lineEdit,SLOT(setFocus()));
 	
 	previousEntryButton = new QToolButton;
 	previousEntryButton->setIcon(QIcon(":/icons/backward.png"));
 	previousEntryButton->setEnabled(false);
+	previousEntryButton->setAutoRaise(true);
+	previousEntryButton->setIconSize(QSize(16,16));
 	previousEntryButton->setShortcut(QKeySequence("Shift+F3"));
 	connect(previousEntryButton,SIGNAL(clicked()),this,SLOT(findPreviousRequest()));
 	
 	nextEntryButton = new QToolButton;
 	nextEntryButton->setIcon(QIcon(":/icons/forward.png"));
 	nextEntryButton->setEnabled(false);
+	nextEntryButton->setAutoRaise(true);
+	nextEntryButton->setIconSize(QSize(16,16));
 	nextEntryButton->setShortcut(QKeySequence("F3"));
 	connect(nextEntryButton,SIGNAL(clicked()),this,SLOT(findNextRequest()));
 	connect(lineEdit,SIGNAL(returnPressed()),nextEntryButton,SLOT(animateClick()));
@@ -110,4 +117,8 @@ void FindInTranslationPanel::keyPressEvent(QKeyEvent *keyEvent) {
 
 void FindInTranslationPanel::setLineEditFocus() {
 	lineEdit->setFocus();
+}
+
+void FindInTranslationPanel::hideEvent(QHideEvent* ) {
+	emit (wasHidden());
 }

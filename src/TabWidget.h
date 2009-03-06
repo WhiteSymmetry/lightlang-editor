@@ -22,7 +22,7 @@ class TabWidget : public QWidget
 	public slots:
 		void showSearchingPanel();
 	public:
-		TabWidget(DatabaseCenter *databaseCenter,int index,int updateTranslationInterval);
+		TabWidget(QString firstWord,DatabaseCenter *databaseCenter,int index,int updateTranslationInterval);
 		~TabWidget();
 		
 		void setUpdateTranslationInterval(int interval);
@@ -65,9 +65,9 @@ class TabWidget : public QWidget
 		
 		TranslationEditor *textEdit;
 	
-		QToolButton *addWordButton;
-		QToolButton *editWordButton;
-		QToolButton *removeWordButton;
+		QToolButton *addWordToolButton;
+		QToolButton *editWordToolButton;
+		QToolButton *removeWordToolButton;
 		QToolButton *updateTranslationButton;
 };
 

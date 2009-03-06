@@ -3,6 +3,7 @@
 
 InfoButton::InfoButton(PopupWindow *popup,const QString& text, const QString& header) {
 	setIcon(QIcon(":/icons/info.png"));
+	setIconSize(QSize(16,16));
 	setAutoRaise(true);
 	popupWindow = popup;
 	popupText = text;

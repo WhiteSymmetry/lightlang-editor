@@ -86,12 +86,15 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	openButton->setAutoRaise(true);
 	openButton->setIcon(QIcon(":/icons/open.png"));
 	openButton->setToolTip(tr("Open the dictionary"));
+	openButton->setIconSize(QSize(16,16));
 	connect(openButton,SIGNAL(clicked()),this,SLOT(sendSignalToOpenDatabase()));
 	
 	removeButton = new QToolButton;
 	removeButton->setAutoRaise(true);
 	removeButton->setIcon(QIcon(":/icons/remove.png"));
 	removeButton->setToolTip(tr("Remove the dictionary"));
+	removeButton->setShortcut(QKeySequence("Delete"));
+	removeButton->setIconSize(QSize(16,16));
 	connect(removeButton,SIGNAL(clicked()),this,SLOT(removeCurrentDictionary()));
 	
 	PopupWindow *popupWindow = new PopupWindow(this);
@@ -103,6 +106,7 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	addToSlButton = new QToolButton;
 	addToSlButton->setAutoRaise(true);
 	addToSlButton->setIcon(QIcon(":/icons/add.png"));
+	addToSlButton->setIconSize(QSize(16,16));
 	addToSlButton->setToolTip(tr("Add the dictionary in SL databases"));
 	
 	treeWidget->addStretch();

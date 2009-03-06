@@ -49,6 +49,7 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 	QHBoxLayout *mainLayout = new QHBoxLayout;
 	mainLayout->addWidget(progressBar,1);
 	mainLayout->addWidget(openLoadedDictionaryButton);
+	mainLayout->setContentsMargins(0,0,0,0);
 	
 	QWidget *mainWidget = new QWidget;
 	mainWidget->setLayout(mainLayout);

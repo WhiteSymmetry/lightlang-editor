@@ -7,6 +7,7 @@ class QLineEdit;
 class QToolButton;
 class QFrame;
 class QKeyEvent;
+class QHideEvent;
 
 class FindInTranslationPanel : public QWidget
 {
@@ -15,6 +16,7 @@ class FindInTranslationPanel : public QWidget
 		void searchSignal(const QString& expression);
 		void findNextRequestSignal(const QString& expression);
 		void findPreviousRequestSignal(const QString& expression);
+		void wasHidden();
 	public slots:
 		void setRedPalette();
 		void setDefaultPalette();
@@ -42,6 +44,7 @@ class FindInTranslationPanel : public QWidget
 		QPalette defaultPalette;
 	protected:
 		void keyPressEvent(QKeyEvent *);
+		void hideEvent(QHideEvent *);
 };
 
 #endif

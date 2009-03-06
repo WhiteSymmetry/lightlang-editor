@@ -25,7 +25,6 @@ NewDictWidget::NewDictWidget() {
 	closeButton->setShortcut(QKeySequence("Esc"));
 	closeButton->setIcon(QIcon(":/icons/close.png"));
 	closeButton->setAutoRaise(true);
-	
 	connect(closeButton,SIGNAL(clicked()),this,SLOT(hideWithRolling()));
 	
 	QHBoxLayout *topLayout = new QHBoxLayout;
@@ -75,6 +74,18 @@ void NewDictWidget::checkNameFormat(const QString& name) {
 	QRegExp expression("^(.*\\.[a-z][a-z]\\-[a-z][a-z])$");
 	createButton->setEnabled(name.contains(expression) && !invalidNames.contains(name));
 	warningLabel->setVisible(invalidNames.contains(name));
+
+	QColor color;
+	if (name.isEmpty())
+		color = QColor(0,0,0);
+	else if (createButton->isEnabled())
+		color = QColor(0,255,0);
+	else
+		color = QColor(255,0,0);
+	
+	QPalette palette;
+	palette.setColor(createButton->foregroundRole(),color);
+	createButton->setPalette(palette);
 }
 
 void NewDictWidget::create() {

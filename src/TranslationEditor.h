@@ -5,11 +5,13 @@
 
 class Menu;
 class QAction;
+class QKeyEvent;
 
 class TranslationEditor : public BrowserWithWidgets
 {
 	Q_OBJECT
 	signals:
+		void showFindPanel();
 		void focused();
 		void setRedPalette();
 		void setGreenPalette();
@@ -28,6 +30,7 @@ class TranslationEditor : public BrowserWithWidgets
 		void findExpression(const QString& expression,bool backwardFlag = false);
 	protected:
 		void contextMenuEvent(QContextMenuEvent *event);
+		void keyPressEvent(QKeyEvent *keyEvent);
 };
 
 

@@ -34,14 +34,16 @@ TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(pa
 	
 	newTabButton = new QToolButton;
 	newTabButton->setAutoRaise(true);
-	newTabButton->setIcon(QIcon(":/icons/add.png"));
+	newTabButton->setIcon(QIcon(":/icons/tab-new.png"));
 	newTabButton->setToolTip(tr("Open new tab"));
+	newTabButton->setIconSize(QSize(16,16));
 	connect(newTabButton,SIGNAL(clicked()),this,SLOT(openNewTab()));
 	
 	closeCurrentTabButton = new QToolButton;
 	closeCurrentTabButton->setAutoRaise(true);
-	closeCurrentTabButton->setIcon(QIcon(":/icons/close_tab.png"));
+	closeCurrentTabButton->setIcon(QIcon(":/icons/tab-close.png"));
 	closeCurrentTabButton->setToolTip(tr("Close tab"));
+	closeCurrentTabButton->setIconSize(QSize(16,16));
 	connect(closeCurrentTabButton,SIGNAL(clicked()),this,SIGNAL(closeTabButtonClicked()));
 	
 	setCornerWidget(newTabButton,Qt::TopLeftCorner);
@@ -63,7 +65,7 @@ TabsWidget::~TabsWidget() {
 }
 
 TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
-	TabWidget *newTabWidget = new TabWidget(databaseCenter,tabs.count(),updateTranslationInterval);
+	TabWidget *newTabWidget = new TabWidget(tabTitle,databaseCenter,tabs.count(),updateTranslationInterval);
 	tabs << newTabWidget;
 	newTabWidget->setEditorMenu(editorMenu);
 	newTabWidget->setTipsMenu(tipsMenu);
