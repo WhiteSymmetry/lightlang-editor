@@ -12,6 +12,7 @@
 #include "DatabaseCenter.h"
 #include "EditorTipsWidget.h"
 #include "FindInTranslationPanel.h"
+#include "HighLighter.h"
 #include "TabWidget.h"
 
 
@@ -19,6 +20,8 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	databaseCenter = dbCenter;
 	
 	tabIndex = index;
+	
+	highlighter = 0;
 	
 	findInTranslationPanel = new FindInTranslationPanel;
 	findInTranslationPanel->hide();
@@ -40,7 +43,7 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	textEdit->addWidgetAt(TranslationEditor::RightBottomCorner,editorTipsWidget);
 	connect(textEdit,SIGNAL(showFindPanel()),this,SLOT(showSearchingPanel()));
 	
-	connect(findInTranslationPanel,SIGNAL(wasHidden()),textEdit,SLOT(setFocus()));
+	connect(findInTranslationPanel,SIGNAL(closed()),textEdit,SLOT(setFocus()));
 	
 	lineEdit = new QLineEdit;
 	lineEdit->setToolTip(tr("Enter phrase here, which you want to translate"));
@@ -133,6 +136,8 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 }
 
 TabWidget::~TabWidget() {
+	if (highlighter != 0)
+		delete highlighter;
 	delete editorTipsWidget;
 	delete updateTranslationButton;
 	delete addWordToolButton;
@@ -158,134 +163,6 @@ void TabWidget::textChanged(const QString&) {
 	resetButtonsAccessibility();
 }
 
-void TabWidget::formatSlStringIntoHtmlString(QString& slString) {
-	
-	slString.replace("\\[","<b>").replace("\\]","</b>").replace("\\(","<i>").replace("\\)","</i>").replace("\\<","<font color='#0A7700'>").replace("\\>","</font>");
-	slString.replace(QRegExp("\\_(.*)\\_"),"<u>\\1</u>");
-	slString.replace(QRegExp("\\@(.*)\\@"),"<u><font color='#0000FF'>\\1</font></u>");
-	slString.replace("\\<u","<u");
-	slString.replace("\\</u>","</u>");
-	slString.replace("\\</font>","</font>");
-	
-	QString htmlString;
-	
-	int blocksCount(0);
-	for (int i = 0; i < slString.size(); i++) {
-		if (slString.at(i) == '{') {
-			if (blocksCount > 0)
-				htmlString += "<br>&nbsp;&nbsp;&nbsp;";
-			else
-				htmlString += "<br>";
-			blocksCount++;
-		} else if (slString.at(i) == '}') {
-			blocksCount--;
-		} else if (slString.at(i) != '\\')
-			htmlString += slString.at(i);
-	}
-	if (htmlString.startsWith("<br>"))
-		htmlString.remove(0,4);
-	slString = htmlString;
-}
-
-void TabWidget::formatHtmlStringIntoSlString(QString& htmlString) {
-	htmlString.remove("</p>");
-	htmlString.remove("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">");
-	htmlString.remove("<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">");
-	htmlString.remove("p, li { white-space: pre-wrap; }");
-	htmlString.remove("</style></head><body style=\" font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;\">");
-	htmlString.remove("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">");
-	htmlString.remove("</body></html>");
-	
-	// For office words
-	htmlString.replace("<span style=\" color:#0a7700;\">","\\<");
-	// For italic
-	htmlString.replace("<span style=\" font-style:italic;\">","\\(");
-	// For bold
-	htmlString.replace("<span style=\" font-weight:600;\">","\\[");
-	// For underline
-	htmlString.replace("<span style=\" text-decoration: underline;\">","\\_");
-	// For bold and italic text
-	htmlString.replace("<span style=\" font-weight:600; font-style:italic;\">","\\BI");
-	// For bold and underline
-	htmlString.replace("<span style=\" font-weight:600; text-decoration: underline;\">","\\BU");
-	// For italic and underline
-	htmlString.replace("<span style=\" font-style:italic; text-decoration: underline;\">","\\IU");
-	// For Link
-	htmlString.replace("<span style=\" text-decoration: underline; color:#0000ff;\">","\\@");
-	
-	QStack<QString> stack;
-	int size = htmlString.size();
-	QMap<int,QString> indexesMap;
-	for (int i = 0; i < size-2; i++) {
-		if (htmlString.at(i) == '\\') {
-			if (htmlString.at(i+1) == '<')
-				stack.push("\\>");
-			else if (htmlString.at(i+1) == '(')
-				stack.push("\\)");
-			else if (htmlString.at(i+1) == '[')
-				stack.push("\\]");
-			else if (htmlString.at(i+1) == '_')
-				stack.push("\\_");
-			else if (htmlString.at(i+1) == 'B' && htmlString.at(i+2) == 'I')
-				stack.push("\\IB");
-			else if (htmlString.at(i+1) == 'B' && htmlString.at(i+2) == 'U')
-				stack.push("\\UB");
-			else if (htmlString.at(i+1) == 'I' && htmlString.at(i+2) == 'U')
-				stack.push("\\UI");
-			else if (htmlString.at(i+1) == '@')
-				stack.push("\\@");
-		}
-		else if (htmlString.mid(i,7) == "</span>")
-			indexesMap[i+1] = stack.pop();
-	}
-	
-	QMap<int, QString>::const_iterator j = indexesMap.constBegin();
-	while (j != indexesMap.constEnd()) {
-		htmlString.insert(j.key(),j.value());
-		++j;
-	}
-	
-	htmlString.replace("\\BI","\\[\\(");
-	htmlString.replace("\\BU","\\[\\_");
-	htmlString.replace("\\IU","\\(\\_");
-	htmlString.replace("\\IB","\\)\\]");
-	htmlString.replace("\\UB","\\_\\]");
-	htmlString.replace("\\UI","\\_\\)");
-	
-	htmlString.remove(QRegExp("<span (.*)>"));
-	htmlString.remove("</span>");
-	
-	htmlString.replace("<br />   ","\\}\\{");
-	htmlString.replace("<br />","\\}");
-	
-	QList<int> indexes;
-	int blocksCount(0);
-	for (int i = 0; i < htmlString.size(); i++) {
-		if (htmlString.at(i) == '{')
-			blocksCount++;
-		if (htmlString.at(i) == '}') {
-			blocksCount--;
-			if (blocksCount < 0) {
-				indexes << i - 1;
-				blocksCount++;
-			}
-		}
-	}
-	for (int i = indexes.size() - 1; i >= 0; i--)
-		htmlString.remove(indexes[i],2);
-	
-	indexes.clear();
-	for (int i = 0; i < htmlString.size(); i++)
-		if (htmlString.at(i) == '}')
-			if (htmlString.at(i+1) != '\\' && htmlString.at(i+2) != '{')
-				indexes << i + 1;
-	for (int i = indexes.size() - 1; i >= 0; i--)
-		htmlString.insert(indexes[i],"\\}\\{");
-	htmlString.insert(0,"\\{");
-	htmlString += "\\}";
-}
-
-
 void TabWidget::updateTranslation() {
 	timer->stop();
 	if (!lineEdit->text().isEmpty()) {
@@ -293,21 +170,8 @@ void TabWidget::updateTranslation() {
 		bool wasFocus = textEdit->hasFocus();
 		if (!translation.isEmpty()) {
 			// Format blocks into indents
-			int blocksCount(0);
-			int size = translation.size();
-			for (int i = size-1; i >= 0; i--) {
-				if (translation.at(i) == '{') {
-					if (blocksCount > 0)
-						translation.insert(i,"\n   ");
-					else
-						translation.insert(i,"\n");
-					blocksCount++;
-				} else if (translation.at(i) == '}') {
-					blocksCount--;
-				}
-			}
-			translation.remove("\\{");
-			translation.remove("\\}");
+			translation.replace("\\{","\n\\{\n\t");
+			translation.replace("\\}","\n\\}");
 			textEdit->setText(translation);
 		}
 		else
@@ -404,4 +268,15 @@ void TabWidget::showNextTip() {
 
 void TabWidget::showPreviousTip() {
 	editorTipsWidget->previousTip();
+}
+
+void TabWidget::useHighlighting(bool highlighting) {
+	if (highlighting) {
+		if (highlighter == 0)
+			highlighter = new HighLighter(textEdit->document());
+		else
+			highlighter->setDocument(textEdit->document());
+	} else
+		if (highlighter != 0)
+			highlighter->setDocument(0);
 }

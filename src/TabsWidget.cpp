@@ -71,6 +71,7 @@ TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
 	newTabWidget->setTipsMenu(tipsMenu);
 	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "(" + tr("Unnamed") + ")" : tabTitle));
 	newTabWidget->setTipsHidden(!showTips);
+	newTabWidget->useHighlighting(highlightTranslation);
 	
 	connect(newTabWidget,SIGNAL(renameTab(int,const QString&)),this,SLOT(renameTab(int,const QString&)));
 	connect(newTabWidget,SIGNAL(showStatusMessage(const QString&)),this,SIGNAL(showStatusMessage(const QString&)));
@@ -146,4 +147,10 @@ void TabsWidget::showNextTipInCurrentTab() {
 
 void TabsWidget::showPreviousTipInCurrentTab() {
 	tabs[currentIndex()]->showPreviousTip();
+}
+
+void TabsWidget::useHighlighting(bool highlighting) {
+	highlightTranslation = highlighting;
+	foreach (TabWidget *tab,tabs)
+		tab->useHighlighting(highlightTranslation);
 }

@@ -87,5 +87,6 @@ void TranslationEditor::findFirst(const QString& expression) {
 void TranslationEditor::keyPressEvent(QKeyEvent *keyEvent) {
 	if (keyEvent->key() == Qt::Key_Slash)
 		emit(showFindPanel());
-	BrowserWithWidgets::keyPressEvent(keyEvent);
+	else
+		BrowserWithWidgets::keyPressEvent(keyEvent);
 }

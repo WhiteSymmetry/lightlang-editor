@@ -12,6 +12,7 @@ class QTimer;
 class Menu;
 class EditorTipsWidget;
 class FindInTranslationPanel;
+class HighLighter;
 
 class TabWidget : public QWidget
 {
@@ -24,6 +25,8 @@ class TabWidget : public QWidget
 	public:
 		TabWidget(QString firstWord,DatabaseCenter *databaseCenter,int index,int updateTranslationInterval);
 		~TabWidget();
+		
+		void useHighlighting(bool highlighting);
 		
 		void setUpdateTranslationInterval(int interval);
 		void setTipsHidden(bool toHide);
@@ -46,8 +49,6 @@ class TabWidget : public QWidget
 		void translationChanged();
 	private:
 		void resetButtonsAccessibility();
-		void formatSlStringIntoHtmlString(QString& str);
-		void formatHtmlStringIntoSlString(QString& str);
 	
 		bool updateTranslationDuringEntering;
 		QTimer *timer;
@@ -59,6 +60,8 @@ class TabWidget : public QWidget
 		int tabIndex;
 	
 		DatabaseCenter *databaseCenter;
+		
+		HighLighter *highlighter;
 	
 		QLineEdit *lineEdit;
 		QToolButton *clearLineEditButton;

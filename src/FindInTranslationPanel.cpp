@@ -120,5 +120,5 @@ void FindInTranslationPanel::setLineEditFocus() {
 }
 
 void FindInTranslationPanel::hideEvent(QHideEvent* ) {
-	emit (wasHidden());
+	emit (closed());
 }

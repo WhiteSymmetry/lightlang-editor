@@ -16,7 +16,7 @@ class FindInTranslationPanel : public QWidget
 		void searchSignal(const QString& expression);
 		void findNextRequestSignal(const QString& expression);
 		void findPreviousRequestSignal(const QString& expression);
-		void wasHidden();
+		void closed();
 	public slots:
 		void setRedPalette();
 		void setDefaultPalette();

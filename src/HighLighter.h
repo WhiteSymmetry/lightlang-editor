@@ -41,13 +41,6 @@ class HighLighter : public QSyntaxHighlighter
 		    QTextCharFormat format;
 		};
 		QVector<HighlightingRule> highlightingRules;
-	
-		QTextCharFormat boldFormat;
-		QTextCharFormat italicFormat;
-		QTextCharFormat underlineFormat;
-		QTextCharFormat referenceFormat;		
-		QTextCharFormat officeFormat;	
-		QTextCharFormat soundFormat;
 };
 
 #endif

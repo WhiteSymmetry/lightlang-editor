@@ -29,6 +29,7 @@ class TabsWidget : public QTabWidget
 	
 		void setEditorMenu(Menu *menu);
 		void setUpdateTranslationInterval(int interval);
+		void useHighlighting(bool highlighting);
 	private slots:
 		void renameTab(int index,const QString& name);
 		void currentTabChanged(int index);
@@ -40,6 +41,7 @@ class TabsWidget : public QTabWidget
 	
 		bool showTips;
 		int updateTranslationInterval;
+		bool highlightTranslation;
 		
 		QList<TabWidget *> tabs;
 		Menu *editorMenu;
