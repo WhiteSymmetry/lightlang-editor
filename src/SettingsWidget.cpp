@@ -28,8 +28,6 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	
 	useStatusesCheckBox = new QCheckBox(tr("Use statuses"));
 	
-	showTipsCheckBox = new QCheckBox(tr("Show tips in translation editor"));
-	
 	showSideButtonCheckBox = new QCheckBox(tr("Show side bar"));
 	
 	popupWindow = new PopupWindow;
@@ -45,10 +43,6 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	useStatusesInfoButton = new InfoButton(popupWindow);
 	useStatusesInfoButton->setPopupHeaderText(tr("Statuses usage"));
 	useStatusesInfoButton->setPopupText(tr("Use words statuses. If you don't finish to translate some word, you can mark it as \"Unfinished\" and return to translation of this word later. Of course, you can do it without this function, but searching of unfinished words will be easier with statuses usage."));
-	
-	showTipsInfoButton = new InfoButton(popupWindow);
-	showTipsInfoButton->setPopupHeaderText(tr("Tips"));
-	showTipsInfoButton->setPopupText(tr("There are a lot of things, which can make your work with editor easier. Tips can help you to learn all these things"));
 	
 	showSideButtonInfoButton = new InfoButton(popupWindow);
 	showSideButtonInfoButton->setPopupHeaderText(tr("Side bar"));
@@ -68,12 +62,10 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	mainLayout->addWidget(useHighlightingCheckBox,4,1);
 	mainLayout->addWidget(useStatusesInfoButton,5,0);
 	mainLayout->addWidget(useStatusesCheckBox,5,1);
-	mainLayout->addWidget(showTipsInfoButton,6,0);
-	mainLayout->addWidget(showTipsCheckBox,6,1);
-	mainLayout->addWidget(showSideButtonInfoButton,7,0);
-	mainLayout->addWidget(showSideButtonCheckBox,7,1);
+	mainLayout->addWidget(showSideButtonInfoButton,6,0);
+	mainLayout->addWidget(showSideButtonCheckBox,6,1);
 	mainLayout->setColumnStretch(1,1);
-	mainLayout->setRowStretch(8,1);
+	mainLayout->setRowStretch(7,1);
 	
 	setLayout(mainLayout);
 	setWindowTitle(tr("Your preferences"));
@@ -81,7 +73,6 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 }
 
 SettingsWidget::~SettingsWidget() {
-	delete showTipsInfoButton;
 	delete updateTranslationInfoButton;
 	delete useHighlightingInfoButton;
 	delete useStatusesInfoButton;
@@ -89,7 +80,6 @@ SettingsWidget::~SettingsWidget() {
 	delete popupWindow;
 	delete headerLabel;
 	delete introductionLabel;
-	delete showTipsCheckBox;
 	delete updateTranslationTimeSpinBox;
 	delete useHighlightingCheckBox;
 	delete useStatusesCheckBox;
@@ -102,7 +92,6 @@ void SettingsWidget::saveSettings() {
 	settings.setValue("GeneralSettings/TranslationRenovation",updateTranslationTimeSpinBox->value());
 	settings.setValue("GeneralSettings/UseHighlighting",useHighlightingCheckBox->isChecked());
 	settings.setValue("GeneralSettings/UseStatuses",useStatusesCheckBox->isChecked());
-	settings.setValue("GeneralSettings/ShowTips",showTipsCheckBox->isChecked());
 	settings.setValue("GeneralSettings/ShowSideBar",showSideButtonCheckBox->isChecked());
 	emit (updateSettings());
 }
@@ -113,13 +102,11 @@ void SettingsWidget::loadSettings() {
 	updateTranslationTimeSpinBox->setValue(settings.value("GeneralSettings/TranslationRenovation",0.8).toDouble());
 	useHighlightingCheckBox->setChecked(settings.value("GeneralSettings/UseHighlighting",true).toBool());
 	useStatusesCheckBox->setChecked(settings.value("GeneralSettings/UseStatuses",false).toBool());
-	showTipsCheckBox->setChecked(settings.value("GeneralSettings/ShowTips",false).toBool());
 	showSideButtonCheckBox->setChecked(settings.value("GeneralSettings/ShowSideBar",true).toBool());
 	
 	connect(updateTranslationTimeSpinBox,SIGNAL(valueChanged(double)),this,SLOT(saveSettings()));
 	connect(useHighlightingCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
-	connect(showTipsCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	connect(showSideButtonCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	
 	emit (updateSettings());
@@ -135,10 +122,6 @@ bool SettingsWidget::useStatuses() const {
 
 bool SettingsWidget::useHighlighting() const {
 	return useHighlightingCheckBox->isChecked();
-}
-
-bool SettingsWidget::showTips() const {
-	return showTipsCheckBox->isChecked();
 }
 
 bool SettingsWidget::showSideBar() const {

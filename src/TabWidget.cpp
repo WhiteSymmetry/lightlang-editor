@@ -10,7 +10,6 @@
 #include <QtCore/QStack>
 #include "TranslationEditor.h"
 #include "DatabaseCenter.h"
-#include "EditorTipsWidget.h"
 #include "FindInTranslationPanel.h"
 #include "HighLighter.h"
 #include "TabWidget.h"
@@ -30,17 +29,7 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	setUpdateTranslationInterval(updateTranslationInterval);
 	connect(timer,SIGNAL(timeout()),this,SLOT(updateTranslation()));
 	
-	editorTipsWidget = new EditorTipsWidget;
-	
-	editorTipsWidget->addMessages(QStringList()
-				<< tr("Use Tab and Shift+Tab to navigate between fields")
-				<< tr("Use hotkeys to edit,add and remove words")
-				<< tr("Report about bugs to us by e-mail in documentation")
-				<< tr("You can use statuses to point some words for yourself")
-	);
-	
 	textEdit = new TranslationEditor;
-	textEdit->addWidgetAt(TranslationEditor::RightBottomCorner,editorTipsWidget);
 	connect(textEdit,SIGNAL(showFindPanel()),this,SLOT(showSearchingPanel()));
 	
 	connect(findInTranslationPanel,SIGNAL(closed()),textEdit,SLOT(setFocus()));
@@ -138,7 +127,6 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 TabWidget::~TabWidget() {
 	if (highlighter != 0)
 		delete highlighter;
-	delete editorTipsWidget;
 	delete updateTranslationButton;
 	delete addWordToolButton;
 	delete editWordToolButton;
@@ -249,25 +237,9 @@ void TabWidget::setUpdateTranslationInterval(int interval) {
 	timer->setInterval(interval);
 }
 
-void TabWidget::setTipsHidden(bool toHide) {
-	editorTipsWidget->setHidden(toHide);
-}
-
-void TabWidget::setTipsMenu(Menu *menu) {
-	editorTipsWidget->setContextMenu(menu);
-}
-
 void TabWidget::showSearchingPanel() {
 	findInTranslationPanel->show();
 	findInTranslationPanel->setLineEditFocus();
-}
-
-void TabWidget::showNextTip() {
-	editorTipsWidget->nextTip();
-}
-
-void TabWidget::showPreviousTip() {
-	editorTipsWidget->previousTip();
 }
 
 void TabWidget::useHighlighting(bool highlighting) {
@@ -279,4 +251,24 @@ void TabWidget::useHighlighting(bool highlighting) {
 	} else
 		if (highlighter != 0)
 			highlighter->setDocument(0);
+}
+
+void TabWidget::undo() {
+	textEdit->undo();
+}
+
+void TabWidget::redo() {
+	textEdit->redo();
+}
+
+void TabWidget::cut() {
+	textEdit->cut();
+}
+
+void TabWidget::copy() {
+	textEdit->copy();
+}
+
+void TabWidget::paste() {
+	textEdit->paste();
 }

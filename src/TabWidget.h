@@ -29,14 +29,15 @@ class TabWidget : public QWidget
 		void useHighlighting(bool highlighting);
 		
 		void setUpdateTranslationInterval(int interval);
-		void setTipsHidden(bool toHide);
-	
-		void showNextTip();
-		void showPreviousTip();
 		
 		void setFocusAtThisTab();
 		void setEditorMenu(Menu *menu);
-		void setTipsMenu(Menu *menu);
+		
+		void undo();
+		void redo();
+		void cut();
+		void copy();
+		void paste();
 	
 		void setHtml(const QString& htmlText);
 		void setReadOnly(bool readOnly);
@@ -52,8 +53,6 @@ class TabWidget : public QWidget
 	
 		bool updateTranslationDuringEntering;
 		QTimer *timer;
-		
-		EditorTipsWidget *editorTipsWidget;
 		
 		FindInTranslationPanel *findInTranslationPanel;
 	

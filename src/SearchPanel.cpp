@@ -26,6 +26,9 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	
 	titleLabel = new QLabel(tr("Dictionary searching"));
 	
+	warningLabel = new QLabel("<i>" + tr("The word wasn't found") + "</i>");
+	warningLabel->hide();
+	
 	lineEdit = new QLineEdit;
 	connect(lineEdit,SIGNAL(textChanged(const QString&)),this,SLOT(textChanged(const QString&)));
 	
@@ -89,6 +92,7 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(titleLayout);
 	mainLayout->addLayout(lineEditLayout);
+	mainLayout->addWidget(warningLabel);
 	mainLayout->addWidget(listWidget,1);
 	mainLayout->addLayout(bottomLayout);
 	setLayout(mainLayout);
@@ -161,12 +165,15 @@ void SearchPanel::search() {
 	listWidget->clear();
 	foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
 		listWidget->addItem(word);
+	warningLabel->setVisible(listWidget->count() == 0);
 }
 
 void SearchPanel::textChanged(const QString& text) {
 	searchButton->setEnabled(!text.isEmpty());
-	if (text.isEmpty())
+	if (text.isEmpty()) {
+		warningLabel->hide();
 		listWidget->clear();
+	}
 }
 
 void SearchPanel::saveSettings() {

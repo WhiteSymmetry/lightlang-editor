@@ -1,13 +1,13 @@
 #ifndef TRANSLATIONEDITOR_H
 #define TRANSLATIONEDITOR_H
 
-#include "BrowserWithWidgets.h"
+#include <QtGui/QTextEdit>
 
 class Menu;
 class QAction;
 class QKeyEvent;
 
-class TranslationEditor : public BrowserWithWidgets
+class TranslationEditor : public QTextEdit
 {
 	Q_OBJECT
 	signals:

@@ -1,36 +1,10 @@
 #include <QtGui/QToolButton>
-#include <QtGui/QAction>
-#include "Menu.h"
 #include "TabWidget.h"
 #include "TabsWidget.h"
 
 TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(parent) {
 	databaseCenter = dbCenter;
 	updateTranslationInterval = 0;
-	showTips = true;
-	
-	tipsMenu = new Menu(true);
-	tipsMenu->setHeaderText(tr("Tips"));
-	tipsMenu->setHeaderIcon(QIcon(":/icons/tip.png"));
-	
-	hideAllTipsAction = new QAction(tipsMenu);
-	hideAllTipsAction->setText(tr("Hide tips in all tabs"));
-	hideAllTipsAction->setIcon(QIcon(":/icons/close.png"));
-	connect(hideAllTipsAction,SIGNAL(triggered()),this,SLOT(hideAllTips()));
-	
-	nextTipAction = new QAction(tipsMenu);
-	nextTipAction->setText(tr("Show next tip"));
-	nextTipAction->setIcon(QIcon(":/icons/forward.png"));
-	connect(nextTipAction,SIGNAL(triggered()),this,SLOT(showNextTipInCurrentTab()));
-	
-	previousTipAction = new QAction(tipsMenu);
-	previousTipAction->setText(tr("Show previous tip"));
-	previousTipAction->setIcon(QIcon(":/icons/backward.png"));
-	connect(previousTipAction,SIGNAL(triggered()),this,SLOT(showPreviousTipInCurrentTab()));
-	
-	tipsMenu->addAction(nextTipAction);
-	tipsMenu->addAction(previousTipAction);
-	tipsMenu->addAction(hideAllTipsAction);
 	
 	newTabButton = new QToolButton;
 	newTabButton->setAutoRaise(true);
@@ -56,10 +30,6 @@ TabsWidget::~TabsWidget() {
 	blockSignals(true);
 	foreach (TabWidget *tab,tabs)
 		delete tab;
-	delete hideAllTipsAction;
-	delete nextTipAction;
-	delete previousTipAction;
-	delete tipsMenu;
 	delete newTabButton;
 	delete closeCurrentTabButton;
 }
@@ -68,9 +38,7 @@ TabWidget* TabsWidget::openNewTab(const QString& tabTitle) {
 	TabWidget *newTabWidget = new TabWidget(tabTitle,databaseCenter,tabs.count(),updateTranslationInterval);
 	tabs << newTabWidget;
 	newTabWidget->setEditorMenu(editorMenu);
-	newTabWidget->setTipsMenu(tipsMenu);
 	setCurrentIndex(addTab(newTabWidget,tabTitle.isEmpty() ? "(" + tr("Unnamed") + ")" : tabTitle));
-	newTabWidget->setTipsHidden(!showTips);
 	newTabWidget->useHighlighting(highlightTranslation);
 	
 	connect(newTabWidget,SIGNAL(renameTab(int,const QString&)),this,SLOT(renameTab(int,const QString&)));
@@ -127,30 +95,32 @@ void TabsWidget::setUpdateTranslationInterval(int interval) {
 		tab->setUpdateTranslationInterval(updateTranslationInterval);
 }
 
-void TabsWidget::setAllTipsHidden(bool toHide) {
-	foreach (TabWidget *tab,tabs)
-		tab->setTipsHidden(toHide);
-	showTips = !toHide;
-}
-
-void TabsWidget::hideAllTips() {
-	setAllTipsHidden(true);
-}
-
 void TabsWidget::showFindWidgetInCurrentTab() {
 	tabs[currentIndex()]->showSearchingPanel();
-}
-
-void TabsWidget::showNextTipInCurrentTab() {
-	tabs[currentIndex()]->showNextTip();
-}
-
-void TabsWidget::showPreviousTipInCurrentTab() {
-	tabs[currentIndex()]->showPreviousTip();
 }
 
 void TabsWidget::useHighlighting(bool highlighting) {
 	highlightTranslation = highlighting;
 	foreach (TabWidget *tab,tabs)
 		tab->useHighlighting(highlightTranslation);
+}
+
+void TabsWidget::redoActionInCurrentTab() {
+	tabs[currentIndex()]->redo();
+}
+
+void TabsWidget::undoActionInCurrentTab() {
+	tabs[currentIndex()]->undo();
+}
+
+void TabsWidget::cutInCurrentTab() {
+	tabs[currentIndex()]->cut();
+}
+
+void TabsWidget::copyInCurrentTab() {
+	tabs[currentIndex()]->copy();
+}
+
+void TabsWidget::pasteInCurrentTab() {
+	tabs[currentIndex()]->paste();
 }

@@ -33,7 +33,6 @@ HEADERS += src/const.h \
 	src/InfoButton.h \
 	src/PopupWindow.h \
 	src/StatusBarLabel.h \
-	src/EditorTipsWidget.h \
 	src/FindInTranslationPanel.h \
 	src/SearchPanel.h
 	
@@ -60,7 +59,6 @@ SOURCES += src/main.cpp \
 	src/InfoButton.cpp \
 	src/PopupWindow.cpp \
 	src/StatusBarLabel.cpp \
-	src/EditorTipsWidget.cpp \
 	src/FindInTranslationPanel.cpp \
 	src/SearchPanel.cpp
 	

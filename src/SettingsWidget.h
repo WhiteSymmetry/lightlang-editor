@@ -23,7 +23,6 @@ class SettingsWidget : public QDialog
 		int translationRenovation() const;
 		bool useStatuses() const;
 		bool useHighlighting() const;
-		bool showTips() const;
 		bool showSideBar() const;
 		
 		void loadSettings();
@@ -34,14 +33,12 @@ class SettingsWidget : public QDialog
 		QDoubleSpinBox *updateTranslationTimeSpinBox;
 		QCheckBox *useHighlightingCheckBox;
 		QCheckBox *useStatusesCheckBox;
-		QCheckBox *showTipsCheckBox;
 		QCheckBox *showSideButtonCheckBox;
 	
 		PopupWindow *popupWindow;
 		InfoButton *updateTranslationInfoButton;
 		InfoButton *useHighlightingInfoButton;
 		InfoButton *useStatusesInfoButton;
-		InfoButton *showTipsInfoButton;
 		InfoButton *showSideButtonInfoButton;
 };
 

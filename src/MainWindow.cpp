@@ -264,26 +264,31 @@ void MainWindow::createActions() {
 	undoAction->setText(tr("Undo action"));
 	undoAction->setIcon(QIcon(":/icons/undo.png"));
 	undoAction->setShortcut(QKeySequence("Ctrl+Z"));
+	connect(undoAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(undoActionInCurrentTab()));
 	
 	redoAction = new QAction(this);
 	redoAction->setText(tr("Redo action"));
 	redoAction->setIcon(QIcon(":/icons/redo.png"));
 	redoAction->setShortcut(QKeySequence("Ctrl+Shift+Z"));
+	connect(redoAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(redoActionInCurrentTab()));
 	
 	cutAction = new QAction(this);
 	cutAction->setText(tr("Cut"));
 	cutAction->setIcon(QIcon(":/icons/cut.png"));
 	cutAction->setShortcut(QKeySequence("Ctrl+X"));
+	connect(cutAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(cutInCurrentTab()));
 	
 	copyAction = new QAction(this);
 	copyAction->setText(tr("Copy"));
 	copyAction->setIcon(QIcon(":/icons/copy.png"));
 	copyAction->setShortcut(QKeySequence("Ctrl+C"));
+	connect(copyAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(copyInCurrentTab()));
 	
 	pasteAction = new QAction(this);
 	pasteAction->setText(tr("Paste"));
 	pasteAction->setIcon(QIcon(":/icons/paste.png"));
 	pasteAction->setShortcut(QKeySequence("Ctrl+V"));
+	connect(pasteAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteInCurrentTab()));
 	
 	findAction = new QAction(this);
 	findAction->setText(tr("Find in translation..."));

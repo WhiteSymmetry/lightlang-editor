@@ -40,13 +40,19 @@ class SearchPanel : public QWidget
 		bool rollingToShow;
 		
 		DatabaseCenter *databaseCenter;
+		
 		QLabel *titleLabel;
+		QLabel *warningLabel;
+		
 		QLineEdit *lineEdit;
+		
 		QToolButton *clearLineButton;
 		QToolButton *closeButton;
 		QToolButton *searchButton;
+		
 		QListWidget *listWidget;
 		QSpinBox *limitSpinBox;
+		
 		PopupWindow *popupWindow;
 		InfoButton *infoButton;
 	protected:

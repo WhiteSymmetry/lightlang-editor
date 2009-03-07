@@ -398,7 +398,6 @@ void CentralWidget::startPageLinkClicked(const QString& link) {
 
 void CentralWidget::updateSettings() {
 	tabsWidget->setUpdateTranslationInterval(settingsWidget->translationRenovation());
-	tabsWidget->setAllTipsHidden(!settingsWidget->showTips());
 	tabsWidget->useHighlighting(settingsWidget->useHighlighting());
 	if (stackedWidget->currentIndex() == 1)
 		searchPanelButton->setVisible(settingsWidget->showSideBar());
@@ -425,4 +424,5 @@ void CentralWidget::showStartPage() {
 	stackedWidget->setCurrentIndex(0);
 	emit(changeWindowTitle(""));
 	searchPanelButton->hide();
+	searchPanel->hideWithRolling();
 }
