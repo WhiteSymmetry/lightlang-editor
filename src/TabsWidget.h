@@ -7,6 +7,7 @@ class TabWidget;
 class QToolButton;
 class DatabaseCenter;
 class Menu;
+class PopupWindow;
 
 class TabsWidget : public QTabWidget
 {
@@ -20,6 +21,7 @@ class TabsWidget : public QTabWidget
 		void moveNextTab();
 		void movePreviousTab();
 		
+		void previewCurrentTranslation();
 		void showFindWidgetInCurrentTab();
 		void setFocusOnCurrentTab();
 		void redoActionInCurrentTab();
@@ -45,6 +47,8 @@ class TabsWidget : public QTabWidget
 		
 		QList<TabWidget *> tabs;
 		Menu *editorMenu;
+		
+		PopupWindow *previewPopupWindow;
 	
 		QToolButton *newTabButton;
 		QToolButton *closeCurrentTabButton;

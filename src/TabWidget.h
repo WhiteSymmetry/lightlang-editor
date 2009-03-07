@@ -33,6 +33,8 @@ class TabWidget : public QWidget
 		void setFocusAtThisTab();
 		void setEditorMenu(Menu *menu);
 		
+		QString getTranslationAsHtml();
+		
 		void undo();
 		void redo();
 		void cut();

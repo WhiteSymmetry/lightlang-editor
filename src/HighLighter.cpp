@@ -13,7 +13,7 @@ HighLighter::HighLighter(QTextDocument *parent): QSyntaxHighlighter(parent) {
 	referenceFormat.setForeground(Qt::blue);
 	
 	QTextCharFormat soundFormat;
-	soundFormat.setForeground(Qt::red);
+	soundFormat.setForeground(Qt::gray);
 	
 	QTextCharFormat officeFormat;
 	officeFormat.setForeground(Qt::darkGreen);

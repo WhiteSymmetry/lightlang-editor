@@ -45,5 +45,7 @@
 		<file>icons/update.png</file>
 		<file>icons/find_in_text.png</file>
 		<file>icons/start_page.png</file>
+        <file>icons/preview.png</file>
+        <file>icons/sound.png</file>
     </qresource>
 </RCC>

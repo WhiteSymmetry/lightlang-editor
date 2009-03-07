@@ -272,3 +272,16 @@ void TabWidget::copy() {
 void TabWidget::paste() {
 	textEdit->paste();
 }
+
+QString TabWidget::getTranslationAsHtml() {
+	QString text = textEdit->toPlainText();
+	text.replace("\\[","<b>").replace("\\]","</b>").replace("\\(","<i>")
+	    .replace("\\)","</i>").replace("\\<","<font color=green>").replace("\\>","</font>")
+	    .replace("\\{","<br>").replace("\n\\}","<br>").replace(QRegExp("\\\\s.*\\\\s"),QString("<img src=\"%1\">").arg(":/icons/sound.png"));
+	text.replace(QRegExp("\\_(.*)\\_"),"<u>\\1</u>");
+	text.replace(QRegExp("\\@(.*)\\@"),"<u><font color='#0000FF'>\\1</font></u>");
+	text.replace("\\<u","<u");
+	text.replace("\\</u>","</u>");
+	text.replace("\\</font>","</font>");
+	return text;
+}

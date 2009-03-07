@@ -102,6 +102,7 @@ MainWindow::~MainWindow() {
 	delete manualAction;
 	delete aboutProgramAction;
 	  
+	delete previewAction;
 	delete findAction;
 	delete pasteBoldAction;
 	delete pasteItalicAction;
@@ -296,6 +297,12 @@ void MainWindow::createActions() {
 	findAction->setShortcut(QKeySequence("/"));
 	connect(findAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(showFindWidgetInCurrentTab()));
 
+	previewAction = new QAction(this);
+	previewAction->setText(tr("Preview translation"));
+	previewAction->setIcon(QIcon(":/icons/preview.png"));
+	previewAction->setShortcut(QKeySequence("Ctrl+P"));
+	connect(previewAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(previewCurrentTranslation()));
+	
 	editorMenu = new Menu;
 	editorMenu->setHeaderIcon(QIcon(":/icons/edit.png"));
 	editorMenu->setHeaderText("LightLang Editor");
@@ -311,11 +318,6 @@ void MainWindow::createActions() {
 	editorMenu->addAction(cutAction);
 	editorMenu->addAction(copyAction);
 	editorMenu->addAction(pasteAction);
-	editorMenu->addSeparator();
-	editorMenu->addAction(undoAction);
-	editorMenu->addAction(redoAction);
-	editorMenu->addSeparator();
-	editorMenu->addAction(findAction);
 	
 	QMenu *editMenu = menuBar()->addMenu("&" + tr("Edit"));
 	editMenu->addAction(pasteBlockAction);
@@ -334,6 +336,7 @@ void MainWindow::createActions() {
 	editMenu->addAction(redoAction);
 	editMenu->addSeparator();
 	editMenu->addAction(findAction);
+	editMenu->addAction(previewAction);
 	
 	editionToolBar = new QToolBar(tr("Edition tool bar"));
 	editionToolBar->setIconSize(QSize(16,16));
@@ -355,6 +358,7 @@ void MainWindow::createActions() {
 	editionToolBar->addAction(redoAction);
 	editionToolBar->addSeparator();
 	editionToolBar->addAction(findAction);
+	editionToolBar->addAction(previewAction);
 	editionToolBar->hide();
 	
 	centralWidget->setEditorMenu(editorMenu);
@@ -550,6 +554,7 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	dictionarySearchAction->setEnabled(!isDisabled);
 	startPageAction->setEnabled(!isDisabled);
 	findAction->setEnabled(!isDisabled);
+	previewAction->setEnabled(!isDisabled);
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {

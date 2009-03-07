@@ -1,10 +1,16 @@
 #include <QtGui/QToolButton>
+#include <QtGui/QCursor>
 #include "TabWidget.h"
+#include "PopupWindow.h"
 #include "TabsWidget.h"
 
 TabsWidget::TabsWidget(DatabaseCenter *dbCenter,QWidget *parent) : QTabWidget(parent) {
 	databaseCenter = dbCenter;
 	updateTranslationInterval = 0;
+	
+	previewPopupWindow = new PopupWindow(parent);
+	previewPopupWindow->setHeaderText(tr("Preview"));
+	previewPopupWindow->resize(400,300);
 	
 	newTabButton = new QToolButton;
 	newTabButton->setAutoRaise(true);
@@ -31,6 +37,7 @@ TabsWidget::~TabsWidget() {
 	foreach (TabWidget *tab,tabs)
 		delete tab;
 	delete newTabButton;
+	delete previewPopupWindow;
 	delete closeCurrentTabButton;
 }
 
@@ -123,4 +130,13 @@ void TabsWidget::copyInCurrentTab() {
 
 void TabsWidget::pasteInCurrentTab() {
 	tabs[currentIndex()]->paste();
+}
+
+void TabsWidget::previewCurrentTranslation() {
+	QString previewText = tabs[currentIndex()]->getTranslationAsHtml();
+	if (!previewText.isEmpty()) {
+		previewPopupWindow->setText(previewText);
+		previewPopupWindow->move(QCursor::pos().x() + 10,QCursor::pos().y() + 10);
+		previewPopupWindow->show();
+	}
 }
