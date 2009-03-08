@@ -47,5 +47,6 @@
 		<file>icons/start_page.png</file>
         <file>icons/preview.png</file>
         <file>icons/sound.png</file>
+		<file>icons/xsl.png</file>
     </qresource>
 </RCC>

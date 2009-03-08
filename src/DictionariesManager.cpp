@@ -78,10 +78,6 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	removeAction->setIcon(QIcon(":/icons/remove.png"));
 	connect(removeAction,SIGNAL(triggered()),this,SLOT(removeCurrentDictionary()));
 	
-	addToSlAction = new QAction(treeWidget);
-	addToSlAction->setText(tr("Add to SL"));
-	addToSlAction->setIcon(QIcon(":/icons/add.png"));
-	
 	openButton = new QToolButton;
 	openButton->setAutoRaise(true);
 	openButton->setIcon(QIcon(":/icons/open.png"));
@@ -103,22 +99,14 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	infoButton->setPopupText(tr("In this dialog you can see the list of loaded dictionaries. To start dictionary edition you should open it. Also you can remove some dictionary or add it to the programs \"SL, XSL\"."));
 	infoButton->setPopupHeaderText(tr("Dictionaries manager"));
 	
-	addToSlButton = new QToolButton;
-	addToSlButton->setAutoRaise(true);
-	addToSlButton->setIcon(QIcon(":/icons/add.png"));
-	addToSlButton->setIconSize(QSize(16,16));
-	addToSlButton->setToolTip(tr("Add the dictionary in SL databases"));
-	
 	treeWidget->addStretch();
 	treeWidget->addWidget(openButton);
 	treeWidget->addWidget(removeButton);
-	treeWidget->addWidget(addToSlButton);
 	treeWidget->addStretch();
 	treeWidget->addWidget(infoButton);
 	
 	treeWidget->addContextMenuAction(openAction);
 	treeWidget->addContextMenuAction(removeAction);
-	treeWidget->addContextMenuAction(addToSlAction);
 	
 	QHBoxLayout *mainLayout = new QHBoxLayout;
 	mainLayout->addWidget(treeWidget);
@@ -151,8 +139,6 @@ DictionariesManager::~DictionariesManager() {
 	
 	delete openAction;
 	delete removeAction;
-	delete addToSlAction;
-	delete addToSlButton;
 	delete openButton;
 	delete infoButton;
 	delete removeButton;

@@ -52,11 +52,9 @@ class DictionariesManager : public QDialog
 	
 		QAction *openAction;
 		QAction *removeAction;
-		QAction *addToSlAction;
 	
 		QToolButton *openButton;
 		QToolButton *removeButton;
-		QToolButton *addToSlButton;
 		
 		InfoButton *infoButton;
 };

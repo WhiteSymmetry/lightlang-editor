@@ -74,6 +74,7 @@ class MainWindow : public QMainWindow
 		QMenu *recentDictsMenu;
 		QAction *saveDictAction;
 		QAction *saveDictAsAction;
+		QAction *addToSlAction;
 		QAction *openTabAction;
 		QAction *closeTabAction;
 		QAction *quitAction;

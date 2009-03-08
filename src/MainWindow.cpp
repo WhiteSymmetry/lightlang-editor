@@ -90,6 +90,7 @@ MainWindow::~MainWindow() {
 	delete openRecentDictsAction;
 	delete saveDictAction;
 	delete saveDictAsAction;
+	delete addToSlAction;
 	delete openTabAction;
 	delete closeTabAction;
 	delete quitAction;
@@ -162,6 +163,10 @@ void MainWindow::createActions() {
 	saveDictAsAction->setEnabled(false);
 	connect(saveDictAsAction,SIGNAL(triggered()),this,SLOT(saveDictionaryFileAs()));
 	
+	addToSlAction = new QAction(this);
+	addToSlAction->setText(tr("Add dictionary to SL"));
+	addToSlAction->setIcon(QIcon(":/icons/xsl.png"));
+	
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAction,SLOT(setDisabled(bool)));
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAsAction,SLOT(setDisabled(bool)));
 	
@@ -194,6 +199,7 @@ void MainWindow::createActions() {
 	dictionaryMenu->addAction(openRecentDictsAction);
 	dictionaryMenu->addAction(saveDictAction);
 	dictionaryMenu->addAction(saveDictAsAction);
+	dictionaryMenu->addAction(addToSlAction);
 	dictionaryMenu->addSeparator();
 	dictionaryMenu->addAction(openTabAction);
 	dictionaryMenu->addAction(closeTabAction);
@@ -555,6 +561,7 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	startPageAction->setEnabled(!isDisabled);
 	findAction->setEnabled(!isDisabled);
 	previewAction->setEnabled(!isDisabled);
+	addToSlAction->setEnabled(!isDisabled);
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {
