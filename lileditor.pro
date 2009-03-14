@@ -75,7 +75,7 @@ unix {
 		main_icon.path = $$INSTALL_PREFIX/share/icons/
 
 		main_desktop.files += desktop/lileditor.desktop
-		main_desktop.path = $$LIGHTLANG_PREFIX/share/applications/
+		main_desktop.path = $$INSTALL_PREFIX/share/applications/
 
 		xsl_ifa.files += ifa/lle.xml
 		xsl_ifa.path = $$LIGHTLANG_PREFIX/lib/xsl/ifa/
