@@ -64,17 +64,24 @@ SOURCES += src/main.cpp \
 	
 RESOURCES += lileditor.qrc
 
+QMAKE_CLEAN += Makefile $$TARGET
+
 unix {
 		LIGHTLANG_PREFIX = $$system(pkg-config lightlang --variable=prefix)
 		INSTALL_PREFIX=/usr
-		target.path = $$INSTALL_PREFIX/bin
+		target.path = $$INSTALL_PREFIX/bin/
 		
 		main_icon.files += icons/lle.png
 		main_icon.path = $$INSTALL_PREFIX/share/icons/
 
+		main_desktop.files += desktop/lileditor.desktop
+		main_desktop.path = $$LIGHTLANG_PREFIX/share/applications/
+
 		xsl_ifa.files += ifa/lle.xml
-		xsl_ifa.path = $$LIGHTLANG_PREFIX/lib/xsl/ifa
+		xsl_ifa.path = $$LIGHTLANG_PREFIX/lib/xsl/ifa/
 		
 		INSTALLS += target
+		INSTALLS += main_icon
+		INSTALLS += main_desktop
 		INSTALLS += xsl_ifa
 }
