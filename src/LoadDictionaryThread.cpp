@@ -51,8 +51,8 @@ bool LoadDictionaryThread::setDictionaryPath(const QString& path) {
 	return true;
 }
 
-QString LoadDictionaryThread::getAboutDict() const {
-	return currentAboutDictionaryString;
+QString LoadDictionaryThread::getDictionaryInformation() const {
+	return currentDictionaryInformationString;
 }
 
 QString LoadDictionaryThread::getDictionaryPath() const {
@@ -69,7 +69,7 @@ void LoadDictionaryThread::run() {
 		if (tempString.isEmpty())
 			continue;
 		if (tempString.startsWith("#")) {
-			currentAboutDictionaryString += tempString.remove(0,1) + '\n';
+			currentDictionaryInformationString += tempString.remove(0,1) + '\n';
 			continue;
 		}
 		QStringList list = tempString.split("  ");
@@ -97,7 +97,7 @@ bool LoadDictionaryThread::isCanceled() const {
 bool LoadDictionaryThread::startLoading(const QString& dictionaryPath) {
 	if (!setDictionaryPath(dictionaryPath))
 		return false;
-	currentAboutDictionaryString.clear();
+	currentDictionaryInformationString.clear();
 	continueLoading();
 	return true;
 }

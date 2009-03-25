@@ -20,11 +20,18 @@
 #include "const.h"
 #include "Menu.h"
 #include "StatusBarLabel.h"
+#include "PopupWindow.h"
 #include "MainWindow.h"
 
 MainWindow::MainWindow() {
 	createDirs();
 
+	editDictInfoPopupWindow = new PopupWindow(this);
+	editDictInfoPopupWindow->setHeaderText(tr("Dictionary information"));
+	editDictInfoPopupWindow->setReadOnly(false);
+	editDictInfoPopupWindow->resize(400,300);
+	connect(editDictInfoPopupWindow,SIGNAL(closedAfterChanges()),this,SLOT(saveDictionaryInformation()));
+	
 	newDictionaryCreatedDialog = new QMessageBox(this);
 	newDictionaryCreatedDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
 	newDictionaryCreatedDialog->setText("<b>" + tr("You have created the new dictionary") + "</b><br>" + tr("You can edit it now by clicking on special button, or open created dictionary in dictionaries manager later."));
@@ -62,7 +69,7 @@ MainWindow::MainWindow() {
 	
 	connect(centralWidget,SIGNAL(loadingCompleted(bool)),this,SLOT(loadingCompleted(bool)));
 	connect(centralWidget,SIGNAL(changeWindowTitle(const QString&)),this,SLOT(updateWindowTitle(const QString&)));
-	connect(centralWidget,SIGNAL(databaseWasOpened(const QString&)),this,SLOT(setPathForOpenedDictionary(const QString&)));
+	connect(centralWidget,SIGNAL(openDatabaseWithName(const QString&)),this,SLOT(openDatabaseWithName(const QString&)));
 	connect(centralWidget,SIGNAL(showProgramAbout()),about,SLOT(exec()));
 	connect(centralWidget,SIGNAL(showProgramDocumentation()),manual,SLOT(show()));
 	
@@ -91,6 +98,7 @@ MainWindow::~MainWindow() {
 	delete saveDictAction;
 	delete saveDictAsAction;
 	delete addToSlAction;
+	delete editDictInformationAction;
 	delete openTabAction;
 	delete closeTabAction;
 	delete quitAction;
@@ -119,6 +127,7 @@ MainWindow::~MainWindow() {
 	delete pasteAction;
 	delete editorMenu;
 	
+	delete editDictInfoPopupWindow;
 	delete hideStatusBarTimer;
 	delete statusBarLabel;
 	delete dictionariesManager;
@@ -166,6 +175,12 @@ void MainWindow::createActions() {
 	addToSlAction = new QAction(this);
 	addToSlAction->setText(tr("Add dictionary to SL"));
 	addToSlAction->setIcon(QIcon(":/icons/xsl.png"));
+	connect(addToSlAction,SIGNAL(triggered()),this,SLOT(addDictionaryToSl()));
+	
+	editDictInformationAction = new QAction(this);
+	editDictInformationAction->setText(tr("Edit information about dictionary"));
+	editDictInformationAction->setIcon(QIcon(":/icons/edit_dict.png"));
+	connect(editDictInformationAction,SIGNAL(triggered()),editDictInfoPopupWindow,SLOT(showPopup()));
 	
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAction,SLOT(setDisabled(bool)));
 	connect(centralWidget,SIGNAL(startPageShown(bool)),saveDictAsAction,SLOT(setDisabled(bool)));
@@ -199,7 +214,9 @@ void MainWindow::createActions() {
 	dictionaryMenu->addAction(openRecentDictsAction);
 	dictionaryMenu->addAction(saveDictAction);
 	dictionaryMenu->addAction(saveDictAsAction);
+	dictionaryMenu->addSeparator();
 	dictionaryMenu->addAction(addToSlAction);
+	dictionaryMenu->addAction(editDictInformationAction);
 	dictionaryMenu->addSeparator();
 	dictionaryMenu->addAction(openTabAction);
 	dictionaryMenu->addAction(closeTabAction);
@@ -441,14 +458,14 @@ void MainWindow::openDictionaryFile() {
 			break;
 	}
 	currentLoadingDictPath = dictionaryPath;
-	currentLoadingDictAbout.clear();
+	currentLoadingDictInformation.clear();
 	centralWidget->loadDictionary(currentLoadingDictPath);
 }
 
 void MainWindow::loadingCompleted(bool isSuccessful) {
 	if (isSuccessful) {
-		currentLoadingDictAbout = centralWidget->getLoadedDictAbout();
-		dictionariesManager->addDictionary(QFileInfo(currentLoadingDictPath).fileName(),currentLoadingDictPath,currentLoadingDictAbout);
+		currentLoadingDictInformation = centralWidget->getLoadedDictionaryInformation();
+		dictionariesManager->addDictionary(QFileInfo(currentLoadingDictPath).fileName(),currentLoadingDictPath,currentLoadingDictInformation);
 		recentOpenedDictionaries << QFileInfo(currentLoadingDictPath).fileName();
 		updateRecentDictsMenu();
 	}
@@ -540,8 +557,11 @@ void MainWindow::openDatabaseWithName(const QString& databaseName,bool addToRece
 		recentOpenedDictionaries << databaseName;
 		updateRecentDictsMenu();
 	}
+	editDictInfoPopupWindow->setText(dictionariesManager->getDictionaryInformationWithName(databaseName));
 	centralWidget->setCurrentDatabase(databaseName);
 	centralWidget->showTabsWidget();
+	
+	openedDictionaryName = databaseName;
 }
 
 void MainWindow::disableEditionActions(bool isDisabled) {
@@ -562,6 +582,7 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	findAction->setEnabled(!isDisabled);
 	previewAction->setEnabled(!isDisabled);
 	addToSlAction->setEnabled(!isDisabled);
+	editDictInformationAction->setEnabled(!isDisabled);
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {
@@ -570,24 +591,34 @@ void MainWindow::openDictionaryOfAction(QAction *chosenAction) {
 }
 
 void MainWindow::saveDictionaryFile() {
-	if (!centralWidget->saveDictionary())
-		saveDictionaryFileAs();
+	saveDictionaryFileAs(dictionariesManager->getPathForDictionaryWithName(openedDictionaryName));
 }
 
-void MainWindow::saveDictionaryFileAs() {
-	QString filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
+void MainWindow::saveDictionaryFileAs(const QString& path) {
+	QString filePath;
+	if (path.isEmpty())
+		filePath = QFileDialog::getSaveFileName(this,tr("Save dictionary as..."),QDir::homePath(),tr("SL dictionaries(*.*-*)"));
+	else
+		filePath = path;
 	if (filePath.isEmpty())
 		return;
-	centralWidget->saveDictionaryAs(filePath);
-}
-
-void MainWindow::setPathForOpenedDictionary(const QString& dbName) {
-	centralWidget->setPathForOpenedDictionary(dictionariesManager->getPathForDictionaryWithName(dbName),
-											dictionariesManager->getDictionaryAboutWithName(dbName));
+	if (centralWidget->saveDictionaryAs(filePath,dictionariesManager->getDictionaryInformationWithName(openedDictionaryName)) == 0)
+		showStatusMessage(tr("Dictionary was saved successfully"));
+	else
+		showStatusMessage(tr("Cannot save dictionary(check your rights in directory)"));
 }
 
 void MainWindow::showStatusMessage(const QString& message) {
-	statusbar->show();
-	statusBarLabel->setMessage(message);
-	hideStatusBarTimer->start(10000);
+        statusbar->show();
+        statusBarLabel->setMessage(message);
+        hideStatusBarTimer->start(10000);
+}
+
+void MainWindow::addDictionaryToSl() {
+	
+}
+
+void MainWindow::saveDictionaryInformation() {
+	dictionariesManager->setDictionaryInformation(openedDictionaryName,editDictInfoPopupWindow->getText());
+	showStatusMessage(tr("Dictionary information was saved"));
 }

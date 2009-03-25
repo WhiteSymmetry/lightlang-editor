@@ -15,6 +15,7 @@ class QToolButton;
 class Menu;
 class QMessageBox;
 class QPushButton;
+class PopupWindow;
 
 class MainWindow : public QMainWindow
 {
@@ -39,8 +40,9 @@ class MainWindow : public QMainWindow
 		void disableEditionActions(bool isDisabled);
 		void openDictionaryOfAction(QAction *chosenAction);
 		void saveDictionaryFile();
-		void saveDictionaryFileAs();
-		void setPathForOpenedDictionary(const QString& dbName);
+		void saveDictionaryFileAs(const QString& path = QString());
+		void addDictionaryToSl();
+		void saveDictionaryInformation();
 	private:
 		void saveSettings();
 		void loadSettings();
@@ -60,6 +62,7 @@ class MainWindow : public QMainWindow
 		Manual *manual;
 		DictionariesManager *dictionariesManager;
 		CentralWidget *centralWidget;
+		PopupWindow *editDictInfoPopupWindow;
 		
 		StatusBarLabel *statusBarLabel;
 		QStatusBar *statusbar;
@@ -75,6 +78,7 @@ class MainWindow : public QMainWindow
 		QAction *saveDictAction;
 		QAction *saveDictAsAction;
 		QAction *addToSlAction;
+		QAction *editDictInformationAction;
 		QAction *openTabAction;
 		QAction *closeTabAction;
 		QAction *quitAction;
@@ -102,8 +106,9 @@ class MainWindow : public QMainWindow
 		QAction *findAction;
 		QAction *previewAction;
 		
+		QString openedDictionaryName;
 		QString currentLoadingDictPath;
-		QString currentLoadingDictAbout;
+		QString currentLoadingDictInformation;
 		QString homePath;
 		QString databasesPath;
 		QString controlPath;

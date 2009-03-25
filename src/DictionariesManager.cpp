@@ -96,7 +96,7 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	PopupWindow *popupWindow = new PopupWindow(this);
 	
 	infoButton = new InfoButton(popupWindow);
-	infoButton->setPopupText(tr("In this dialog you can see the list of loaded dictionaries. To start dictionary edition you should open it. Also you can remove some dictionary or add it to the programs \"SL, XSL\"."));
+	infoButton->setPopupText(tr("In this dialog you can see the list of loaded dictionaries. To start dictionary edition you should open it. Also you can remove dictionaries."));
 	infoButton->setPopupHeaderText(tr("Dictionaries manager"));
 	
 	treeWidget->addStretch();
@@ -119,7 +119,7 @@ DictionariesManager::DictionariesManager(QWidget *parent) : QDialog(parent) {
 	createConnection();
 	
 	QSqlQuery query;
-	query.exec("CREATE TABLE IF NOT EXISTS dicts(`name` TEXT,`direction` TEXT,`path` TEXT,`about` TEXT, UNIQUE(`name`))");
+	query.exec("CREATE TABLE IF NOT EXISTS dicts(`name` TEXT,`direction` TEXT,`path` TEXT,`information` TEXT)");
 	if (!query.isActive())
 		qDebug() << "[DictionariesManager] Cannot create table, because: " << query.lastError().text();
 	
@@ -145,19 +145,27 @@ DictionariesManager::~DictionariesManager() {
 	delete treeWidget;
 }
 
-void DictionariesManager::addDictionary(const QString& fullName,const QString& path,const QString& about) {
+void DictionariesManager::addDictionary(const QString& fullName,const QString& path,const QString& information) {
 	QString nameWithDirection = fullName;
 	QString direction = nameWithDirection.split(".").last();
 	QString name = nameWithDirection.remove("." + direction);
-	QTreeWidgetItem *newItem = new QTreeWidgetItem(treeWidget);
-	newItem->setText(0,direction);
-	newItem->setText(1,name);
 
 	QSqlQuery query;
-	query.exec(QString("INSERT INTO `dicts`(name,direction,path,about) VALUES('%1','%2','%3','%4')")
-														.arg(name).arg(direction).arg(path).arg(about));
+	query.prepare("INSERT INTO `dicts`(name,direction,path,information) VALUES(:name,:direction,:path,:information)");
+	query.bindValue(":name",name);
+	query.bindValue(":direction",direction);
+	query.bindValue(":path",path);
+	query.bindValue(":information",information);
+	query.exec();
 	if (!query.isActive())
 		qDebug() << "[DictionariesManager] Cannot insert new dictionary into table, because: " << query.lastError().text();
+	else {	
+		QTreeWidgetItem *newItem = new QTreeWidgetItem(treeWidget);
+		newItem->setText(0,direction);
+		newItem->setText(1,name);
+	}
+	
+	qDebug() << getDictionaryInformationWithName(name);
 }
 
 void DictionariesManager::sendSignalToOpenDatabase() {
@@ -198,7 +206,8 @@ void DictionariesManager::removeCurrentDictionary() {
 
 QString DictionariesManager::getPathForDictionaryWithName(const QString& dbName) {
 	QSqlQuery query;
-	query.exec(QString("SELECT `path` FROM `dicts` WHERE name = \"%1\"").arg(dbName));
+	QString name = dbName;
+	query.exec(QString("SELECT `path` FROM `dicts` WHERE name = \"%1\"").arg(name.remove(name.length()-6,6)));
 	if (query.isValid()) {
 		query.next();
 		return query.record().value(0).toString();
@@ -206,12 +215,25 @@ QString DictionariesManager::getPathForDictionaryWithName(const QString& dbName)
 	return "";
 }
 
-QString DictionariesManager::getDictionaryAboutWithName(const QString& dbName) {
+QString DictionariesManager::getDictionaryInformationWithName(const QString& dbName) {
 	QSqlQuery query;
-	query.exec(QString("SELECT `about` FROM `dicts` WHERE name = \"%1\"").arg(dbName));
-	if (query.isValid()) {
+	QString name = dbName;
+	query.exec(QString("SELECT `information` FROM `dicts` WHERE `name` = \"%1\"").arg(name.remove(name.length()-6,6)));
+	if (query.isActive()) {
 		query.next();
 		return query.record().value(0).toString();
 	}
 	return "";
+}
+		
+void DictionariesManager::setDictionaryInformation(const QString& dictionaryName,const QString& dictionaryInformation) {
+	QSqlQuery query;
+	QString name = dictionaryName;
+	name.remove(name.length()-6,6);
+	query.prepare("UPDATE `dicts` SET `information` = :information  WHERE `name` = :name");
+	query.bindValue(":information",dictionaryInformation);
+	query.bindValue(":name",name);
+	query.exec();
+	if (!query.isActive())
+		qDebug() << "[DictionariesManager] Cannot change information about dictionary with name" << name << ",because: " << query.lastError().text();
 }

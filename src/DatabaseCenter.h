@@ -26,7 +26,7 @@ class DatabaseCenter : public QObject
 	
 		void removeDatabaseWithName(const QString& databaseName);
 	
-		void saveCurrentDatabaseAs(const QString& dictPath,const QString& aboutDictionaryText);
+		int saveCurrentDatabaseAs(const QString& dictPath,const QString& aboutDictionaryText);
 	
 		QStringList getWordsStartsWith(const QString& preString,int limit = 50);
 		

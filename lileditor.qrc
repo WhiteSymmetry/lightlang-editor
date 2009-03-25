@@ -48,5 +48,6 @@
         <file>icons/preview.png</file>
         <file>icons/sound.png</file>
 		<file>icons/xsl.png</file>
+		<file>icons/edit_dict.png</file>
     </qresource>
 </RCC>

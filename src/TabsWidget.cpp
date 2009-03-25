@@ -60,6 +60,13 @@ void TabsWidget::closeCurrentTab() {
 }
 
 void TabsWidget::renameTab(int index,const QString& name) {
+	for (int i = 0; i < count(); i++)
+		if (tabText(i) == name) {
+			closeCurrentTab();
+			setCurrentIndex(i);
+			setFocusOnCurrentTab();
+			return;
+		}
 	setTabText(index,name.isEmpty() ? "(" + tr("Unnamed") + ")" : name);
 }
 

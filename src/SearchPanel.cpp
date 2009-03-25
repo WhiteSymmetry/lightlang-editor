@@ -99,6 +99,7 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	mainLayout->setContentsMargins(0,0,0,0);
 	
 	setMaximumWidth(0);
+	hide();
 }
 
 SearchPanel::~SearchPanel() {

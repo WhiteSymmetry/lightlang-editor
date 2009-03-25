@@ -27,7 +27,7 @@ class CentralWidget : public QWidget
 		void startPageShown(bool);
 		void loadingCompleted(bool isSuccessful);
 		void changeWindowTitle(const QString& title);
-		void databaseWasOpened(const QString& dbName);
+		void openDatabaseWithName(const QString& dbName);
 		void showProgramAbout();
 		void showProgramDocumentation();
 	public slots:
@@ -49,16 +49,13 @@ class CentralWidget : public QWidget
 		void setStartPageText(const QString& text);
 		void setExistingDictionaries(const QStringList& list);
 		void loadDictionary(const QString& dictPath);
-		QString getLoadedDictAbout() const;
+		QString getLoadedDictionaryInformation() const;
 	
 		void setEditorMenu(Menu *menu);
 	
-		bool saveDictionary();
-		void saveDictionaryAs(const QString& dictPath);
+		int saveDictionaryAs(const QString& whereSave,const QString& information);
 		
 		QWidget *getTabsWidget() const;
-	
-		void setPathForOpenedDictionary(const QString& pathOfOpenedDictionary,const QString& aboutDictionaryText);
 	
 		// If there is a loading, user will be asked is he sure, that he want to cancel loading and quit from program
 		bool saveSettings();
@@ -109,10 +106,9 @@ class CentralWidget : public QWidget
 		QToolButton *openDictBorderButton;
 		QToolButton *showDictsManagerButton;
 	
+		bool searchPanelWasHidden;
 		QString currentLoadingDictName;
-		QString currentLoadingDictAbout;
-		QString currentOpenedDictPath;
-		QString currentOpenedDictAbout;
+		QString currentLoadingDictInformation;
 		QStringList existingDictionaries;
 	protected:
 		void resizeEvent(QResizeEvent *resizeEvent);

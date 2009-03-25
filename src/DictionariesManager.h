@@ -33,10 +33,11 @@ class DictionariesManager : public QDialog
 		DictionariesManager(QWidget *parent = 0);
 		~DictionariesManager();
 	
-		void addDictionary(const QString& fullName,const QString& path = QString(),const QString& about = QString());
+		void addDictionary(const QString& fullName,const QString& path = QString(),const QString& information = QString());
 	
 		QString getPathForDictionaryWithName(const QString& dbName);
-		QString getDictionaryAboutWithName(const QString& dbName);
+		QString getDictionaryInformationWithName(const QString& dbName);
+		void setDictionaryInformation(const QString& dictionaryName,const QString& dictionaryInformation);
 	
 		QStringList getExistingDictionaries();
 	private slots:

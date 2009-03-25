@@ -28,7 +28,7 @@ class LoadDictionaryThread : public QThread
 		bool isCanceled() const;
 		bool isStopped() const;
 	
-		QString getAboutDict() const;
+		QString getDictionaryInformation() const;
 		QString getDictionaryPath() const;
 	protected:
 		void run();
@@ -38,7 +38,7 @@ class LoadDictionaryThread : public QThread
 		volatile bool stopped;
 		volatile bool canceled;
 	
-		QString currentAboutDictionaryString;
+		QString currentDictionaryInformationString;
 		QString currentDictionaryPath;
 	
 		DatabaseCenter *databaseCenter;

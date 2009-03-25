@@ -79,7 +79,12 @@ bool DatabaseCenter::setTranslationForWord(const QString& word,const QString& tr
 
 bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("INSERT INTO main(word,translation,status) VALUES(\"%1\",\"%2\",\'0\')").arg(word.simplified().toLower()).arg(translation.simplified()));
+	
+	query.prepare("INSERT INTO main(word,translation,status) VALUES(:word,:translation,:status)");
+	query.bindValue(":word",word.simplified().toLower());
+	query.bindValue(":translation",translation.simplified());
+	query.bindValue(":status","0");
+	query.exec();
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Add new word" << word << " with error:" << query.lastError().text();
 	return query.isActive();
@@ -123,11 +128,13 @@ QString DatabaseCenter::getCurrentDatabaseName() const {
 	return currentConnectionName;
 }
 
-void DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const QString& aboutDictionaryText) {
+int DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const QString& aboutDictionaryText) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
 	QFile file(dictionaryPath);
-	if (!file.open(QIODevice::WriteOnly))
-		return;
+	if (!file.open(QIODevice::WriteOnly)) {
+		qDebug() << "[DatabaseCenter] Cannot save dictionary to" << dictionaryPath << "because of error number" << file.error();
+		return file.error();
+	}
 	QTextStream stream(&file);
 	if (!aboutDictionaryText.isEmpty())
 		stream << '#' << aboutDictionaryText << '\n';
@@ -135,6 +142,8 @@ void DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const Q
 	while (query.next())
 		stream << query.record().value(0).toString().simplified() << "  " << query.record().value(1).toString().simplified() << '\n';
 	file.close();
+	
+	return 0;
 }
 
 QStringList DatabaseCenter::getWordsStartsWith(const QString& preString,int limit) {

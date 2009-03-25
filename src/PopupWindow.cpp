@@ -12,9 +12,11 @@ PopupWindow::PopupWindow(QWidget *parent) : QDialog(parent) {
 
 	setWindowFlags(Qt::Popup);
 
+	wasChanges = false;
 	header = new QLabel;
 
 	browser = new QTextBrowser;
+	connect(browser,SIGNAL(textChanged()),this,SLOT(textChanged()));
 
 	cursor = new QCursor();
 	
@@ -66,5 +68,28 @@ void PopupWindow::showPopup() {
 		y = QApplication::desktop()->height() - height() - 10;
 	move(QPoint(x,y));
 	show();
+	browser->setFocus();
 }
 
+void PopupWindow::hideEvent(QHideEvent *) {
+	if (wasChanges)
+		emit (closedAfterChanges());
+	wasChanges = false;
+	emit (closed());
+}
+
+void PopupWindow::showEvent(QShowEvent *) {
+	wasChanges = false;
+}
+
+void PopupWindow::setReadOnly(bool readOnly) {
+	browser->setReadOnly(readOnly);
+}
+
+QString PopupWindow::getText() const {
+	return browser->toPlainText();
+}
+
+void PopupWindow::textChanged() {
+	wasChanges = true;
+}

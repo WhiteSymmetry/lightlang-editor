@@ -37,6 +37,11 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 	connect(openLoadedDictionaryButton,SIGNAL(clicked()),this,SIGNAL(openLastLoadedDictionary()));
 	openLoadedDictionaryButton->hide();
 	
+	closeButton = new QPushButton;
+	closeButton->setIcon(QIcon(":/icons/close.png"));
+	connect(closeButton,SIGNAL(clicked()),this,SLOT(hideWithRolling()));
+	closeButton->hide();
+	
 	textLabel = new QLabel(tr("Dictionary loading") + "...");
 	
 	progressBar->addWidget(cancelLoadingButton);
@@ -49,6 +54,7 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 	QHBoxLayout *mainLayout = new QHBoxLayout;
 	mainLayout->addWidget(progressBar,1);
 	mainLayout->addWidget(openLoadedDictionaryButton);
+	mainLayout->addWidget(closeButton);
 	mainLayout->setContentsMargins(0,0,0,0);
 	
 	QWidget *mainWidget = new QWidget;
@@ -65,6 +71,7 @@ LoadDictionaryWidget::LoadDictionaryWidget() : BorderPanelWithWidget(BorderPanel
 LoadDictionaryWidget::~LoadDictionaryWidget() {
 	delete timer;
 	delete openLoadedDictionaryButton;
+	delete closeButton;
 	delete cancelLoadingButton;
 	delete continueLoadingButton;
 	delete pauseLoadingButton;
@@ -86,6 +93,7 @@ void LoadDictionaryWidget::reset() {
 	progressBar->reset();
 	continueLoadingButton->hide();
 	openLoadedDictionaryButton->hide();
+	closeButton->hide();
 	pauseLoadingButton->show();
 	cancelLoadingButton->show();
 	textLabel->setText(tr("Dictionary is loading") + "...");	
@@ -144,6 +152,7 @@ void LoadDictionaryWidget::updateSize() {
 
 void LoadDictionaryWidget::loadingFinished() {
 	openLoadedDictionaryButton->show();
+	closeButton->show();
 	continueLoadingButton->hide();
 	pauseLoadingButton->hide();
 	cancelLoadingButton->hide();

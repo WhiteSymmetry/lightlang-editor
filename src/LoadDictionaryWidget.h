@@ -43,6 +43,7 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 		QToolButton *pauseLoadingButton;
 		QToolButton *continueLoadingButton;
 		QPushButton *openLoadedDictionaryButton;
+		QPushButton *closeButton;
 };
 
 #endif

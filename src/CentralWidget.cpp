@@ -23,6 +23,7 @@
 
 CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 
+	searchPanelWasHidden = true;
 	
 	searchPanelButton = new QPushButton;
 	
@@ -219,10 +220,13 @@ void CentralWidget::openNewTab() {
 }
 
 void CentralWidget::showTabsWidget() {
-	if (tabsWidget->count() == 0)
-		tabsWidget->openNewTab();
+	if (tabsWidget->count() > 0)
+		tabsWidget->clear();
+	tabsWidget->openNewTab();
 	stackedWidget->setCurrentIndex(1);
 	searchPanelButton->setVisible(settingsWidget->showSideBar());
+	if (!searchPanelWasHidden)
+		searchPanel->showWithRolling();
 }
 
 void CentralWidget::closeCurrentTab() {
@@ -237,7 +241,6 @@ void CentralWidget::resizeEvent(QResizeEvent *) {
 
 void CentralWidget::setCurrentDatabase(const QString& dbName) {
 	databaseCenter->setDatabaseName(dbName);
-	emit (databaseWasOpened(dbName));
 }
 
 void CentralWidget::setExistingDictionaries(const QStringList& list) {
@@ -273,7 +276,7 @@ void CentralWidget::loadDictionary(const QString& dictPath) {
 			databaseCenter->removeDatabaseWithName(QFileInfo(dictPath).fileName());
 	}
 	
-	currentLoadingDictAbout.clear();
+	currentLoadingDictInformation.clear();
 	loadDictionaryWidget->reset();
 	loadDictionaryWidget->showWithRolling();
 	if (loadDictionaryThread->startLoading(dictPath)) {
@@ -302,7 +305,7 @@ void CentralWidget::removeDatabaseWithName(const QString& dbName) {
 
 void CentralWidget::loadingFinished() {
 	existingDictionaries << currentLoadingDictName;
-	currentLoadingDictAbout = loadDictionaryThread->getAboutDict();
+	currentLoadingDictInformation = loadDictionaryThread->getDictionaryInformation();
 	emit (loadingCompleted(true));
 	loadDictionaryWidget->loadingFinished();
 }
@@ -343,14 +346,13 @@ bool CentralWidget::saveSettings() {
 	return true;
 }
 
-QString CentralWidget::getLoadedDictAbout() const {
-	return currentLoadingDictAbout;
+QString CentralWidget::getLoadedDictionaryInformation() const {
+	return currentLoadingDictInformation;
 }
 
 void CentralWidget::openLastLoadedDictionary() {
 	loadDictionaryWidget->hideWithRolling();
-	setCurrentDatabase(currentLoadingDictName);
-	showTabsWidget();
+	emit (openDatabaseWithName(currentLoadingDictName));
 }
 
 void CentralWidget::currentWidgetChanged(int widgetIndex) {
@@ -363,20 +365,8 @@ void CentralWidget::setEditorMenu(Menu *menu) {
 	tabsWidget->setEditorMenu(menu);
 }
 
-bool CentralWidget::saveDictionary() {
-	if (currentOpenedDictPath.isEmpty())
-		return false;
-	saveDictionaryAs(currentOpenedDictPath);
-	return true;
-}
-
-void CentralWidget::saveDictionaryAs(const QString& path) {
-	databaseCenter->saveCurrentDatabaseAs(path,currentOpenedDictAbout);
-}
-
-void CentralWidget::setPathForOpenedDictionary(const QString& path,const QString& about) {
-	currentOpenedDictPath = path;
-	currentOpenedDictAbout = about;
+int  CentralWidget::saveDictionaryAs(const QString& whereSave,const QString& information) {
+	return databaseCenter->saveCurrentDatabaseAs(whereSave,information);
 }
 
 void CentralWidget::showSettings() {
@@ -390,10 +380,8 @@ void CentralWidget::startPageLinkClicked(const QString& link) {
 		showSettings();
 	else if (link == "documentation")
 		emit (showProgramDocumentation());
-	else {
-		setCurrentDatabase(link);
-		showTabsWidget();
-	}
+	else
+		emit (openDatabaseWithName(link));
 }
 
 void CentralWidget::updateSettings() {
@@ -424,5 +412,6 @@ void CentralWidget::showStartPage() {
 	stackedWidget->setCurrentIndex(0);
 	emit(changeWindowTitle(""));
 	searchPanelButton->hide();
+	searchPanelWasHidden = searchPanel->isHidden();
 	searchPanel->hideWithRolling();
 }
