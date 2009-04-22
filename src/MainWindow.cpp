@@ -13,6 +13,9 @@
 #include <QtCore/QDir>	
 #include <QtCore/QSettings>
 #include <QtCore/QTimer>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QProcess>
 #include "Manual.h"
 #include "DictionariesManager.h"
 #include "About.h"
@@ -419,11 +422,25 @@ void MainWindow::createActions() {
 }
 
 void MainWindow::createDirs() {
-	homePath = QDir::toNativeSeparators(QDir::currentPath() + "/EditorData/");
+	homePath = QDir::toNativeSeparators(QDir::homePath() + "/.LilEditorData/");
 	QDir dir;
 	if (!dir.exists(homePath))
 		dir.mkpath(homePath);
 	
+#ifdef Q_OS_UNIX
+	QFile scriptFile(QDir::homePath() + "/.LilEditorData/addtoslscript");
+	if (!scriptFile.exists()) {
+		scriptFile.open(QIODevice::WriteOnly);
+		QTextStream stream(&scriptFile);
+		stream << "#!/bin/bash\nsl --print-index dict > dict1\ncat dict >> dict1\n"
+				"sl --print-index dict1 > dict2\ncat dict >> dict2\n"
+				"rm -f dict dict1\nPREFIX=\"pkg-config lightlang --variable=prefix\"\n"
+				"mv dict2 $PREFIX/share/sl/dicts";
+		scriptFile.setPermissions(QFile::ExeOther | QFile::ExeUser | QFile::ExeOwner | QFile::ReadOwner 
+								| QFile::ReadUser | QFile::ReadGroup | QFile::ReadOther | QFile::ExeGroup);
+	}
+#endif	
+
 	databasesPath = QDir::toNativeSeparators(homePath + "Databases/");
 	if (!dir.exists(databasesPath))
 		dir.mkpath(databasesPath);
@@ -615,7 +632,16 @@ void MainWindow::showStatusMessage(const QString& message) {
 }
 
 void MainWindow::addDictionaryToSl() {
-	
+#ifdef Q_OS_WIN32
+	QMessageBox::warning(this,tr("Notification"),tr("Windows version doesn't support this function"));
+#endif
+
+#ifdef Q_OS_UNIX
+	QDir currentDir = QDir::current();
+	currentDir.cdUp();
+	saveDictionaryFileAs(currentDir.path() + "/dict");
+	QProcess::startDetached(currentDir.path() + "/addtoslscript");
+#endif
 }
 
 void MainWindow::saveDictionaryInformation() {

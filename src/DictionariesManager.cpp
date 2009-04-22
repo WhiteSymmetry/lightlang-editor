@@ -9,6 +9,7 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlRecord>
 #include <QtSql/QSqlError>
+#include <QtCore/QDir>
 #include <QDebug>
 #include "InfoButton.h"
 #include "PopupWindow.h"
@@ -44,7 +45,7 @@ inline bool createConnection() {
 	database.setHostName("localhost");
 	database.setUserName("Vialinx");
 	database.setPassword("IMP");
-	database.setDatabaseName("EditorData/Control/DictionariesDB");
+	database.setDatabaseName(QDir::homePath() + "/.LilEditorData/Control/DictionariesDB");
 	if (!database.open()) {
 		qDebug() << "[DictionariesManager] Cannot to open database with name DictionariesDB, because" << database.lastError().text();
 		return false;

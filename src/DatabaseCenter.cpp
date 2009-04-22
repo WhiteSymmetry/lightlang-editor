@@ -27,7 +27,7 @@ inline bool createConnection(const QString& dbName) {
 }
 
 DatabaseCenter::DatabaseCenter() {
-	databasesPath = QDir::toNativeSeparators(QDir::currentPath() + "/EditorData/Databases/");
+	databasesPath = QDir::toNativeSeparators(QDir::homePath() + "/.LilEditorData/Databases/");
 }
 
 DatabaseCenter::~DatabaseCenter() {
