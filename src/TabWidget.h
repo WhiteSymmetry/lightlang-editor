@@ -13,6 +13,7 @@ class Menu;
 class EditorTipsWidget;
 class FindInTranslationPanel;
 class HighLighter;
+class QLabel;
 
 class TabWidget : public QWidget
 {
@@ -65,6 +66,7 @@ class TabWidget : public QWidget
 		HighLighter *highlighter;
 	
 		QLineEdit *lineEdit;
+		QLabel *notifLabel;
 		QToolButton *clearLineEditButton;
 		
 		TranslationEditor *textEdit;

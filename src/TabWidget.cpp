@@ -29,6 +29,9 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	setUpdateTranslationInterval(updateTranslationInterval);
 	connect(timer,SIGNAL(timeout()),this,SLOT(updateTranslation()));
 	
+	notifLabel = new QLabel(tr("This word wasn't found in the dictionary. You can add it(by Ctrl+Enter), but firstly enter a translation."));
+	notifLabel->hide();
+	
 	textEdit = new TranslationEditor;
 	connect(textEdit,SIGNAL(showFindPanel()),this,SLOT(showSearchingPanel()));
 	
@@ -94,6 +97,7 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	connect(textEdit,SIGNAL(setDefaultPalette()),findInTranslationPanel,SLOT(setDefaultPalette()));
 	
 	QVBoxLayout *toolButtonsLayout = new QVBoxLayout;
+	toolButtonsLayout->addWidget(updateTranslationButton);
 	toolButtonsLayout->addWidget(addWordToolButton);
 	toolButtonsLayout->addWidget(editWordToolButton);
 	toolButtonsLayout->addWidget(removeWordToolButton);
@@ -104,16 +108,18 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	lineEditLayout->addWidget(new QLabel(tr("Word") + ": "));
 	lineEditLayout->addWidget(lineEdit,1);
 	lineEditLayout->addWidget(clearLineEditButton);
-	lineEditLayout->addWidget(updateTranslationButton);
 	
-	QHBoxLayout *textEditLayout = new QHBoxLayout;
-	textEditLayout->addWidget(textEdit,1);
-	textEditLayout->addLayout(toolButtonsLayout);
-	textEditLayout->setContentsMargins(0,0,0,0);
+	QVBoxLayout *verticalLayout = new QVBoxLayout;
+	verticalLayout->addLayout(lineEditLayout);
+	verticalLayout->addWidget(notifLabel);
+	verticalLayout->addWidget(textEdit);
+	
+	QHBoxLayout *horizontalLayout = new QHBoxLayout;
+	horizontalLayout->addLayout(verticalLayout);
+	horizontalLayout->addLayout(toolButtonsLayout);
 	
 	QVBoxLayout *mainLayout = new QVBoxLayout;
-	mainLayout->addLayout(lineEditLayout);
-	mainLayout->addLayout(textEditLayout);
+	mainLayout->addLayout(horizontalLayout);
 	mainLayout->addWidget(findInTranslationPanel);
 	mainLayout->setContentsMargins(3,3,3,3);
 	setLayout(mainLayout);
@@ -133,6 +139,7 @@ TabWidget::~TabWidget() {
 	delete removeWordToolButton;
 	delete textEdit;
 	delete lineEdit;
+	delete notifLabel;
 	delete clearLineEditButton;
 }
 
@@ -153,6 +160,7 @@ void TabWidget::textChanged(const QString&) {
 
 void TabWidget::updateTranslation() {
 	timer->stop();
+	notifLabel->hide();
 	if (!lineEdit->text().isEmpty()) {
 		QString translation = databaseCenter->getTranslationForWord(lineEdit->text().toLower());
 		bool wasFocus = textEdit->hasFocus();
@@ -162,8 +170,10 @@ void TabWidget::updateTranslation() {
 			translation.replace("\\}","\n\\}");
 			textEdit->setText(translation);
 		}
-		else
+		else {
 			textEdit->clear();
+			notifLabel->show();
+		}
 		if (wasFocus)
 			textEdit->setFocus();
 	} else
