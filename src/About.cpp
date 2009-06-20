@@ -37,7 +37,6 @@ About::About(QWidget *parent) : QDialog(parent) {
 	
 	setLayout(mainLayout);
 	setFixedSize(sizeHint());
-	setStyleSheet("QDialog { background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 white, stop: 0.5 #c8e4ef, stop: 1 white); }");
 }
 
 About::~About() {
