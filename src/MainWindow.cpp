@@ -320,7 +320,7 @@ void MainWindow::createActions() {
 	findAction = new QAction(this);
 	findAction->setText(tr("Find in translation..."));
 	findAction->setIcon(QIcon(":/icons/find_in_text.png"));
-	findAction->setShortcut(QKeySequence("/"));
+	findAction->setShortcut(QKeySequence("Ctrl+/"));
 	connect(findAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(showFindWidgetInCurrentTab()));
 
 	previewAction = new QAction(this);
@@ -570,6 +570,8 @@ void MainWindow::removeDatabaseWithName(const QString& dbName) {
 }
 
 void MainWindow::openDatabaseWithName(const QString& databaseName,bool addToRecentOpenedDicts) {
+	if (databaseName == openedDictionaryName)
+		return;
 	if (addToRecentOpenedDicts) {
 		recentOpenedDictionaries << databaseName;
 		updateRecentDictsMenu();

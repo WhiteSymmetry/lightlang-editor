@@ -49,11 +49,8 @@ void TranslationEditor::findExpression(const QString& expression,bool backwardFl
 
 void TranslationEditor::findFirst(const QString& expression) {
 	QTextCursor myCursor, tempCursor;
-	if (expression.isEmpty()) {
-		myCursor = textCursor();
-		tempCursor = myCursor;
-	} else
-		myCursor = textCursor();
+	myCursor = textCursor();
+	tempCursor = myCursor;
 	
 	myCursor.setPosition(myCursor.selectionStart(), QTextCursor::MoveAnchor);
 	setTextCursor(myCursor);
@@ -64,7 +61,6 @@ void TranslationEditor::findFirst(const QString& expression) {
 		myCursor = document()->find(expression,false);
 		if (myCursor.isNull()) {
 			emit (setRedPalette());
-			tempCursor.setPosition(tempCursor.selectionStart(),QTextCursor::MoveAnchor);
 			setTextCursor(tempCursor);
 		} else {
 			emit (setGreenPalette());
@@ -80,11 +76,4 @@ void TranslationEditor::findFirst(const QString& expression) {
 		emit (setGreenPalette());
 		findExpression(expression);
 	}
-}
-
-void TranslationEditor::keyPressEvent(QKeyEvent *keyEvent) {
-	if (keyEvent->key() == Qt::Key_Slash)
-		emit(showFindPanel());
-	else
-		QTextEdit::keyPressEvent(keyEvent);
 }

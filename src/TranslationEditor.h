@@ -30,7 +30,6 @@ class TranslationEditor : public QTextEdit
 		void findExpression(const QString& expression,bool backwardFlag = false);
 	protected:
 		void contextMenuEvent(QContextMenuEvent *event);
-		void keyPressEvent(QKeyEvent *keyEvent);
 };
 
 
