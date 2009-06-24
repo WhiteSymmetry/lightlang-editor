@@ -29,7 +29,7 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	setUpdateTranslationInterval(updateTranslationInterval);
 	connect(timer,SIGNAL(timeout()),this,SLOT(updateTranslation()));
 	
-	notifLabel = new QLabel(tr("This word wasn't found in the dictionary. You can add it(by Ctrl+Enter), but firstly enter a translation."));
+	notifLabel = new QLabel(tr("This word wasn't found in the dictionary. You can add it(by Ctrl+Enter)"));
 	notifLabel->hide();
 	
 	textEdit = new TranslationEditor;
@@ -66,6 +66,15 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	removeWordToolButton->setToolTip(tr("Remove the phrase from dictionary database. Shortcut: Ctrl+Delete"));
 	connect(removeWordToolButton,SIGNAL(clicked()),this,SLOT(removeWord()));
 	
+	markButton = new QToolButton;
+	markButton->setIcon(QIcon(":/icons/mark.png"));
+	markButton->setCheckable(true);
+	markButton->setAutoRaise(true);
+	markButton->setShortcut(QKeySequence("Ctrl+M"));
+	markButton->setIconSize(QSize(16,16));
+	markButton->setToolTip(tr("Check it to mark this translation"));
+	connect(markButton,SIGNAL(toggled(bool)),this,SLOT(markWord(bool)));
+	
 	updateTranslationButton = new QToolButton;
 	updateTranslationButton->setIcon(QIcon(":/icons/update.png"));
 	updateTranslationButton->setShortcut(QKeySequence("Enter"));
@@ -78,6 +87,7 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	addWordToolButton->setEnabled(false);
 	editWordToolButton->setEnabled(false);
 	removeWordToolButton->setEnabled(false);
+	markButton->setEnabled(false);
 	
 	connect(textEdit,SIGNAL(textChanged()),this,SLOT(translationChanged()));
 	
@@ -101,6 +111,8 @@ TabWidget::TabWidget(QString firstWord,DatabaseCenter *dbCenter,int index,int up
 	toolButtonsLayout->addWidget(addWordToolButton);
 	toolButtonsLayout->addWidget(editWordToolButton);
 	toolButtonsLayout->addWidget(removeWordToolButton);
+	toolButtonsLayout->addWidget(new QLabel("<hr>"));
+	toolButtonsLayout->addWidget(markButton);
 	toolButtonsLayout->addStretch();
 	toolButtonsLayout->setContentsMargins(0,0,0,0);
 	
@@ -141,6 +153,7 @@ TabWidget::~TabWidget() {
 	delete lineEdit;
 	delete notifLabel;
 	delete clearLineEditButton;
+	delete markButton;
 }
 
 void TabWidget::setHtml(const QString& htmlText) {
@@ -160,7 +173,6 @@ void TabWidget::textChanged(const QString&) {
 
 void TabWidget::updateTranslation() {
 	timer->stop();
-	notifLabel->hide();
 	if (!lineEdit->text().isEmpty()) {
 		QString translation = databaseCenter->getTranslationForWord(lineEdit->text().toLower());
 		bool wasFocus = textEdit->hasFocus();
@@ -170,10 +182,8 @@ void TabWidget::updateTranslation() {
 			translation.replace("\\}","\n\\}");
 			textEdit->setText(translation);
 		}
-		else {
+		else
 			textEdit->clear();
-			notifLabel->show();
-		}
 		if (wasFocus)
 			textEdit->setFocus();
 	} else
@@ -182,31 +192,38 @@ void TabWidget::updateTranslation() {
 }
 
 void TabWidget::resetButtonsAccessibility() {
+	markButton->blockSignals(true);
+	markButton->setChecked(false);
 	if (!lineEdit->text().isEmpty()) {
-		bool translationIsEmpty = databaseCenter->getTranslationForWord(lineEdit->text().toLower()).isEmpty();
-		addWordToolButton->setEnabled(translationIsEmpty);
-		editWordToolButton->setEnabled(!translationIsEmpty);
-		removeWordToolButton->setEnabled(!translationIsEmpty);
+		bool wordInDatabase = databaseCenter->isThereWordInDatabase(lineEdit->text().toLower());
+		addWordToolButton->setEnabled(!wordInDatabase);
+		editWordToolButton->setEnabled(wordInDatabase);
+		removeWordToolButton->setEnabled(wordInDatabase);
+		notifLabel->setVisible(!wordInDatabase);
+		markButton->setEnabled(wordInDatabase);
+		if (wordInDatabase)
+			markButton->setChecked(databaseCenter->isWordMarked(lineEdit->text().toLower()));
 		updateTranslationButton->setEnabled(true);
 	} else {
 		addWordToolButton->setEnabled(false);
 		editWordToolButton->setEnabled(false);
 		removeWordToolButton->setEnabled(false);
 		updateTranslationButton->setEnabled(false);
+		markButton->setEnabled(false);
+		notifLabel->hide();
 	}
+	markButton->blockSignals(false);
 }
 
 void TabWidget::addWord() {
 	QString word = lineEdit->text().toLower();
 	QString translation = textEdit->toPlainText().trimmed();
-	if (!translation.isEmpty()) {
-		if (databaseCenter->addNewWord(word,translation))
-			emit(showStatusMessage(tr("You have added the new word \"%1\"").arg(word)));
-		else
-			emit(showStatusMessage(tr("Cannot add the new word \"%1\"").arg(word)));
-		resetButtonsAccessibility();
+	if (databaseCenter->addNewWord(word,translation)) {
+		emit(showStatusMessage(tr("You have added the new word \"%1\"").arg(word)));
+		notifLabel->hide();
 	} else
-		textEdit->setFocus();
+		emit(showStatusMessage(tr("Cannot add the new word \"%1\"").arg(word)));
+	resetButtonsAccessibility();
 }
 
 void TabWidget::editWord() {
@@ -226,6 +243,20 @@ void TabWidget::removeWord() {
 	else
 		emit(showStatusMessage(tr("Cannot remove the word \"%1\"").arg(lineEdit->text())));
 	resetButtonsAccessibility();
+}
+
+void TabWidget::markWord(bool mark) {
+	if (mark) {
+		if (databaseCenter->markWord(lineEdit->text().toLower(),mark))
+			emit(showStatusMessage(tr("The word \"%1\" was marked").arg(lineEdit->text())));
+		else
+			emit(showStatusMessage(tr("Cannot mark the word \"%1\"").arg(lineEdit->text())));
+	} else {
+		if (databaseCenter->markWord(lineEdit->text().toLower(),mark))
+			emit(showStatusMessage(tr("The word \"%1\" was unmarked").arg(lineEdit->text())));
+		else
+			emit(showStatusMessage(tr("Cannot unmark the word \"%1\"").arg(lineEdit->text())));
+	}
 }
 
 void TabWidget::setFocusAtThisTab() {

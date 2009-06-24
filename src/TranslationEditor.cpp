@@ -69,9 +69,8 @@ void TranslationEditor::findFirst(const QString& expression) {
 			findExpression(expression);
 		}
 	} else if (myCursor.isNull()) {
-		tempCursor = myCursor;
-		setTextCursor(myCursor);
 		emit(setDefaultPalette());
+		setTextCursor(tempCursor);
 	} else {
 		emit (setGreenPalette());
 		findExpression(expression);

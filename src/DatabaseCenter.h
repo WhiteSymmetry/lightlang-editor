@@ -29,11 +29,14 @@ class DatabaseCenter : public QObject
 		int saveCurrentDatabaseAs(const QString& dictPath,const QString& aboutDictionaryText);
 	
 		QStringList getWordsStartsWith(const QString& preString,int limit = 50);
+		QStringList getAllMarkedWords();
 		
 		QString getTranslationForWord(const QString& word);
+		bool isWordMarked(const QString& word);
 		bool setTranslationForWord(const QString& word,const QString& translation);
 		bool addNewWord(const QString& word,const QString& translation);
 		bool removeWord(const QString& word);
+		bool markWord(const QString& word, bool mark);
 		QList<WordWithTrans> getAllWordsWithTranses();
 	
 		QString getCurrentDatabaseName() const;

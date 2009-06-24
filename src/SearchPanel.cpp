@@ -6,6 +6,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QSpinBox>
+#include <QtGui/QCheckBox>
 #include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include "DatabaseCenter.h"
@@ -63,6 +64,9 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	connect(lineEdit,SIGNAL(returnPressed()),searchButton,SLOT(animateClick()));
 	searchButton->setFocusPolicy(Qt::ClickFocus);
 	
+	showMarkedWordsCheckBox = new QCheckBox(tr("Show all marked words"));
+	connect(showMarkedWordsCheckBox,SIGNAL(toggled(bool)),this,SLOT(showAllMarkedWords(bool)));
+	
 	popupWindow = new PopupWindow;
 	
 	infoButton = new InfoButton(popupWindow);
@@ -92,6 +96,7 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(titleLayout);
 	mainLayout->addLayout(lineEditLayout);
+	mainLayout->addWidget(showMarkedWordsCheckBox);
 	mainLayout->addWidget(warningLabel);
 	mainLayout->addWidget(listWidget,1);
 	mainLayout->addLayout(bottomLayout);
@@ -103,6 +108,7 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 }
 
 SearchPanel::~SearchPanel() {
+	delete showMarkedWordsCheckBox;
 	delete clearLineButton;
 	delete searchButton;
 	delete popupWindow;
@@ -163,10 +169,12 @@ void SearchPanel::keyPressEvent(QKeyEvent *event) {
 }
 
 void SearchPanel::search() {
-	listWidget->clear();
-	foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
-		listWidget->addItem(word);
-	warningLabel->setVisible(listWidget->count() == 0);
+	if (!lineEdit->text().isEmpty()) {
+		listWidget->clear();
+		foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
+			listWidget->addItem(word);
+		warningLabel->setVisible(listWidget->count() == 0);
+	}
 }
 
 void SearchPanel::textChanged(const QString& text) {
@@ -189,3 +197,24 @@ void SearchPanel::emitSignalToEditTheWord(QListWidgetItem *item) {
 void SearchPanel::setFocusAtLineEdit() {
 	lineEdit->setFocus();
 }
+
+void SearchPanel::showAllMarkedWords(bool show) {
+	listWidget->clear();
+	limitSpinBox->setEnabled(!show);
+	lineEdit->setEnabled(!show);
+	searchButton->setEnabled(!show);
+	clearLineButton->setEnabled(!show);
+	if (show) {
+		foreach (QString word,databaseCenter->getAllMarkedWords()) {
+			QListWidgetItem *markedItem = new QListWidgetItem(QIcon(":/icons/mark.png"),word);
+			listWidget->addItem(markedItem);
+		}
+		warningLabel->setText("<i>" + tr("There aren't marked words") + "</i>");
+		warningLabel->setVisible(listWidget->count() == 0);
+	} else {
+		warningLabel->setText("<i>" + tr("The word wasn't found") + "</i>");
+		textChanged(lineEdit->text());
+		search();
+	}
+}
+

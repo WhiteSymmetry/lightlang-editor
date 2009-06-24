@@ -50,6 +50,7 @@ class TabWidget : public QWidget
 		void addWord();
 		void editWord();
 		void removeWord();
+		void markWord(bool mark);
 		void translationChanged();
 	private:
 		void resetButtonsAccessibility();
@@ -68,6 +69,7 @@ class TabWidget : public QWidget
 		QLineEdit *lineEdit;
 		QLabel *notifLabel;
 		QToolButton *clearLineEditButton;
+		QToolButton *markButton;
 		
 		TranslationEditor *textEdit;
 	

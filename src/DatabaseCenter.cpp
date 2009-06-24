@@ -51,7 +51,7 @@ bool DatabaseCenter::setDatabaseName(const QString& databaseName) {
 	currentConnectionName = databaseName;
 	
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec("CREATE TABLE IF NOT EXISTS main(`word` TEXT NOT NULL,`translation` TEXT NOT NULL,`status` INTEGER(1) NOT NULL, UNIQUE (`word`))");
+	query.exec("CREATE TABLE IF NOT EXISTS main(`word` TEXT NOT NULL,`translation` TEXT NOT NULL,`mark` INTEGER(1) NOT NULL, UNIQUE (`word`))");
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Cannot create table, because: " << query.lastError().text();
 	emit (databaseNameChanged(databaseName));
@@ -80,10 +80,10 @@ bool DatabaseCenter::setTranslationForWord(const QString& word,const QString& tr
 bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
 	
-	query.prepare("INSERT INTO main(word,translation,status) VALUES(:word,:translation,:status)");
+	query.prepare("INSERT INTO main(word,translation,mark) VALUES(:word,:translation,:mark)");
 	query.bindValue(":word",word.simplified().toLower());
 	query.bindValue(":translation",translation.simplified());
-	query.bindValue(":status","0");
+	query.bindValue(":mark","0");
 	query.exec();
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Add new word" << word << " with error:" << query.lastError().text();
@@ -98,6 +98,17 @@ bool DatabaseCenter::removeWord(const QString& word) {
 	return query.isActive();
 }
 
+bool DatabaseCenter::markWord(const QString& word,bool mark) {
+	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
+	if (mark)
+		query.exec(QString("UPDATE `main` SET `mark` = '1'  WHERE `word` = \"%1\"").arg(word.toLower()));
+	else
+		query.exec(QString("UPDATE `main` SET `mark` = '0'  WHERE `word` = \"%1\"").arg(word.toLower()));
+	if (!query.isActive())
+		qDebug() << "[DatabaseCenter] Word" << word << " marked with error:" << query.lastError().text();
+	return query.isActive();
+}
+
 QList<WordWithTrans> DatabaseCenter::getAllWordsWithTranses() {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
 	query.exec("SELECT * FROM `main`");
@@ -109,7 +120,8 @@ QList<WordWithTrans> DatabaseCenter::getAllWordsWithTranses() {
 
 bool DatabaseCenter::isThereWordInDatabase(const QString& word) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("SELECT `status` FROM main WHERE word=\'%1\'").arg(word));
+	query.exec(QString("SELECT mark FROM main WHERE word=\'%1\'").arg(word));
+	query.next();
 	return !query.isNull(0);
 }
 
@@ -122,6 +134,13 @@ void DatabaseCenter::removeDatabaseWithName(const QString& databaseName) {
 
 bool DatabaseCenter::doesDictionaryExist(const QString& pathToDict) {
 	return QDir(databasesPath).exists(QFileInfo(pathToDict).fileName());
+}
+
+bool DatabaseCenter::isWordMarked(const QString& word) {
+	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
+	query.exec(QString("SELECT mark FROM main WHERE word=\'%1\'").arg(word.toLower()));
+	query.next();
+	return query.record().value(0).toBool();
 }
 
 QString DatabaseCenter::getCurrentDatabaseName() const {
@@ -148,11 +167,22 @@ int DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const QS
 
 QStringList DatabaseCenter::getWordsStartsWith(const QString& preString,int limit) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("SELECT * FROM main WHERE word LIKE \'%1%\' LIMIT 0,%2").arg(preString).arg(limit));
+	query.exec(QString("SELECT word FROM main WHERE word LIKE \'%1%\' LIMIT 0,%2").arg(preString).arg(limit));
 	QStringList list;
 	while (query.next())
 		list << query.record().value(0).toString();
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Get all words starts with" << preString << "with error" << query.lastError().text();
+	return list;
+}
+
+QStringList DatabaseCenter::getAllMarkedWords() {
+	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
+	query.exec(QString("SELECT word FROM main WHERE mark=1"));
+	QStringList list;
+	while (query.next())
+		list << query.record().value(0).toString();
+	if (!query.isActive())
+		qDebug() << "[DatabaseCenter] Get all marked words with error" << query.lastError().text();
 	return list;
 }

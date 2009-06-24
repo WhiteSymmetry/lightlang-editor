@@ -55,8 +55,8 @@ CentralWidget::CentralWidget(QWidget *mainWindowCommunicater) {
 	closeOrNoIfLoadingDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));
 	closeOrNoIfLoadingDialog->setWindowTitle(tr("Notification"));
 	closeOrNoIfLoadingDialog->setText("<b>" + tr("Dictionary is loading...") + "</b><br>" + tr("If you close LightLang Editor, dictionary loading will be canceled."));
-	continueIfLoadingButton = closeOrNoIfLoadingDialog->addButton(tr("Continue"),QMessageBox::ActionRole);
-	closeIfLoadingButton = closeOrNoIfLoadingDialog->addButton(tr("Close"),QMessageBox::ActionRole);
+	continueIfLoadingButton = closeOrNoIfLoadingDialog->addButton(tr("Don't quit"),QMessageBox::ActionRole);
+	closeIfLoadingButton = closeOrNoIfLoadingDialog->addButton(tr("Quit"),QMessageBox::ActionRole);
 	
 	continueOrRestartLoadingDialog = new QMessageBox(mainWindowCommunicater);
 	continueOrRestartLoadingDialog->setIconPixmap(QIcon(":/icons/lle.png").pixmap(64,64));

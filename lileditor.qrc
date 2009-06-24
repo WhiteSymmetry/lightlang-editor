@@ -22,7 +22,6 @@
         <file>icons/cancel.png</file>
         <file>icons/backward.png</file>
         <file>icons/forward.png</file>
-        <file>icons/plugins_manager.png</file>
         <file>icons/down.png</file>
         <file>icons/up.png</file>
         <file>icons/left.png</file>
@@ -49,5 +48,6 @@
         <file>icons/sound.png</file>
 		<file>icons/xsl.png</file>
 		<file>icons/edit_dict.png</file>
+		<file>icons/mark.png</file>
     </qresource>
 </RCC>

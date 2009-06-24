@@ -602,6 +602,8 @@ void MainWindow::disableEditionActions(bool isDisabled) {
 	previewAction->setEnabled(!isDisabled);
 	addToSlAction->setEnabled(!isDisabled);
 	editDictInformationAction->setEnabled(!isDisabled);
+	
+	openedDictionaryName.clear();
 }
 
 void MainWindow::openDictionaryOfAction(QAction *chosenAction) {

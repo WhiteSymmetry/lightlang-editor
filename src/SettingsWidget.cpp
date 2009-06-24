@@ -26,7 +26,7 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	
 	useHighlightingCheckBox = new QCheckBox(tr("Highlight translation"));
 	
-	useStatusesCheckBox = new QCheckBox(tr("Use statuses"));
+// 	useStatusesCheckBox = new QCheckBox(tr("Use marks"));
 	
 	showSideButtonCheckBox = new QCheckBox(tr("Show side bar"));
 	
@@ -39,11 +39,11 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	useHighlightingInfoButton = new InfoButton(popupWindow);
 	useHighlightingInfoButton->setPopupHeaderText(tr("Use highlighting"));
 	useHighlightingInfoButton->setPopupText(tr("LightLang Editor try to highlight translation to concentrate you attention on SL tags, but you can disable it."));
-	
+	/*
 	useStatusesInfoButton = new InfoButton(popupWindow);
-	useStatusesInfoButton->setPopupHeaderText(tr("Statuses usage"));
-	useStatusesInfoButton->setPopupText(tr("Use words statuses. If you don't finish to translate some word, you can mark it as \"Unfinished\" and return to translation of this word later. Of course, you can do it without this function, but searching of unfinished words will be easier with statuses usage."));
-	
+	useStatusesInfoButton->setPopupHeaderText(tr("Marks usage"));
+	useStatusesInfoButton->setPopupText(tr("It's very difficult to remember all unfinished translations, that's why we decided to include function \"marks\". You can mark different translations and return to them with special search panel function \"Show all marked words\"."));
+	*/
 	showSideButtonInfoButton = new InfoButton(popupWindow);
 	showSideButtonInfoButton->setPopupHeaderText(tr("Side bar"));
 	showSideButtonInfoButton->setPopupText(tr("This bar is situated at right side of the program when you edit any dictionary. If click on it, you will able to see dictionary searching."));
@@ -60,12 +60,12 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 	mainLayout->addLayout(updateTranslationLayout,3,1);
 	mainLayout->addWidget(useHighlightingInfoButton,4,0);
 	mainLayout->addWidget(useHighlightingCheckBox,4,1);
-	mainLayout->addWidget(useStatusesInfoButton,5,0);
-	mainLayout->addWidget(useStatusesCheckBox,5,1);
-	mainLayout->addWidget(showSideButtonInfoButton,6,0);
-	mainLayout->addWidget(showSideButtonCheckBox,6,1);
+// 	mainLayout->addWidget(useStatusesInfoButton,5,0);
+// 	mainLayout->addWidget(useStatusesCheckBox,5,1);
+	mainLayout->addWidget(showSideButtonInfoButton,5,0);
+	mainLayout->addWidget(showSideButtonCheckBox,5,1);
 	mainLayout->setColumnStretch(1,1);
-	mainLayout->setRowStretch(7,1);
+	mainLayout->setRowStretch(6,1);
 	
 	setLayout(mainLayout);
 	setWindowTitle(tr("Your preferences"));
@@ -75,14 +75,14 @@ SettingsWidget::SettingsWidget(QWidget *parent) : QDialog(parent) {
 SettingsWidget::~SettingsWidget() {
 	delete updateTranslationInfoButton;
 	delete useHighlightingInfoButton;
-	delete useStatusesInfoButton;
+// 	delete useStatusesInfoButton;
 	delete showSideButtonInfoButton;
 	delete popupWindow;
 	delete headerLabel;
 	delete introductionLabel;
 	delete updateTranslationTimeSpinBox;
 	delete useHighlightingCheckBox;
-	delete useStatusesCheckBox;
+// 	delete useStatusesCheckBox;
 	delete showSideButtonCheckBox;
 }
 
@@ -91,7 +91,7 @@ void SettingsWidget::saveSettings() {
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
 	settings.setValue("GeneralSettings/TranslationRenovation",updateTranslationTimeSpinBox->value());
 	settings.setValue("GeneralSettings/UseHighlighting",useHighlightingCheckBox->isChecked());
-	settings.setValue("GeneralSettings/UseStatuses",useStatusesCheckBox->isChecked());
+// 	settings.setValue("GeneralSettings/UseStatuses",useStatusesCheckBox->isChecked());
 	settings.setValue("GeneralSettings/ShowSideBar",showSideButtonCheckBox->isChecked());
 	emit (updateSettings());
 }
@@ -101,12 +101,12 @@ void SettingsWidget::loadSettings() {
 	
 	updateTranslationTimeSpinBox->setValue(settings.value("GeneralSettings/TranslationRenovation",0.8).toDouble());
 	useHighlightingCheckBox->setChecked(settings.value("GeneralSettings/UseHighlighting",true).toBool());
-	useStatusesCheckBox->setChecked(settings.value("GeneralSettings/UseStatuses",false).toBool());
+// 	useStatusesCheckBox->setChecked(settings.value("GeneralSettings/UseStatuses",false).toBool());
 	showSideButtonCheckBox->setChecked(settings.value("GeneralSettings/ShowSideBar",true).toBool());
 	
 	connect(updateTranslationTimeSpinBox,SIGNAL(valueChanged(double)),this,SLOT(saveSettings()));
 	connect(useHighlightingCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
-	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
+// 	connect(useStatusesCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	connect(showSideButtonCheckBox,SIGNAL(clicked()),this,SLOT(saveSettings()));
 	
 	emit (updateSettings());
@@ -115,10 +115,10 @@ void SettingsWidget::loadSettings() {
 int SettingsWidget::translationRenovation() const {
 	return int(updateTranslationTimeSpinBox->value()*1000);
 }
-
+/*
 bool SettingsWidget::useStatuses() const {
 	return useStatusesCheckBox->isChecked();
-}
+}*/
 
 bool SettingsWidget::useHighlighting() const {
 	return useHighlightingCheckBox->isChecked();
