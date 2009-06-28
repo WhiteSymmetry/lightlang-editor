@@ -8,7 +8,6 @@ PACKAGE_VERSION="1.0.0"
 
 echo "!---------------------------------------------------------!"
 echo "!       Thank you for LightLang Editor installation       !"
-echo "!              Mounting in Linux is easy!                 !"
 echo "!---------------------------------------------------------!"
 
 prefix="/usr"
@@ -259,7 +258,7 @@ SOURCES += src/main.cpp \
 	
 RESOURCES += lileditor.qrc
 
-QMAKE_CLEAN += Makefile $$TARGET
+QMAKE_CLEAN += Makefile $$TARGET configure.log lileditor.pro src/const.h Qt4Test/configure.log
 
 unix {
 		LIGHTLANG_PREFIX = $$system(pkg-config lightlang --variable=prefix)
