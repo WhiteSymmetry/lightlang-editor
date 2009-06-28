@@ -1,0 +1,306 @@
+#! /bin/bash
+# LightLang Editor - the SL dictionaries editor
+# Copyright(C) 2007-2009 Tikhonov Sergey
+# configure script
+
+PACKAGE_NAME="LightLang Editor"
+PACKAGE_VERSION="1.0.0"
+
+echo "!---------------------------------------------------------!"
+echo "!       Thank you for LightLang Editor installation       !"
+echo "!              Mounting in Linux is easy!                 !"
+echo "!---------------------------------------------------------!"
+
+prefix="/usr"
+qt4_test_dir="Qt4Test/"
+
+usage() {
+	echo ""
+	echo "  Usage: ./configure [options]"
+	echo ""
+	echo "  Available options:"
+	echo "   --help                      Print this message"
+	echo "   --clean                     Clean results of configuring and quit"
+	echo "   --prefix=<prefix>           Set prefix (default: /usr)"
+	echo ""
+}
+
+clean_all() {
+	rm -f src/const.h lileditor.pro Makefile
+ 	rm -f build/*
+}
+
+############################################################
+#	Read parameters
+############################################################
+
+for arg in ${@}; do
+	case ${arg} in
+	
+	--help)
+		usage
+		exit 0
+		;;
+
+	--clean)
+		clean_all
+		rm -f configure.log
+		exit 0
+		;;
+	
+	--prefix=*)
+		arg_prefix=${arg:9}
+		;;
+	*)
+		echo "Unrecognized option: ${arg}"
+		usage
+		exit 1
+		;;
+
+	esac
+
+done
+
+clean_all
+rm -f configure.log
+
+if [ -n "${arg_prefix}" ]; then
+	prefix="${arg_prefix}"
+fi
+
+lightlang_prefix=`pkg-config lightlang --variable=prefix`
+
+
+############################################################
+#	Check for commands
+############################################################
+
+#	g++
+echo -n "checking for g++... "
+if [ -n "${gpp_cmd}" ]; then
+	gpp_cmd=`which ${gpp_cmd}`
+else
+	gpp_cmd=`which g++`
+fi
+if [ -n "${gpp_cmd}" ]; then
+	echo "${gpp_cmd}"
+else
+	echo "no"
+	exit 1
+fi
+
+#	make
+echo -n "checking for make... "
+if [ -n "${make_cmd}" ]; then
+	make_cmd=`which ${make_cmd}`
+else
+	make_cmd=`which make`
+	if [ -z "${make_cmd}" ]; then
+		make_cmd=`which gmake`
+	fi
+fi
+if [ -n "${make_cmd}" ]; then
+	echo "${make_cmd}"
+else
+	echo "no"
+	exit 1
+fi
+
+#	qmake
+echo -n "checking for qmake... "
+if [ -n "${arg_qmake_cmd}" ]; then
+	qmake_cmd=`which ${arg_qmake_cmd}`
+else
+	qmake_cmd=`which qmake-qt4`
+	if [ -z "${qmake_cmd}" ]; then
+		qmake_cmd=`which qmake`
+	fi
+fi
+if [ -n "${qmake_cmd}" ]; then
+	echo "${qmake_cmd}"
+else
+	echo "no"
+	exit 1
+fi
+
+#	lrelease
+echo -n "checking for lrelease... "
+if [ -n "${arg_lrelease_cmd}" ]; then
+	lrelease_cmd=`which ${arg_lrelease_cmd}`
+else
+	lrelease_cmd=`which lrelease-qt4`
+	if [ -z "${lrelease_cmd}" ]; then
+		lrelease_cmd=`which lrelease`
+	fi
+fi
+if [ -n "${lrelease_cmd}" ]; then
+	echo "${lrelease_cmd}"
+else
+	echo "no"
+	exit 1
+fi
+
+#	chmod
+echo -n "checking for chmod... "
+chmod_cmd=`which chmod`
+if [ -n "${chmod_cmd}" ]; then
+	echo "${chmod_cmd}"
+else
+	echo "no"
+	exit 1
+fi
+
+
+#============Check Qt4 libraries============#
+
+echo -n "checking for Qt4 libraries... "
+
+cd ${qt4_test_dir}
+${qmake_cmd} 2> configure.log
+${make_cmd} 1> /dev/null 2>> configure.log
+
+test_output=`cat configure.log`
+${make_cmd} clean > /dev/null
+rm -f Makefile
+rm -f qt4test
+cd ../
+
+if [ -z "${test_output}" ]; then
+	echo "passed."
+else
+	echo "failed."
+	echo "Please, install Qt4 libraries(Modules: QtCore, QtGui, QtSql)"
+	exit 1
+fi
+
+############################################################
+#	const.h
+############################################################
+
+echo '#ifndef CONST_H
+#define CONST_H
+
+#define ORGANIZATION "Vialinx"
+#define PROGRAM_NAME "LightLang Editor"
+#define LIGHTLANG_PREFIX "'${lightlang_prefix}'"
+
+#endif
+' > src/const.h
+
+
+
+############################################################
+#	Project file
+############################################################
+
+echo 'TEMPLATE = app
+TARGET = lileditor
+CONFIG += release
+DEPENDPATH += . src
+INCLUDEPATH += . src
+
+QT += sql
+
+OBJECTS_DIR = build
+MOC_DIR = build
+
+# Input
+HEADERS += src/const.h \
+	src/MainWindow.h \
+	src/TabsWidget.h \
+	src/TabWidget.h \
+	src/TranslationEditor.h \
+	src/HighLighter.h \
+	src/NewDictWidget.h \
+	src/DatabaseCenter.h \
+	src/Manual.h \
+	src/About.h \
+	src/Menu.h \
+	src/TreeWidget.h \
+	src/DictionariesManager.h \
+	src/LoadDictionaryWidget.h \
+	src/CentralWidget.h \
+	src/BrowserWithWidgets.h \
+	src/BorderPanelWithWidget.h \
+	src/LoadDictionaryThread.h \
+	src/ProgressBarWithWidgets.h \
+	src/SettingsWidget.h \
+	src/InfoButton.h \
+	src/PopupWindow.h \
+	src/StatusBarLabel.h \
+	src/FindInTranslationPanel.h \
+	src/SearchPanel.h
+	
+SOURCES += src/main.cpp \
+	src/MainWindow.cpp \
+	src/TabsWidget.cpp \
+	src/TabWidget.cpp \
+	src/TranslationEditor.cpp \
+	src/HighLighter.cpp \
+	src/NewDictWidget.cpp \
+	src/DatabaseCenter.cpp \
+	src/Manual.cpp \
+	src/About.cpp \
+	src/Menu.cpp \
+	src/TreeWidget.cpp \
+	src/DictionariesManager.cpp \
+	src/LoadDictionaryWidget.cpp \
+	src/CentralWidget.cpp \
+	src/BrowserWithWidgets.cpp \
+	src/BorderPanelWithWidget.cpp \
+	src/LoadDictionaryThread.cpp \
+	src/ProgressBarWithWidgets.cpp \
+	src/SettingsWidget.cpp \
+	src/InfoButton.cpp \
+	src/PopupWindow.cpp \
+	src/StatusBarLabel.cpp \
+	src/FindInTranslationPanel.cpp \
+	src/SearchPanel.cpp
+	
+RESOURCES += lileditor.qrc
+
+QMAKE_CLEAN += Makefile $$TARGET
+
+unix {
+		LIGHTLANG_PREFIX = $$system(pkg-config lightlang --variable=prefix)
+		INSTALL_PREFIX=/usr
+		target.path = $$INSTALL_PREFIX/bin/
+		
+		main_icon.files += icons/lle.png
+		main_icon.path = $$INSTALL_PREFIX/share/icons/
+
+		main_desktop.files += desktop/lileditor.desktop
+		main_desktop.path = $$INSTALL_PREFIX/share/applications/
+
+		xsl_ifa.files += ifa/lle.xml
+		xsl_ifa.path = $$LIGHTLANG_PREFIX/lib/xsl/ifa/
+		
+		INSTALLS += target
+		INSTALLS += main_icon
+		INSTALLS += main_desktop
+		INSTALLS += xsl_ifa
+}
+' > lileditor.pro
+
+$qmake_cmd
+
+############################################################
+#	configure.log
+############################################################
+echo "# ${PACKAGE_NAME} was configured with the following parameters:" >> configure.log
+echo "#   --prefix=${arg_prefix}" >> configure.log
+echo "" >> configure.log
+echo "# Current file 'configure.log' is a script that can reconfigure ${PACKAGE_NAME} with last used parameters" >> configure.log
+echo "# Just type './configure.log' in your shell" >> configure.log
+echo "" >> configure.log
+echo "./configure --prefix=${arg_prefix}" >> configure.log
+chmod +x configure.log
+
+
+
+############################################################
+#	OK
+############################################################
+echo "!-------------------------------------------------!"
+echo "!   OK. Type \"make\" to compile the package.       !"
+echo "!-------------------------------------------------!"
