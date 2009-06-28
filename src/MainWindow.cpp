@@ -257,35 +257,42 @@ void MainWindow::createActions() {
 	pasteBlockAction->setText(tr("Paste indent"));       
 	pasteBlockAction->setShortcut(QKeySequence("Ctrl+R"));
 	pasteBlockAction->setIcon(QIcon(":/icons/text_block.png"));
+	connect(pasteBlockAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteIndentInCurrentTab()));
 	
 	pasteBoldAction = new QAction(this);
 	pasteBoldAction->setText(tr("Paste bold"));              
 	pasteBoldAction->setShortcut(QKeySequence("Ctrl+B"));
 	pasteBoldAction->setIcon(QIcon(":/icons/text_bold.png"));
+	connect(pasteBoldAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteBoldInCurrentTab()));
 	
 	pasteItalicAction = new QAction(this);
 	pasteItalicAction->setText(tr("Paste italic"));
 	pasteItalicAction->setIcon(QIcon(":/icons/text_italic.png"));
 	pasteItalicAction->setShortcut(QKeySequence("Ctrl+I"));
+	connect(pasteItalicAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteItalicInCurrentTab()));
 	
 	pasteUnderlineAction = new QAction(this);
 	pasteUnderlineAction->setText(tr("Paste underline"));
 	pasteUnderlineAction->setIcon(QIcon(":/icons/text_underline.png"));
 	pasteUnderlineAction->setShortcut(QKeySequence("Ctrl+U"));
+	connect(pasteUnderlineAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteUnderlineInCurrentTab()));
 	
 	pasteSpecialAction = new QAction(this);
 	pasteSpecialAction->setText(tr("Paste office word"));
 	pasteSpecialAction->setIcon(QIcon(":/icons/text_officeword.png"));
 	pasteSpecialAction->setShortcut(QKeySequence("Ctrl+D"));
+	connect(pasteSpecialAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteOfficeWordInCurrentTab()));
 	
 	pasteLinkAction = new QAction(this);
 	pasteLinkAction->setText(tr("Paste link"));
 	pasteLinkAction->setIcon(QIcon(":/icons/text_link.png"));
 	pasteLinkAction->setShortcut(QKeySequence("Ctrl+L"));
+	connect(pasteLinkAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteLinkInCurrentTab()));
 	
 	pasteSoundAction = new QAction(this);
 	pasteSoundAction->setText(tr("Paste sound"));
 	pasteSoundAction->setIcon(QIcon(":/icons/text_sound.png"));
+	connect(pasteSoundAction,SIGNAL(triggered()),centralWidget->getTabsWidget(),SLOT(pasteSoundInCurrentTab()));
 	
 	undoAction = new QAction(this);
 	undoAction->setText(tr("Undo action"));

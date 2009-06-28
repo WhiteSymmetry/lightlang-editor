@@ -41,6 +41,14 @@ class TabWidget : public QWidget
 		void cut();
 		void copy();
 		void paste();
+		
+		void pasteItalic();
+		void pasteUnderline();
+		void pasteOfficeWord();
+		void pasteBold();
+		void pasteSound();
+		void pasteIndent();
+		void pasteLink();
 	
 		void setHtml(const QString& htmlText);
 		void setReadOnly(bool readOnly);

@@ -29,6 +29,14 @@ class TabsWidget : public QTabWidget
 		void cutInCurrentTab();
 		void copyInCurrentTab();
 		void pasteInCurrentTab();
+		
+		void pasteItalicInCurrentTab();
+		void pasteUnderlineInCurrentTab();
+		void pasteOfficeWordInCurrentTab();
+		void pasteBoldInCurrentTab();
+		void pasteSoundInCurrentTab();
+		void pasteIndentInCurrentTab();
+		void pasteLinkInCurrentTab();
 	public:
 		TabsWidget(DatabaseCenter *databaseCenter,QWidget *parent = 0);
 		~TabsWidget();

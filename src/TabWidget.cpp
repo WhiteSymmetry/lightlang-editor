@@ -326,3 +326,109 @@ QString TabWidget::getTranslationAsHtml() {
 	text.replace("\\</font>","</font>");
 	return text;
 }
+
+void TabWidget::pasteBold()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\\[ \\]");	
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\\[" + selText + "\\]");
+	}
+}
+
+void TabWidget::pasteItalic()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\\( \\)");	
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\\(" + selText + "\\)");
+	}
+}
+
+void TabWidget::pasteUnderline()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\\_ \\_");	
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\\_" + selText + "\\_");
+	}
+}
+
+
+void TabWidget::pasteOfficeWord()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\\< \\>");	
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\\<" + selText + "\\>");
+	}
+}
+
+
+void TabWidget::pasteLink()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\\@ \\@");	
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\\@" + selText + "\\@");
+	}
+}
+
+
+void TabWidget::pasteIndent()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\n\\{\n \n\\}\n");	
+		for ( int i = 0; i < 5; i++ )
+			textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\n\\{\n" + selText + "\n\\}\n");
+	}
+}
+
+
+void TabWidget::pasteSound()
+{
+	if ( textEdit->textCursor().selectionEnd() == textEdit->textCursor().selectionStart() )
+	{
+		textEdit->insertPlainText("\\s : \\s");	
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+		textEdit->moveCursor(QTextCursor::Left);
+	} else
+	{	
+		QString selText = textEdit->textCursor().selectedText();
+		textEdit->insertPlainText("\\s :" + selText + "\\s");
+		for ( int i = 0; i < selText.length() + 3; i++ ) 
+			textEdit->moveCursor(QTextCursor::Left);
+	}
+}

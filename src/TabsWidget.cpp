@@ -132,6 +132,35 @@ void TabsWidget::pasteInCurrentTab() {
 	tabs[currentIndex()]->paste();
 }
 
+void TabsWidget::pasteItalicInCurrentTab() {
+	tabs[currentIndex()]->pasteItalic();
+}
+
+void TabsWidget::pasteUnderlineInCurrentTab() {
+	tabs[currentIndex()]->pasteUnderline();
+}
+
+void TabsWidget::pasteOfficeWordInCurrentTab() {
+	tabs[currentIndex()]->pasteOfficeWord();
+}
+
+void TabsWidget::pasteBoldInCurrentTab() {
+	tabs[currentIndex()]->pasteBold();
+}
+
+void TabsWidget::pasteSoundInCurrentTab() {
+	tabs[currentIndex()]->pasteSound();
+}
+
+void TabsWidget::pasteIndentInCurrentTab() {
+	tabs[currentIndex()]->pasteIndent();
+}
+
+void TabsWidget::pasteLinkInCurrentTab() {
+	tabs[currentIndex()]->pasteLink();
+}
+
+
 void TabsWidget::previewCurrentTranslation() {
 	QString previewText = tabs[currentIndex()]->getTranslationAsHtml();
 	if (!previewText.isEmpty()) {
