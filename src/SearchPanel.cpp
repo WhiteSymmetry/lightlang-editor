@@ -7,6 +7,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QSpinBox>
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
 #include <QtCore/QTimer>
 #include <QtCore/QSettings>
 #include "DatabaseCenter.h"
@@ -67,6 +68,9 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	showMarkedWordsCheckBox = new QCheckBox(tr("Show all marked words"));
 	connect(showMarkedWordsCheckBox,SIGNAL(toggled(bool)),this,SLOT(showAllMarkedWords(bool)));
 	
+	showAllWordsCheckBox = new QCheckBox(tr("all words"));
+	connect(showAllWordsCheckBox,SIGNAL(toggled(bool)),this,SLOT(updateList()));
+	
 	popupWindow = new PopupWindow;
 	
 	infoButton = new InfoButton(popupWindow);
@@ -76,7 +80,25 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	listWidget = new QListWidget;
 	connect(listWidget,SIGNAL(itemDoubleClicked(QListWidgetItem *)),this,SLOT(emitSignalToEditTheWord(QListWidgetItem*)));
 	
+	sortComboBox = new QComboBox;
+	sortComboBox->addItem(tr("Unsorted"));
+	sortComboBox->addItem(tr("Ascending"));
+	sortComboBox->addItem(tr("Descending"));
+	sortComboBox->setCurrentIndex(0);
+	connect(sortComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(updateList()));
+	
+	sortInfoButton = new InfoButton(popupWindow);
+	sortInfoButton->setPopupHeaderText(tr("Sorting"));
+	sortInfoButton->setPopupText(tr("You can sort the search results in three different ways. If you veberete way \"Unsorted\", then all the words will appear in the order in which you add them to the dictionary. Also you can sort the list in ascending and descending."));
+	
+	QHBoxLayout *sortLayout = new QHBoxLayout;
+	sortLayout->addWidget(sortInfoButton);
+	sortLayout->addWidget(new QLabel(tr("Sorting") + ":"));
+	sortLayout->addWidget(sortComboBox);
+	sortLayout->addStretch();
+	
 	QHBoxLayout *titleLayout = new QHBoxLayout;
+	titleLayout->addWidget(infoButton);
 	titleLayout->addWidget(titleLabel);
 	titleLayout->addStretch();
 	titleLayout->addWidget(closeButton);
@@ -89,9 +111,9 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	QHBoxLayout *bottomLayout = new QHBoxLayout;
 	bottomLayout->addWidget(new QLabel(tr("Show")));
 	bottomLayout->addWidget(limitSpinBox);
-	bottomLayout->addWidget(new QLabel(tr(" words")));
+	bottomLayout->addWidget(new QLabel(tr("or")));
+	bottomLayout->addWidget(showAllWordsCheckBox);
 	bottomLayout->addStretch();
-	bottomLayout->addWidget(infoButton);
 	
 	QVBoxLayout *mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(titleLayout);
@@ -99,6 +121,7 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	mainLayout->addWidget(showMarkedWordsCheckBox);
 	mainLayout->addWidget(warningLabel);
 	mainLayout->addWidget(listWidget,1);
+	mainLayout->addLayout(sortLayout);
 	mainLayout->addLayout(bottomLayout);
 	setLayout(mainLayout);
 	mainLayout->setContentsMargins(0,0,0,0);
@@ -114,6 +137,9 @@ SearchPanel::~SearchPanel() {
 	delete popupWindow;
 	delete infoButton;
 	delete limitSpinBox;
+	delete sortComboBox;
+	delete sortInfoButton;
+	delete showAllWordsCheckBox;
 	delete lineEdit;
 	delete listWidget;
 	delete closeButton;
@@ -171,9 +197,20 @@ void SearchPanel::keyPressEvent(QKeyEvent *event) {
 void SearchPanel::search() {
 	if (!lineEdit->text().isEmpty()) {
 		listWidget->clear();
-		foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
-			listWidget->addItem(word);
+		limitSpinBox->setEnabled(!showAllWordsCheckBox->isChecked());
+		if (showAllWordsCheckBox->isChecked()) {
+			foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),0))
+				listWidget->addItem(word);
+		} else {
+			foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
+				listWidget->addItem(word);
+		}
 		warningLabel->setVisible(listWidget->count() == 0);
+		
+		if (sortComboBox->currentIndex() == 1)
+			listWidget->sortItems();
+		else if (sortComboBox->currentIndex() == 2)
+			listWidget->sortItems(Qt::DescendingOrder);
 	}
 }
 
@@ -204,11 +241,18 @@ void SearchPanel::showAllMarkedWords(bool show) {
 	lineEdit->setEnabled(!show);
 	searchButton->setEnabled(!show);
 	clearLineButton->setEnabled(!show);
+	showAllWordsCheckBox->setEnabled(!show);
 	if (show) {
 		foreach (QString word,databaseCenter->getAllMarkedWords()) {
 			QListWidgetItem *markedItem = new QListWidgetItem(QIcon(":/icons/mark.png"),word);
 			listWidget->addItem(markedItem);
 		}
+		
+		if (sortComboBox->currentIndex() == 1)
+			listWidget->sortItems();
+		else if (sortComboBox->currentIndex() == 2)
+			listWidget->sortItems(Qt::DescendingOrder);
+		
 		warningLabel->setText("<i>" + tr("There aren't marked words") + "</i>");
 		warningLabel->setVisible(listWidget->count() == 0);
 	} else {
@@ -218,3 +262,6 @@ void SearchPanel::showAllMarkedWords(bool show) {
 	}
 }
 
+void SearchPanel::updateList() {
+	showAllMarkedWords(showMarkedWordsCheckBox->isChecked());
+}

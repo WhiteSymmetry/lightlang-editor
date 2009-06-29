@@ -15,6 +15,7 @@ class InfoButton;
 class PopupWindow;
 class QListWidgetItem;
 class QCheckBox;
+class QComboBox;
 
 class SearchPanel : public QWidget
 {
@@ -37,6 +38,7 @@ class SearchPanel : public QWidget
 		void search();
 		void emitSignalToEditTheWord(QListWidgetItem *item);
 		void showAllMarkedWords(bool show);
+		void updateList();
 	private:
 		QTimer *timer;
 		bool rollingToShow;
@@ -55,6 +57,10 @@ class SearchPanel : public QWidget
 		QListWidget *listWidget;
 		QSpinBox *limitSpinBox;
 		QCheckBox *showMarkedWordsCheckBox;
+		QCheckBox *showAllWordsCheckBox;
+		
+		InfoButton *sortInfoButton;
+		QComboBox *sortComboBox;
 		
 		PopupWindow *popupWindow;
 		InfoButton *infoButton;

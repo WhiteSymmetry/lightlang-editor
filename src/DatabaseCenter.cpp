@@ -169,7 +169,10 @@ int DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const QS
 
 QStringList DatabaseCenter::getWordsStartsWith(const QString& preString,int limit) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("SELECT word FROM main WHERE word LIKE \'%1%\' LIMIT 0,%2").arg(preString).arg(limit));
+	if (limit != 0)
+		query.exec(QString("SELECT word FROM main WHERE word LIKE \'%1%\' LIMIT 0,%2").arg(preString).arg(limit));
+	else
+		query.exec(QString("SELECT word FROM main WHERE word LIKE \'%1%\'").arg(preString));
 	QStringList list;
 	while (query.next())
 		list << query.record().value(0).toString();
