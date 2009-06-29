@@ -435,17 +435,20 @@ void MainWindow::createDirs() {
 		dir.mkpath(homePath);
 	
 #ifdef Q_OS_UNIX
-	QFile scriptFile(QDir::homePath() + "/.LilEditorData/addtoslscript");
+	QFile scriptFile(QDir::homePath() + "/.LilEditorData/addtosl");
 	if (!scriptFile.exists()) {
 		scriptFile.open(QIODevice::WriteOnly);
 		QTextStream stream(&scriptFile);
-		stream << "#!/bin/bash\nsl --print-index dict > dict1\ncat dict >> dict1\n"
-				"sl --print-index dict1 > dict2\ncat dict >> dict2\n"
-				"rm -f dict dict1\nPREFIX=\"pkg-config lightlang --variable=prefix\"\n"
-				"mv dict2 $PREFIX/share/sl/dicts";
+		stream << "#!/bin/bash\n\ncd \"" << homePath << "ForIndex\" \nsl --print-index \"$1\" > dict1\ncat \"$1\" >> dict1\nsl --print-index dict1 > dict2\ncat \"$1\" >> dict2\nrm -f \"$1\" dict1\nPREFIX=`pkg-config lightlang --variable=prefix`\n\nif [ -e \"$PREFIX/share/sl/dicts/$1\" ]\nthen\n\tsl --disconnect \"$1\";\n\trm \"$PREFIX/share/sl/dicts/$1\";\n\techo \"Dictionary $1 removed\";\nfi\nmv dict2 \"$PREFIX/share/sl/dicts/$1\"\nsl --connect \"$1\"";
+
 		scriptFile.setPermissions(QFile::ExeOther | QFile::ExeUser | QFile::ExeOwner | QFile::ReadOwner 
 								| QFile::ReadUser | QFile::ReadGroup | QFile::ReadOther | QFile::ExeGroup);
 	}
+	
+
+	indexPath = QDir::toNativeSeparators(homePath + "ForIndex/");
+	if (!dir.exists(indexPath))
+		dir.mkpath(indexPath);
 #endif	
 
 	databasesPath = QDir::toNativeSeparators(homePath + "Databases/");
@@ -648,10 +651,15 @@ void MainWindow::addDictionaryToSl() {
 #endif
 
 #ifdef Q_OS_UNIX
-	QDir currentDir = QDir::current();
-	currentDir.cdUp();
-	saveDictionaryFileAs(currentDir.path() + "/dict");
-	QProcess::startDetached(currentDir.path() + "/addtoslscript");
+	// Check LightLang
+	if (QString(LIGHTLANG_PREFIX).isEmpty() || !QDir(LIGHTLANG_PREFIX"/lib/xsl").exists()) {
+		QMessageBox::warning(this,tr("Notification"),tr("LightLang Editor can't define LightLang emplacement. Install LightLang and reinstall LightLang Editor,please."));
+		return;
+	}
+	
+	saveDictionaryFileAs(indexPath + openedDictionaryName);
+	QProcess::startDetached(homePath + "addtosl " + openedDictionaryName);
+	showStatusMessage(tr("The dictionary %1 was added to SL database").arg(openedDictionaryName));
 #endif
 }
 

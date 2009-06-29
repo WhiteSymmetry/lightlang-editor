@@ -11,7 +11,7 @@ echo "!       Thank you for LightLang Editor installation       !"
 echo "!---------------------------------------------------------!"
 
 prefix="/usr"
-qt4_test_dir="Qt4Test/"
+qt4_test_dir="tests/qt4/"
 
 usage() {
 	echo ""
@@ -162,7 +162,7 @@ test_output=`cat configure.log`
 ${make_cmd} clean > /dev/null
 rm -f Makefile
 rm -f qt4test
-cd ../
+cd ../../
 
 if [ -z "${test_output}" ]; then
 	echo "passed."

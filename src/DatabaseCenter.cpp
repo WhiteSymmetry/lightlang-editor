@@ -158,8 +158,10 @@ int DatabaseCenter::saveCurrentDatabaseAs(const QString& dictionaryPath,const QS
 	if (!aboutDictionaryText.isEmpty())
 		stream << '#' << aboutDictionaryText << '\n';
 	query.exec("SELECT * FROM main");
-	while (query.next())
-		stream << query.record().value(0).toString().simplified() << "  " << query.record().value(1).toString().simplified() << '\n';
+	while (query.next()) {
+		if (!query.record().value(1).toString().simplified().isEmpty())
+			stream << query.record().value(0).toString().simplified() << "  " << query.record().value(1).toString().simplified() << '\n';
+	}
 	file.close();
 	
 	return 0;

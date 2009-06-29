@@ -112,6 +112,7 @@ class MainWindow : public QMainWindow
 		QString homePath;
 		QString databasesPath;
 		QString controlPath;
+		QString indexPath;
 	protected:
 		void moveEvent(QMoveEvent *event);
 		void closeEvent(QCloseEvent *event);
