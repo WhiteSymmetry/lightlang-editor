@@ -43,7 +43,7 @@ for arg in ${@}; do
 
 	--clean)
 		clean_all
-		rm -f configure.log
+		rm -f configure.log tests/qt4/configure.log
 		exit 0
 		;;
 	
@@ -61,7 +61,7 @@ for arg in ${@}; do
 done
 
 clean_all
-rm -f configure.log
+rm -f configure.log tests/qt4/configure.log
 
 if [ -n "${arg_prefix}" ]; then
 	prefix="${arg_prefix}"
@@ -258,7 +258,7 @@ SOURCES += src/main.cpp \
 	
 RESOURCES += lileditor.qrc
 
-QMAKE_CLEAN += Makefile $$TARGET configure.log lileditor.pro src/const.h Qt4Test/configure.log
+QMAKE_CLEAN += Makefile $$TARGET configure.log lileditor.pro src/const.h tests/qt4/configure.log
 
 unix {
 		LIGHTLANG_PREFIX = $$system(pkg-config lightlang --variable=prefix)
