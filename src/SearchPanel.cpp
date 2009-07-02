@@ -67,9 +67,14 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	
 	showMarkedWordsCheckBox = new QCheckBox(tr("Show all marked words"));
 	connect(showMarkedWordsCheckBox,SIGNAL(toggled(bool)),this,SLOT(showAllMarkedWords(bool)));
+	showMarkedWordsCheckBox->setFocusPolicy(Qt::ClickFocus);
 	
 	showAllWordsCheckBox = new QCheckBox(tr("all words"));
 	connect(showAllWordsCheckBox,SIGNAL(toggled(bool)),this,SLOT(updateList()));
+	
+	showAllDictsWordsCheckBox = new QCheckBox(tr("Show all added words"));
+	showAllDictsWordsCheckBox->setFocusPolicy(Qt::ClickFocus);
+	connect(showAllDictsWordsCheckBox,SIGNAL(toggled(bool)),this,SLOT(updateList()));
 	
 	popupWindow = new PopupWindow;
 	
@@ -119,6 +124,7 @@ SearchPanel::SearchPanel(DatabaseCenter *dbCenter) {
 	mainLayout->addLayout(titleLayout);
 	mainLayout->addLayout(lineEditLayout);
 	mainLayout->addWidget(showMarkedWordsCheckBox);
+	mainLayout->addWidget(showAllDictsWordsCheckBox);
 	mainLayout->addWidget(warningLabel);
 	mainLayout->addWidget(listWidget,1);
 	mainLayout->addLayout(sortLayout);
@@ -139,6 +145,7 @@ SearchPanel::~SearchPanel() {
 	delete limitSpinBox;
 	delete sortComboBox;
 	delete sortInfoButton;
+	delete showAllDictsWordsCheckBox;
 	delete showAllWordsCheckBox;
 	delete lineEdit;
 	delete listWidget;
@@ -195,23 +202,35 @@ void SearchPanel::keyPressEvent(QKeyEvent *event) {
 }
 
 void SearchPanel::search() {
-	if (!lineEdit->text().isEmpty()) {
+	showMarkedWordsCheckBox->setEnabled(!showAllDictsWordsCheckBox->isChecked());
+	
+	if (showAllDictsWordsCheckBox->isChecked()) {
+		limitSpinBox->setEnabled(false);
+		showAllWordsCheckBox->setEnabled(false);
 		listWidget->clear();
-		limitSpinBox->setEnabled(!showAllWordsCheckBox->isChecked());
-		if (showAllWordsCheckBox->isChecked()) {
-			foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),0))
-				listWidget->addItem(word);
-		} else {
-			foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
-				listWidget->addItem(word);
-		}
+		foreach (QString word,databaseCenter->getWordsStartsWith("",0))
+			listWidget->addItem(word);
 		warningLabel->setVisible(listWidget->count() == 0);
-		
-		if (sortComboBox->currentIndex() == 1)
-			listWidget->sortItems();
-		else if (sortComboBox->currentIndex() == 2)
-			listWidget->sortItems(Qt::DescendingOrder);
+	} else {
+		limitSpinBox->setEnabled(!showAllWordsCheckBox->isChecked());
+		if (!lineEdit->text().isEmpty()) {
+			listWidget->clear();
+			if (showAllWordsCheckBox->isChecked()) {
+				foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),0))
+					listWidget->addItem(word);
+			} else {
+				foreach (QString word,databaseCenter->getWordsStartsWith(lineEdit->text(),limitSpinBox->value()))
+					listWidget->addItem(word);
+			}
+			warningLabel->setVisible(listWidget->count() == 0);
+			
+		}
 	}
+	
+	if (sortComboBox->currentIndex() == 1)
+		listWidget->sortItems();
+	else if (sortComboBox->currentIndex() == 2)
+		listWidget->sortItems(Qt::DescendingOrder);
 }
 
 void SearchPanel::textChanged(const QString& text) {
@@ -242,6 +261,7 @@ void SearchPanel::showAllMarkedWords(bool show) {
 	searchButton->setEnabled(!show);
 	clearLineButton->setEnabled(!show);
 	showAllWordsCheckBox->setEnabled(!show);
+	showAllDictsWordsCheckBox->setEnabled(!show);
 	if (show) {
 		foreach (QString word,databaseCenter->getAllMarkedWords()) {
 			QListWidgetItem *markedItem = new QListWidgetItem(QIcon(":/icons/mark.png"),word);

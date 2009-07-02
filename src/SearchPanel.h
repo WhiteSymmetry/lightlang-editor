@@ -58,6 +58,7 @@ class SearchPanel : public QWidget
 		QSpinBox *limitSpinBox;
 		QCheckBox *showMarkedWordsCheckBox;
 		QCheckBox *showAllWordsCheckBox;
+		QCheckBox *showAllDictsWordsCheckBox;
 		
 		InfoButton *sortInfoButton;
 		QComboBox *sortComboBox;
