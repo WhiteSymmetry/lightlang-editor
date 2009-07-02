@@ -36,11 +36,21 @@ Manual::Manual(QWidget *parent) : QDialog(parent) {
 	setWindowIcon(QIcon(":/icons/manual.png"));
 	setWindowTitle(tr("Documentation"));
 	
+	
+#ifdef Q_OS_UNIX
+	// If documentation with user language doesn't exist - show english
+	if (!QDir(PREFIX"/share/doc/lileditor/" + language).exists())
+		language = "en";
+	
+	QString documenationPath = PREFIX"/share/doc/lileditor/" + language + "/html/"; 
+#endif
+#ifdef Q_OS_WIN32
 	// If documentation with user language doesn't exist - show english
 	if (!QDir(QDir::toNativeSeparators(QDir::currentPath() + "/doc/" + language)).exists())
 		language = "en";
 	
 	QString documenationPath = QDir::toNativeSeparators(QDir::currentPath() + "/doc/" + language + "/html/");
+#endif
 	
 	contentComboBox->addItem(tr("About the program"),documenationPath + "about.html");
 	contentComboBox->addItem(tr("Tags and dictionary's format"),documenationPath + "tags.html");

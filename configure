@@ -182,6 +182,7 @@ echo '#ifndef CONST_H
 #define ORGANIZATION "Vialinx"
 #define PROGRAM_NAME "LightLang Editor"
 #define LIGHTLANG_PREFIX "'${lightlang_prefix}'"
+#define PREFIX "'${prefix}'"
 
 #endif
 ' > src/const.h
@@ -265,6 +266,9 @@ unix {
 		INSTALL_PREFIX=/usr
 		target.path = $$INSTALL_PREFIX/bin/
 		
+		doc.files += doc/*
+		doc.path = $$INSTALL_PREFIX/share/doc/lileditor/
+		
 		main_icon.files += icons/lle.png
 		main_icon.path = $$INSTALL_PREFIX/share/icons/
 
@@ -278,6 +282,7 @@ unix {
 		INSTALLS += main_icon
 		INSTALLS += main_desktop
 		INSTALLS += xsl_ifa
+		INSTALLS += doc
 }
 ' > lileditor.pro
 
