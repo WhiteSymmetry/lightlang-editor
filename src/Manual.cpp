@@ -18,6 +18,8 @@ Manual::Manual(QWidget *parent) : QDialog(parent) {
 	titleLabel = new QLabel;
 	
 	textBrowser = new QTextBrowser;
+	connect(textBrowser,SIGNAL(sourceChanged(const QUrl&)),this,SLOT(changeComboBoxItemOn(const QUrl&)));
+	
 	contentComboBox = new QComboBox;
 	
 	QHBoxLayout *topLayout = new QHBoxLayout;
@@ -89,5 +91,16 @@ void Manual::loadSettings() {
 void Manual::showContentNumber(int index) {
 	textBrowser->setSource(QUrl(contentComboBox->itemData(index).toString()));
 	titleLabel->setText("<b><font size='4'>" + contentComboBox->itemText(index) + "</font></b>");
+}
+
+void Manual::changeComboBoxItemOn(const QUrl& src) {
+	for (int i = 0; i < contentComboBox->count(); i++)
+		if (contentComboBox->itemData(i).toString() == src.path()) {
+			contentComboBox->blockSignals(true);
+			contentComboBox->setCurrentIndex(i);
+			titleLabel->setText("<b><font size='4'>" + contentComboBox->itemText(i) + "</font></b>");
+			contentComboBox->blockSignals(false);
+			break;
+		}
 }
 

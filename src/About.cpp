@@ -12,7 +12,7 @@ About::About(QWidget *parent) : QDialog(parent) {
 	textLabel = new QLabel;
 	textLabel->setWordWrap(true);
 	
-	textLabel->setText("<center><h3>" + tr("LightLang Editor") + "</h3></center>"
+	textLabel->setText("<center><h3>" + tr("LightLang Editor") + " v1.0</h3></center>"
 					+ "<b>" + tr("Developers") + ":</b> <br>"
 						+ "&nbsp;&nbsp;&nbsp;&nbsp;<i>Tikhonov Sergey</i><br>"
 					+ "<b>" + tr("Assistans") + ":</b> <br>"

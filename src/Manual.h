@@ -2,6 +2,7 @@
 #define MANUAL_H
 
 #include <QtGui/QDialog>
+#include <QtCore/QUrl>
 
 class QComboBox;
 class QTextBrowser;
@@ -18,6 +19,7 @@ class Manual : public QDialog
 		void loadSettings();
 	private slots:
 		void showContentNumber(int index);
+		void changeComboBoxItemOn(const QUrl& src);
 	private:
 		QString language;
 		
