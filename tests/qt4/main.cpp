@@ -1,7 +1,6 @@
 #include <QtCore>
 #include <QtGui>
-#include <QtXml>
-#include <QDBusConnection>
+#include <QtSql>
 
 int main(){
 	QWidget w;
