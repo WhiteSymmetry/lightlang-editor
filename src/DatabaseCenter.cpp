@@ -47,13 +47,16 @@ bool DatabaseCenter::setDatabaseName(const QString& databaseName) {
 	
 	if (!createConnection(databaseName))
 		return false;
-	
+
+	QSqlQuery *query = new QSqlQuery(QSqlDatabase::database(currentConnectionName));
+
+	databasesWithQueries[databaseName] = query;
+
 	currentConnectionName = databaseName;
-	
-	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec("CREATE TABLE IF NOT EXISTS main(`word` TEXT NOT NULL,`translation` TEXT NOT NULL,`mark` INTEGER(1) NOT NULL, UNIQUE (`word`))");
-	if (!query.isActive())
-		qDebug() << "[DatabaseCenter] Cannot create table, because: " << query.lastError().text();
+
+	query->exec("CREATE TABLE IF NOT EXISTS main(`word` TEXT NOT NULL,`translation` TEXT NOT NULL,`mark` INTEGER(1) NOT NULL, UNIQUE (`word`))");
+	if (!query->isActive())
+		qDebug() << "[DatabaseCenter] Cannot create table, because: " << query->lastError().text();
 	emit (databaseNameChanged(databaseName));
 	return true;
 }
@@ -78,16 +81,16 @@ bool DatabaseCenter::setTranslationForWord(const QString& word,const QString& tr
 }
 
 bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) {
-	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
+	QSqlQuery *query = databasesWithQueries[currentConnectionName];
 	
-	query.prepare("INSERT INTO main(word,translation,mark) VALUES(:word,:translation,:mark)");
-	query.bindValue(":word",word.simplified().toLower());
-	query.bindValue(":translation",translation.simplified());
-	query.bindValue(":mark","0");
-	query.exec();
-	if (!query.isActive())
-		qDebug() << "[DatabaseCenter] Add new word" << word << " with error:" << query.lastError().text();
-	return query.isActive();
+	query->prepare("INSERT INTO main(word,translation,mark) VALUES(:word,:translation,:mark)");
+	query->bindValue(":word",word.simplified().toLower());
+	query->bindValue(":translation",translation.simplified());
+	query->bindValue(":mark","0");
+	query->exec();
+	if (!query->isActive())
+		qDebug() << "[DatabaseCenter] Add new word" << word << " with error:" << query->lastError().text();
+	return query->isActive();
 }
 
 bool DatabaseCenter::removeWord(const QString& word) {

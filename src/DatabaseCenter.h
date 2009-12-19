@@ -2,6 +2,9 @@
 #define DATABASECENTER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QMap>
+
+class QSqlQuery;
 
 struct WordWithTrans
 {
@@ -47,6 +50,8 @@ class DatabaseCenter : public QObject
 		QString currentConnectionName;
 		QString previousConnectionName;
 		QString databasesPath;
+
+		QMap<QString,QSqlQuery *> databasesWithQueries;
 };
 
 #endif
