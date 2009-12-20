@@ -84,6 +84,7 @@ bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) 
 	QSqlQuery *query = databasesWithQueries[currentConnectionName];
 	
 	query->prepare("INSERT INTO main(word,translation,mark) VALUES(:word,:translation,:mark)");
+	// TODO: Выкинуть все simplified() из таких контекстов, как ниже
 	query->bindValue(":word",word.simplified().toLower());
 	query->bindValue(":translation",translation.simplified());
 	query->bindValue(":mark","0");
