@@ -72,7 +72,7 @@ void LoadDictionaryThread::run() {
 			currentDictionaryInformationString += tempString.remove(0,1) + '\n';
 			continue;
 		}
-		QStringList list = tempString.split("  ");
+		/*QStringList list = tempString.split("  ");
 		if (list.count() >= 2) {
 			QString word = list[0];
 			QString translation;
@@ -80,7 +80,11 @@ void LoadDictionaryThread::run() {
 				translation += list[i] + "  ";
 			if (!databaseCenter->addNewWord(word,translation))
 				qDebug() << translation;
-		}
+		}*/
+		int index = tempString.indexOf("  ");
+		if (index > -1)
+			if (!databaseCenter->addNewWord(tempString.left(index),tempString.right(index -1)))
+				qDebug() << tempString.right(index -1);
 	}
 	if (!canceled && !stopped)
 		emit (loadingFinished());
