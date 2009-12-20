@@ -60,34 +60,39 @@ QString LoadDictionaryThread::getDictionaryPath() const {
 }
 
 void LoadDictionaryThread::run() {
+	int rowsStepsCount = 0;
+
 	while (!currentStream->atEnd()) {
 		if (canceled || stopped)
 			break;
 		
-		QString tempString = currentStream->readLine().trimmed();
-		emit (rowChanged(++currentRow));
+		QString tempString = currentStream->readLine();
+
+		if (rowsStepsCount > 200) {
+			emit (rowChanged(currentRow));
+			rowsStepsCount = 0;
+		} else {
+			rowsStepsCount++;
+		}
+		currentRow++;
+
 		if (tempString.isEmpty())
 			continue;
-		if (tempString.startsWith("#")) {
+
+		if (tempString[0] == '#') {
 			currentDictionaryInformationString += tempString.remove(0,1) + '\n';
 			continue;
 		}
-		/*QStringList list = tempString.split("  ");
-		if (list.count() >= 2) {
-			QString word = list[0];
-			QString translation;
-			for (int i = 1; i < list.count(); i++)
-				translation += list[i] + "  ";
-			if (!databaseCenter->addNewWord(word,translation))
-				qDebug() << translation;
-		}*/
+
 		int index = tempString.indexOf("  ");
 		if (index > -1)
-			if (!databaseCenter->addNewWord(tempString.left(index),tempString.right(index -1)))
-				qDebug() << tempString.right(index -1);
+			if (!databaseCenter->addNewWord(tempString.left(index),tempString.right(tempString.length() - index).trimmed()))
+				qDebug() << "[LoadDictionaryThread] " << tempString.right(tempString.length() - index).trimmed();
 	}
-	if (!canceled && !stopped)
+	if (!canceled && !stopped) {
+		emit (rowChanged(currentRow));
 		emit (loadingFinished());
+	}
 }
 
 bool LoadDictionaryThread::isStopped() const {

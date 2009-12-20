@@ -20,7 +20,7 @@ class LoadDictionaryWidget : public BorderPanelWithWidget
 		void openLastLoadedDictionary();
 	public slots:
 		void setMaximum(int max);
-		void addValue();
+		void setValue(int value);
 		void showWithRolling();
 		void hideWithRolling();
 	public:

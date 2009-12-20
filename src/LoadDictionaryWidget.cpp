@@ -78,8 +78,8 @@ LoadDictionaryWidget::~LoadDictionaryWidget() {
 	delete textLabel;
 	delete progressBar;
 }
-void LoadDictionaryWidget::addValue() {
-	progressBar->setValue(progressBar->value() + 1);
+void LoadDictionaryWidget::setValue(int value) {
+	progressBar->setValue(value);
 }
 
 void LoadDictionaryWidget::setMaximum(int max) {
