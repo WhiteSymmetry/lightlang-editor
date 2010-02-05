@@ -17,7 +17,7 @@ class LoadDictionaryThread : public QThread
 		void rowChanged(int row);
 	public slots:
 		void continueLoading();
-		bool startLoading(const QString& dictionaryPath);
+		bool startLoading(const QString& dictionaryPath,int startLoadingFromRow);
 		void cancelLoading();
 		void stopLoading();
 		void restartLoading();
@@ -27,6 +27,7 @@ class LoadDictionaryThread : public QThread
 	
 		bool isCanceled() const;
 		bool isStopped() const;
+		int getCurrentRow() const;
 	
 		QString getDictionaryInformation() const;
 		QString getDictionaryPath() const;
@@ -48,6 +49,7 @@ class LoadDictionaryThread : public QThread
 	
 		int rows;
 		int currentRow;
+		int startLoadingFromRowNumber;
 };
 
 

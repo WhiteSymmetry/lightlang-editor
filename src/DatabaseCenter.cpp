@@ -48,7 +48,7 @@ bool DatabaseCenter::setDatabaseName(const QString& databaseName) {
 	if (!createConnection(databaseName))
 		return false;
 
-	QSqlQuery *query = new QSqlQuery(QSqlDatabase::database(currentConnectionName));
+	QSqlQuery *query = new QSqlQuery(QSqlDatabase::database(databaseName));
 
 	databasesWithQueries[databaseName] = query;
 
@@ -74,7 +74,7 @@ QString DatabaseCenter::getTranslationForWord(const QString& word) {
 
 bool DatabaseCenter::setTranslationForWord(const QString& word,const QString& translation) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("UPDATE `main` SET `translation` = \"%2\"  WHERE `word` = \"%1\"").arg(word.toLower()).arg(translation));
+	query.exec(QString("UPDATE `main` SET `translation` = \"%2\"  WHERE `word` = \"%1\"").arg(word).arg(translation));
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Set translation for" << word << " with error:" << query.lastError().text();
 	return query.isActive();
@@ -84,9 +84,9 @@ bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) 
 	QSqlQuery *query = databasesWithQueries[currentConnectionName];
 	
 	query->prepare("INSERT INTO main(word,translation,mark) VALUES(:word,:translation,:mark)");
-	// TODO: Выкинуть все simplified() из таких контекстов, как ниже
-	query->bindValue(":word",word.simplified().toLower());
-	query->bindValue(":translation",translation.simplified());
+	// TODO: Выкинуть все simplified() из таких контекстов, как нижe
+	query->bindValue(":word",word.trimmed());
+	query->bindValue(":translation",translation.trimmed());
 	query->bindValue(":mark","0");
 	query->exec();
 	if (!query->isActive())
@@ -96,7 +96,7 @@ bool DatabaseCenter::addNewWord(const QString& word,const QString& translation) 
 
 bool DatabaseCenter::removeWord(const QString& word) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("DELETE FROM `main` WHERE word = \"%1\"").arg(word.toLower()));
+	query.exec(QString("DELETE FROM `main` WHERE word = \"%1\"").arg(word));
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Delete word" << word << " with error:" << query.lastError().text();
 	return query.isActive();
@@ -105,9 +105,9 @@ bool DatabaseCenter::removeWord(const QString& word) {
 bool DatabaseCenter::markWord(const QString& word,bool mark) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
 	if (mark)
-		query.exec(QString("UPDATE `main` SET `mark` = '1'  WHERE `word` = \"%1\"").arg(word.toLower()));
+		query.exec(QString("UPDATE `main` SET `mark` = '1'  WHERE `word` = \"%1\"").arg(word));
 	else
-		query.exec(QString("UPDATE `main` SET `mark` = '0'  WHERE `word` = \"%1\"").arg(word.toLower()));
+		query.exec(QString("UPDATE `main` SET `mark` = '0'  WHERE `word` = \"%1\"").arg(word));
 	if (!query.isActive())
 		qDebug() << "[DatabaseCenter] Word" << word << " marked with error:" << query.lastError().text();
 	return query.isActive();
@@ -142,7 +142,7 @@ bool DatabaseCenter::doesDictionaryExist(const QString& pathToDict) {
 
 bool DatabaseCenter::isWordMarked(const QString& word) {
 	QSqlQuery query(QSqlDatabase::database(currentConnectionName));
-	query.exec(QString("SELECT mark FROM main WHERE word=\'%1\'").arg(word.toLower()));
+	query.exec(QString("SELECT mark FROM main WHERE word=\'%1\'").arg(word));
 	query.next();
 	return query.record().value(0).toBool();
 }

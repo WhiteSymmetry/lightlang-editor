@@ -48,7 +48,7 @@ class CentralWidget : public QWidget
 	
 		void setStartPageText(const QString& text);
 		void setExistingDictionaries(const QStringList& list);
-		void loadDictionary(const QString& dictPath);
+		void loadDictionary(const QString& dictPath,int startLoadingFromRow = 0);
 		QString getLoadedDictionaryInformation() const;
 	
 		void setEditorMenu(Menu *menu);

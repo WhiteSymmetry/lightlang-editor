@@ -12,6 +12,7 @@ LoadDictionaryThread::LoadDictionaryThread() {
 	canceled = false;
 	currentFile = new QFile;
 	currentStream = new QTextStream(currentFile);
+	startLoadingFromRowNumber = 0;
 	
 	rows = 0;
 	currentRow = 0;
@@ -62,6 +63,12 @@ QString LoadDictionaryThread::getDictionaryPath() const {
 void LoadDictionaryThread::run() {
 	int rowsStepsCount = 0;
 
+	int count = 0;
+	while (!currentStream->atEnd() && startLoadingFromRowNumber > count) {
+	    currentStream->readLine();
+	    count++;
+	}
+
 	while (!currentStream->atEnd()) {
 		if (canceled || stopped)
 			break;
@@ -93,6 +100,7 @@ void LoadDictionaryThread::run() {
 		emit (rowChanged(currentRow));
 		emit (loadingFinished());
 	}
+	startLoadingFromRowNumber = 0;
 }
 
 bool LoadDictionaryThread::isStopped() const {
@@ -103,10 +111,15 @@ bool LoadDictionaryThread::isCanceled() const {
 	return canceled;
 }
 
-bool LoadDictionaryThread::startLoading(const QString& dictionaryPath) {
+int LoadDictionaryThread::getCurrentRow() const {
+    return currentRow;
+}
+
+bool LoadDictionaryThread::startLoading(const QString& dictionaryPath,int startLoadingFromRow) {
 	if (!setDictionaryPath(dictionaryPath))
 		return false;
 	currentDictionaryInformationString.clear();
+	startLoadingFromRowNumber = startLoadingFromRow;
 	continueLoading();
 	return true;
 }
@@ -120,7 +133,7 @@ void LoadDictionaryThread::stopLoading() {
 }
 
 void LoadDictionaryThread::restartLoading() {
-	startLoading(currentFile->fileName());
+	startLoading(currentFile->fileName(),0);
 }
 
 void LoadDictionaryThread::continueLoading() {

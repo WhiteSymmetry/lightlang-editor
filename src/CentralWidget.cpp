@@ -248,7 +248,7 @@ void CentralWidget::setExistingDictionaries(const QStringList& list) {
 	existingDictionaries = list;
 }
 
-void CentralWidget::loadDictionary(const QString& dictPath) {
+void CentralWidget::loadDictionary(const QString& dictPath,int startLoadingFromRow) {
 	if (existingDictionaries.contains(QFileInfo(dictPath).fileName())) {
 		setCurrentDatabase(QFileInfo(dictPath).fileName());
 		showTabsWidget();
@@ -279,7 +279,7 @@ void CentralWidget::loadDictionary(const QString& dictPath) {
 	currentLoadingDictInformation.clear();
 	loadDictionaryWidget->reset();
 	loadDictionaryWidget->showWithRolling();
-	if (loadDictionaryThread->startLoading(dictPath)) {
+	if (loadDictionaryThread->startLoading(dictPath,startLoadingFromRow)) {
 		currentLoadingDictName = QFileInfo(dictPath).fileName();
 		loadDictionaryThread->start();
 	} else {
@@ -318,13 +318,14 @@ void CentralWidget::loadSettings() {
 	settingsWidget->loadSettings();
 	
 	QSettings settings(ORGANIZATION,PROGRAM_NAME);
-	QString lastLoadedDictionary = settings.value("CentralWidget/LastLoadedDictionary").toString();
+	QString lastLoadedDictionary = settings.value("CentralWidget/LastLoadedDictionary","").toString();
+	int lastLoadedDictionaryWordRow = settings.value("CentralWidget/LastLoadedDictionaryWordRow",0).toInt();
 	if (!lastLoadedDictionary.isEmpty()) {
 		continueLoadingOfLastLoadedOrNotDialog->setText("<b>" + tr("Dictionary was loading at last quit...") + "</b><br>" + tr("When you quitted last time, the dictionary \'%1\' was loading. You can continue loading now or ignore it.").arg(QFileInfo(lastLoadedDictionary).fileName()));
 		continueLoadingOfLastLoadedOrNotDialog->exec();
 		if (continueLoadingOfLastLoadedOrNotDialog->clickedButton() == continueLoadingLastLoadedButton) {
 			continueLoadingOfLastLoadedDictionary = true;
-			loadDictionary(lastLoadedDictionary);
+			loadDictionary(lastLoadedDictionary,lastLoadedDictionaryWordRow);
 		}
 	}
 }
@@ -339,10 +340,14 @@ bool CentralWidget::saveSettings() {
 		if (closeOrNoIfLoadingDialog->clickedButton() == continueIfLoadingButton)
 			return false;
 		loadDictionaryThread->stopLoading();
+		settings.setValue("CentralWidget/LastLoadedDictionaryWordRow",loadDictionaryThread->getCurrentRow());
 	} else if (loadDictionaryThread->isStopped()) {
 		settings.setValue("CentralWidget/LastLoadedDictionary",loadDictionaryThread->getDictionaryPath());
-	} else
+		settings.setValue("CentralWidget/LastLoadedDictionaryWordRow",loadDictionaryThread->getCurrentRow());
+	   } else {
 		settings.setValue("CentralWidget/LastLoadedDictionary","");
+		settings.setValue("CentralWidget/LastLoadedDictionaryWordRow",0);
+	   }
 	return true;
 }
 

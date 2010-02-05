@@ -174,8 +174,9 @@ void TabWidget::textChanged(const QString&) {
 void TabWidget::updateTranslation() {
 	timer->stop();
 	if (!lineEdit->text().isEmpty()) {
-		QString translation = databaseCenter->getTranslationForWord(lineEdit->text().toLower());
+		QString translation = databaseCenter->getTranslationForWord(lineEdit->text());
 		bool wasFocus = textEdit->hasFocus();
+		translation = translation.simplified();
 		if (!translation.isEmpty()) {
 			// Format blocks into indents
 			translation.replace("\\{","\n\\{\n\t");
@@ -195,14 +196,14 @@ void TabWidget::resetButtonsAccessibility() {
 	markButton->blockSignals(true);
 	markButton->setChecked(false);
 	if (!lineEdit->text().isEmpty()) {
-		bool wordInDatabase = databaseCenter->isThereWordInDatabase(lineEdit->text().toLower());
+		bool wordInDatabase = databaseCenter->isThereWordInDatabase(lineEdit->text());
 		addWordToolButton->setEnabled(!wordInDatabase);
 		editWordToolButton->setEnabled(wordInDatabase);
 		removeWordToolButton->setEnabled(wordInDatabase);
 		notifLabel->setVisible(!wordInDatabase);
 		markButton->setEnabled(wordInDatabase);
 		if (wordInDatabase)
-			markButton->setChecked(databaseCenter->isWordMarked(lineEdit->text().toLower()));
+			markButton->setChecked(databaseCenter->isWordMarked(lineEdit->text()));
 		updateTranslationButton->setEnabled(true);
 	} else {
 		addWordToolButton->setEnabled(false);
@@ -216,7 +217,7 @@ void TabWidget::resetButtonsAccessibility() {
 }
 
 void TabWidget::addWord() {
-	QString word = lineEdit->text().toLower();
+	QString word = lineEdit->text();
 	QString translation = textEdit->toPlainText().trimmed();
 	if (databaseCenter->addNewWord(word,translation)) {
 		emit(showStatusMessage(tr("You have added the new word \"%1\"").arg(word)));
@@ -227,7 +228,7 @@ void TabWidget::addWord() {
 }
 
 void TabWidget::editWord() {
-	QString word = lineEdit->text().toLower();
+	QString word = lineEdit->text();
 	QString translation = textEdit->toPlainText().trimmed();
 	if (!translation.isEmpty()) {
 		if (databaseCenter->setTranslationForWord(word,translation))
@@ -238,7 +239,7 @@ void TabWidget::editWord() {
 }
 
 void TabWidget::removeWord() {
-	if (databaseCenter->removeWord(lineEdit->text().toLower()))
+	if (databaseCenter->removeWord(lineEdit->text()))
 		emit(showStatusMessage(tr("You have removed the word \"%1\"").arg(lineEdit->text())));
 	else
 		emit(showStatusMessage(tr("Cannot remove the word \"%1\"").arg(lineEdit->text())));
@@ -247,12 +248,12 @@ void TabWidget::removeWord() {
 
 void TabWidget::markWord(bool mark) {
 	if (mark) {
-		if (databaseCenter->markWord(lineEdit->text().toLower(),mark))
+		if (databaseCenter->markWord(lineEdit->text(),mark))
 			emit(showStatusMessage(tr("The word \"%1\" was marked").arg(lineEdit->text())));
 		else
 			emit(showStatusMessage(tr("Cannot mark the word \"%1\"").arg(lineEdit->text())));
 	} else {
-		if (databaseCenter->markWord(lineEdit->text().toLower(),mark))
+		if (databaseCenter->markWord(lineEdit->text(),mark))
 			emit(showStatusMessage(tr("The word \"%1\" was unmarked").arg(lineEdit->text())));
 		else
 			emit(showStatusMessage(tr("Cannot unmark the word \"%1\"").arg(lineEdit->text())));

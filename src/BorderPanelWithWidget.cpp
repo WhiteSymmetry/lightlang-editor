@@ -60,6 +60,7 @@ void BorderPanelWithWidget::setOrientation(Orientation orientation) {
 		hideButton->setMaximumHeight(20);
 		hideButton->setMaximumWidth(QWIDGETSIZE_MAX);
 		hideButton->setIcon(QIcon(":/icons/down.png"));
+		hideButton->setText(tr("Hide progress bar"));
 	}
 	
 	mainLayout->addWidget(hideButton);	
@@ -82,8 +83,13 @@ void BorderPanelWithWidget::updateHideButtonIcon() {
 	
 	if (currentOrientation == Vertical)
 		hideButton->setIcon(QIcon(widget->maximumHeight() != 0 ? ":/icons/left.png" : ":/icons/right.png"));
-	else
+	else {
 		hideButton->setIcon(QIcon(widget->maximumHeight() != 0 ? ":/icons/down.png" : ":/icons/up.png"));
+		if (widget->maximumHeight() != 0)
+		    hideButton->setText(tr("Hide progress bar"));
+		else
+		    hideButton->setText(tr("Show progress bar"));
+	}
 }
 
 void BorderPanelWithWidget::updateWidgetSize() {
